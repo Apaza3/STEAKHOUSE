@@ -19,8 +19,8 @@ from django.urls import path, include  # <-- ASEGÚRATE DE AÑADIR "include"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     # Esta línea le dice a Django:
-    # "Para cualquier URL que no sea /admin/, 
-    # ve a buscar las reglas en 'core.urls'"
+    # "Para cualquier URL, ve a buscar las reglas en 'core.urls'"
     path('', include('core.urls')),  # <-- AÑADE ESTA LÍNEA
 ]

@@ -1,5 +1,6 @@
-from django.http import HttpResponse
+# ESTE ES EL CÓDIGO NUEVO (CORRECTO)
+from django.shortcuts import render
 
-# Esta es tu vista de "Hola Mundo"
 def home(request):
-    return HttpResponse("<h1>¡Hola Mundo! Esta es la página de inicio.</h1>")
+    # Esta línea le dice a Django que use tu nueva plantilla
+    return render(request, 'inicio.html', {})

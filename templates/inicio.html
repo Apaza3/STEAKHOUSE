@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<header class="text-center mb-5">
+    <h1 class="display-4 text-uppercase fw-bold" style="color: #4a2c2a;">
+        The Steakhouse
+    </h1>
+    <p class="lead" style="font-size: 1.5rem; color: #6d4c41;">
+        Auténtica Cocina a la Parrilla - Estilo Viejo Oeste
+    </p>
+    <img src="https://via.placeholder.com/1200x400?text=Imagen+del+Restaurante+Viejo+Oeste" class="img-fluid rounded shadow" alt="Restaurante">
+</header>
+
+<section class="row align-items-center mb-5">
+    <div class="col-md-6">
+        <h2>Bienvenidos al Saloon</h2>
+        <p>
+            [cite_start]Inspirado en la tradición y el sabor de la parrilla americana, The Steakhouse (fundado por la EMI) ofrece una experiencia gastronómica única en La Paz[cite: 51]. Nos especializamos en cortes de carne premium, hamburguesas y un ambiente que te transportará al viejo oeste.
+        </p>
+        <p>
+            [cite_start]Actualmente, nuestro sistema de reservas se maneja por WhatsApp, pero estamos construyendo esta plataforma para darte un servicio más moderno y confiable[cite: 38, 73].
+        </p>
+        <a href="#" class="btn btn-dark btn-lg" style="background-color: #4a2c2a; border-color: #4a2c2a;">Haz tu Reserva</a>
+    </div>
+    <div class="col-md-6">
+        <img src="https://via.placeholder.com/500x350?text=Interior+del+Restaurante" class="img-fluid rounded shadow" alt="Interior">
+    </div>
+</section>
+
+<section class="text-center">
+    <h2>Platos Estrella</h2>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <img src="https://via.placeholder.com/400x300?text=Jack+Daniel's+Steak" class="card-img-top" alt="Jack Daniels Steak">
+                <div class="card-body">
+                    <h5 class="card-title">Jack Daniel's Steak</h5>
+                    <p class="card-text">
+                        [cite_start]Nuestro plato estrella, con un show de flambeado con whisky[cite: 274].
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <img src="https://via.placeholder.com/400x300?text=Pique+Macho" class="card-img-top" alt="Pique Macho">
+                <div class="card-body">
+                    <h5 class="card-title">Pique Macho Tradicional</h5>
+                    <p class="card-text">
+                        [cite_start]Un clásico boliviano con la calidad de The Steakhouse[cite: 348].
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <img src="https://via.placeholder.com/400x300?text=La+Caprichosa" class="card-img-top" alt="La Caprichosa">
+                <div class="card-body">
+                    <h5 class="card-title">La Caprichosa</h5>
+                    <p class="card-text">
+                        [cite_start]Una de nuestras hamburguesas especiales, perfecta para compartir[cite: 653].
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
