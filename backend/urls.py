@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('2010/', admin.site.urls),
     path('reservas/', include('reservas.urls')),
     path('ventas/', include('ventas.urls')),  # <-- AÑADE ESTA LÍNEA
     path('', include('core.urls')), # La raíz ('/') siempre debe ir al final
