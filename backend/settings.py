@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '172.174.2.7']
 INSTALLED_APPS = [
     'core',
     'reservas',
+    'ventas',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

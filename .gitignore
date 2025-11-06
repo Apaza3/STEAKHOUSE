@@ -1,1 +1,8 @@
 .venv/
+
+# Base de datos local
+db.sqlite3
+
+# Archivos de cache de Python
+__pycache__/
+*.pyc
