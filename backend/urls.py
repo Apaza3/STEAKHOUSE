@@ -16,10 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings # <-- NUEVO
+from django.conf.urls.static import static # <-- NUEVO
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('reservas/', include('reservas.urls')),
-    path('ventas/', include('ventas.urls')),  # <-- AÑADE ESTA LÍNEA
-    path('', include('core.urls')), # La raíz ('/') siempre debe ir al final
+    # path('auth/', include('usuarios.urls')), # (Descomenta cuando tu compañero termine)
+    path('pedidos/', include('pedidos.urls')), # <-- Registramos la nueva app
+    path('', include('core.urls')),
 ]
+
+# Esto permite ver las imágenes subidas mientras estamos en modo DEBUG (desarrollo)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>The Steakhouse</title>
+    
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -23,17 +24,22 @@
     <style>
       /* ==== ESTILO "VIEJO OESTE" MODO OSCURO ==== */
       body {
-        /* ¡EL GRAN CAMBIO! Fondo oscuro, texto claro */
-        background-color: #3d2422; /* Marrón oscuro (era el footer) */
+        background-color: #3d2422; /* Marrón oscuro */
         color: #f4f0e8; /* Color pergamino/crema */
         font-family: "Georgia", serif;
       }
 
       /* Usamos la fuente 'Rye' para el logo/título */
       .navbar-brand,
-      .display-4 {
+      .display-4,
+      .title-gold {
         font-family: "Rye", serif;
         font-weight: 400;
+      }
+
+      /* Color dorado para títulos */
+      .title-gold {
+        color: #c89b3f;
       }
 
       .navbar {
@@ -47,7 +53,6 @@
       }
 
       .footer {
-        /* Hacemos el footer un poco más oscuro que el body */
         background-color: #2a1a19;
         color: #f4f0e8;
         padding: 2rem 0;
@@ -55,13 +60,7 @@
         border-top: 4px solid #c89b3f;
       }
 
-      /* Títulos de sección dorados */
-      .title-gold {
-        color: #c89b3f;
-        font-family: "Rye", serif;
-      }
-
-      /* ==== ESTILOS DE ANIMACIÓN (Sin cambios) ==== */
+      /* ==== ESTILOS DE ANIMACIÓN ==== */
       @keyframes fadeInUp {
         from {
           opacity: 0;
@@ -77,43 +76,41 @@
         opacity: 0;
       }
 
-      /* ==== ESTILOS DE TARJETA (Modificados para Dark Mode) ==== */
+      /* ==== ESTILOS DE TARJETA ==== */
       .card-parchment {
         background-color: #fdfaf3;
         border: 1px solid #d9c9a8;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         border-radius: 8px;
-        /* Hacemos que el texto dentro de la tarjeta de reservas sea oscuro */
-        color: #3d2422;
+        color: #3d2422; /* Texto oscuro sobre fondo claro */
       }
+
+      .card-dark-theme {
+        background-color: #4a2c2a;
+        border: 1px solid #c89b3f;
+        color: #f4f0e8;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-dark-theme:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(200, 155, 63, 0.2);
+      }
+
       .form-row-animated {
         animation: fadeInUp 0.8s ease-out forwards;
         opacity: 0;
       }
-      .form-row-animated:nth-child(1) {
-        animation-delay: 0.2s;
-      }
-      .form-row-animated:nth-child(2) {
-        animation-delay: 0.3s;
-      }
-      .form-row-animated:nth-child(3) {
-        animation-delay: 0.4s;
-      }
-      .form-row-animated:nth-child(4) {
-        animation-delay: 0.5s;
-      }
-      .form-row-animated:nth-child(5) {
-        animation-delay: 0.6s;
-      }
-      .form-row-animated:nth-child(6) {
-        animation-delay: 0.7s;
-      }
+      /* Retrasos escalonados para animación */
+      .form-row-animated:nth-child(1) { animation-delay: 0.2s; }
+      .form-row-animated:nth-child(2) { animation-delay: 0.3s; }
+      .form-row-animated:nth-child(3) { animation-delay: 0.4s; }
+      .form-row-animated:nth-child(4) { animation-delay: 0.5s; }
+      .form-row-animated:nth-child(5) { animation-delay: 0.6s; }
+      .form-row-animated:nth-child(6) { animation-delay: 0.7s; }
 
-      /* ==== NUEVOS ESTILOS PARA INICIO.HTML ==== */
-
-      /* Estilo para el "Hero Banner" principal */
+      /* Estilo Hero Banner */
       .hero-section {
-        height: 60vh; /* 60% de la altura de la pantalla */
+        height: 60vh;
         background-image: linear-gradient(
             rgba(0, 0, 0, 0.5),
             rgba(0, 0, 0, 0.5)
@@ -122,24 +119,12 @@
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
-        background-attachment: fixed; /* Efecto Parallax moderno */
+        background-attachment: fixed;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
         color: white;
-      }
-
-      /* Estilo para las tarjetas de platos en modo oscuro */
-      .card-dark-theme {
-        background-color: #4a2c2a; /* Marrón oscuro del navbar */
-        border: 1px solid #c89b3f; /* Borde dorado */
-        color: #f4f0e8; /* Texto crema */
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      .card-dark-theme:hover {
-        transform: translateY(-5px); /* Animación moderna al pasar el mouse */
-        box-shadow: 0 8px 20px rgba(200, 155, 63, 0.2);
       }
     </style>
   </head>
@@ -159,19 +144,15 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+        
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
+          <ul class="navbar-nav ms-auto align-items-center">
+            
             <li class="nav-item">
-              <a
-                class="nav-link active"
-                aria-current="page"
-                href="{% url 'home' %}"
-                >Inicio</a
-              >
+              <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Inicio</a>
             </li>
-
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'menu' %}">Menú</a>
+              <a class="nav-link" href="{% url 'menu_page' %}">Menú</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'reservas_page' %}">Reservas</a>
@@ -179,10 +160,42 @@
             <li class="nav-item">
               <a class="nav-link" href="#">Contacto</a>
             </li>
+
+            <li class="nav-item ms-lg-3">
+                <a class="btn btn-outline-light position-relative" href="{% url 'ver_carrito' %}" style="border-color: #c89b3f; color: #c89b3f;">
+                    🛒
+                    {% if request.session.carrito %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ request.session.carrito|length }}
+                    </span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <li class="nav-item ms-lg-3 d-none d-lg-block" style="border-left: 1px solid #c89b3f; height: 30px;"></li>
+
+            {% if user.is_authenticated %}
+                <li class="nav-item dropdown ms-lg-3">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Hola, {{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark" style="background-color: #4a2c2a; border-color: #c89b3f;">
+                        <li><a class="dropdown-item" href="#" style="color: #f4f0e8;">Mi Perfil</a></li>
+                        <li><hr class="dropdown-divider" style="border-color: #c89b3f;"></li>
+                        <li><a class="dropdown-item" href="#" style="color: #f4f0e8;">Salir (Demo)</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li class="nav-item ms-lg-3">
+                    <a class="nav-link" href="#">Login</a>
+                </li>
+            {% endif %}
+
           </ul>
         </div>
       </div>
     </nav>
+
     {% if messages %}
     <div class="container mt-4" style="z-index: 1050">
       {% for message in messages %}
@@ -201,7 +214,11 @@
       {% endfor %}
     </div>
     {% endif %}
-    <main class="container my-5">{% block content %} {% endblock %}</main>
+
+    <main class="container my-5">
+        {% block content %} 
+        {% endblock %}
+    </main>
 
     <footer class="footer mt-auto">
       <div class="container text-center">

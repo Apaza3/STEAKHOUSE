@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-1u)i7v98&35^ynrg=hatf18=nhaq(q4-8%b=s_0+2^*kh&w)ei
 DEBUG = True
 
 # Correcto (incluye localhost)
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '172.174.2.88']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '172.174.1.216']
 
 # Application definition
 
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'core',
     'reservas',
     'ventas',
+    'pedidos',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -131,3 +132,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'www.ajgamer4852h@gmail.com'       # <-- 🚨 CAMBIA ESTO
 EMAIL_HOST_PASSWORD = 'flcz kuof xgiu wqho'  # <-- 🚨 CAMBIA ESTO
+
+# --- CONFIGURACIÓN DE ARCHIVOS MEDIA (Imágenes de Productos) ---
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
