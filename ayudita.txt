@@ -1,0 +1,9 @@
+Paso 1: Activar el Entorno Virtual En tu terminal de WSL (en la carpeta STEAKHOUSE), activa el .venv:
+
+⚠️❇️source .venv/bin/activate
+
+Paso 2: Iniciar el Servidor "en modo Red" Usa este comando para que el servidor escuche en tu IP de Wi-Fi (172.174.2.7):
+
+⚠️❇️python3 manage.py runserver 0.0.0.0:8000
+
+☑️🔰♾️http://172.174.0.1:8000/

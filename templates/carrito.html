@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="fade-in-up">
+    <h1 class="display-5 text-center title-gold mb-5" style="font-family: 'Rye', serif;">
+        Tu Pedido
+    </h1>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-parchment p-4">
+                
+                {% if items_carrito %}
+                <div class="table-responsive">
+                    <table class="table table-hover" style="color: #3d2422;">
+                        <thead style="border-bottom: 2px solid #c89b3f;">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Precio Unit.</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items_carrito %}
+                            <tr>
+                                <td class="fw-bold">{{ item.producto.nombre_producto }}</td>
+                                <td class="text-center">{{ item.cantidad }}</td>
+                                <td class="text-end">{{ item.producto.precio }} Bs.</td>
+                                <td class="text-end fw-bold">{{ item.subtotal }} Bs.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot style="border-top: 2px solid #c89b3f;">
+                            <tr>
+                                <td colspan="3" class="text-end fs-4 fw-bold">TOTAL:</td>
+                                <td class="text-end fs-4 fw-bold title-gold">{{ total_pedido }} Bs.</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'menu_page' %}" class="btn btn-outline-dark">
+                        ← Seguir Pidiendo
+                    </a>
+                    <button class="btn btn-lg fw-bold" style="background-color: #c89b3f; color: #3d2422;">
+                        Confirmar Pedido
+                    </button>
+                </div>
+
+                {% else %}
+                <div class="text-center py-5">
+                    <h3>Tu carrito está vacío 🏜️</h3>
+                    <p class="text-muted">Parece que aún no te has decidido por nada del menú.</p>
+                    <a href="{% url 'menu_page' %}" class="btn btn-lg mt-3" style="background-color: #c89b3f; color: #3d2422;">
+                        Ir al Menú
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

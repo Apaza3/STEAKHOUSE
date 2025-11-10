@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8 text-center">
+
+        <div class="mb-4 fade-in-up">
+            <h1 class="display-5" style="font-family: 'Rye', serif; color: #4a2c2a;">
+                Confirma tu Pago
+            </h1>
+            <p class="lead" style="color: #6d4c41;">
+                Escanea el QR con tu celular para simular el pago.
+            </p>
+            <p class>La página se actualizará automáticamente.</p>
+        </div>
+        
+        <div class="card card-parchment p-4 p-md-5 fade-in-up" style="animation-delay: 0.1s;">
+
+            <div id="loading-section">
+                <div class="spinner-border text-secondary" role="status" style="width: 5rem; height: 5rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 fw-bold">Esperando que se complete el pago...</p>
+            </div>
+
+            <div id="qr-section" style="display: none;">
+                <p><strong>Reserva ID:</strong> {{ reserva.id_reserva|truncatechars:15 }}...</p>
+                <img src="data:image/png;base64,{{ qr_image }}" alt="Código QR de Pago" class="img-fluid rounded">
+            </div>
+
+            <div id="success-section" style="display: none;">
+                <h2 class="text-success fw-bold">¡Pago Confirmado!</h2>
+                <p>¡Tu reserva está completa! Hemos enviado la confirmación a <strong>{{ reserva.email_cliente }}</strong>.</p>
+                <a href="{% url 'home' %}" class="btn btn-dark" style="background-color: #4a2c2a;">Volver al Inicio</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // URL de la API que vamos a consultar
+    const checkUrl = "{% url 'check_reservation_status' reserva.id_reserva %}";
+    
+    // Elementos del HTML
+    const loadingSection = document.getElementById("loading-section");
+    const qrSection = document.getElementById("qr-section");
+    const successSection = document.getElementById("success-section");
+
+    // Variable para asegurar que el polling se detenga
+    let pollingInterval;
+
+    // Función para revisar el estado
+    async function checkStatus() {
+        try {
+            const response = await fetch(checkUrl);
+            if (!response.ok) {
+                throw new Error("Error en la respuesta de la API");
+            }
+            const data = await response.json();
+
+            if (data.status === 'PAGADO') {
+                // ¡ÉXITO!
+                loadingSection.style.display = "none";
+                qrSection.style.display = "none";
+                successSection.style.display = "block";
+                
+                // Detener el "sondeo"
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+                
+            } else if (data.status === 'PENDIENTE') {
+                // El pago aún está pendiente
+                loadingSection.style.display = "none";
+                qrSection.style.display = "block";
+                console.log("Estado: Pendiente...");
+            } else {
+                // El estado es 'CANCELADO' o 'ERROR'
+                console.log("Error en el estado de la reserva.");
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+            }
+        } catch (error) {
+            console.error("Error al consultar el estado:", error);
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+        }
+    }
+
+    // Inicia el "sondeo" (polling)
+    pollingInterval = setInterval(checkStatus, 3000);
+
+    // Llama a la función una vez al cargar la página
+    document.addEventListener("DOMContentLoaded", checkStatus);
+</script>
+{% endblock %}
