@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center fade-in-up">
+    <div class="col-md-6 text-center">
+        <div class="card card-parchment p-5">
+            <h1 class="text-success display-1 mb-3">✅</h1>
+            <h2 class="title-gold" style="font-family: 'Rye', serif;">¡Pedido Recibido!</h2>
+            <p class="lead mt-3">
+                Tu pedido <strong>#{{ pedido.id }}</strong> ha sido enviado a la cocina.
+            </p>
+            <hr>
+            <div class="d-flex justify-content-between fs-5">
+                <span>Total a Pagar:</span>
+                <span class="fw-bold">{{ pedido.total }} Bs.</span>
+            </div>
+            <hr>
+            <p class="text-muted">Un mesero se acercará pronto a tu mesa.</p>
+            
+            <a href="{% url 'home' %}" class="btn btn-dark btn-lg mt-4" style="background-color: #4a2c2a; border-color: #4a2c2a;">
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
