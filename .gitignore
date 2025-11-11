@@ -4,5 +4,14 @@
 db.sqlite3
 
 # Archivos de cache de Python
+# ...existing code...
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
