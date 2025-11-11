@@ -20,7 +20,7 @@ from django.conf import settings # <-- NUEVO
 from django.conf.urls.static import static # <-- NUEVO
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('2010/', admin.site.urls),
     path('reservas/', include('reservas.urls')),
     # path('auth/', include('usuarios.urls')), # (Descomenta cuando tu compañero termine)
     path('pedidos/', include('pedidos.urls')), # <-- Registramos la nueva app

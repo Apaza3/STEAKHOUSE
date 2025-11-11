@@ -14,4 +14,4 @@ __pycache__/
 dist/
 build/
 venv/
-.venv/
+.venv/db.sqlite3
