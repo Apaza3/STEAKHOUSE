@@ -75,3 +75,4 @@ class PedidoAdmin(admin.ModelAdmin):
         formset.instance.total = total_pedido
         formset.instance.save()
         super().save_formset(request, form, formset, change)
+        
