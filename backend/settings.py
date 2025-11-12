@@ -147,3 +147,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # --- CONFIGURACIÓN PARA PRODUCCIÓN (Whitenoise) ---
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Le dice a Django dónde buscar archivos estáticos en desarrollo
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
