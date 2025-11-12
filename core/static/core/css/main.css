@@ -1,0 +1,86 @@
+/* ==== 1. ESTILO "VIEJO OESTE" MODO OSCURO (Base) ==== */
+body {
+    background-color: #3d2422;
+    color: #f4f0e8;
+    font-family: "Georgia", serif;
+}
+
+/* === LÓGICA DE VISIBILIDAD CORREGIDA === */
+main {
+    /* Visible por defecto en todas las páginas (Reservas, etc.) */
+    opacity: 1;
+    transition: opacity 1.0s ease-in; 
+}
+body.home-page main {
+    /* Oculto SÓLO en la página de inicio para la intro */
+    opacity: 0;
+}
+/* === FIN DE LA LÓGICA === */
+
+.footer { /* (Tu estilo de footer va aquí) */ }
+.title-gold, .offcanvas-title { /* (Tu estilo de título va aquí) */ }
+
+/* ==== 2. NUEVO BOTÓN DE MENÚ (Logo Fijo) ==== */
+#menu-trigger-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1040; 
+    cursor: pointer;
+    transition: opacity 1.0s ease-in, transform 0.3s ease;
+    
+    /* === LÓGICA DE VISIBILIDAD CORREGIDA === */
+    /* Visible por defecto en todas las páginas */
+    opacity: 1; 
+}
+body.home-page #menu-trigger-button {
+    /* Oculto SÓLO en la página de inicio para la intro */
+    opacity: 0;
+}
+/* === FIN DE LA LÓGICA === */
+
+#menu-trigger-button img {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+#menu-trigger-button:hover { transform: scale(1.1); }
+
+/* ==== 3. NUEVO MENÚ (OFF-CANVAS) ==== */
+/* (Tu estilo de .offcanvas, .nav-links, etc. va aquí... sin cambios) */
+.offcanvas { background-color: #2a1a19; border-right: 2px solid #c89b3f; max-width: 320px; }
+.offcanvas-body { display: flex; flex-direction: column; }
+.offcanvas .btn-close { background-color: #c89b3f; }
+ul.nav-links { list-style: none; padding: 0; margin: 0; }
+ul.nav-links li { margin-bottom: 0.5rem; }
+ul.nav-links li a { color: #f4f0e8; text-decoration: none; font-size: 1.5rem; font-family: 'Rye', serif; padding: 8px 15px; display: block; border-radius: 5px; transition: background-color 0.2s ease, color 0.2s ease; }
+ul.nav-links li a:hover { background-color: #c89b3f; color: #2a1a19; }
+ul.nav-links li.divider { height: 2px; background-color: #c89b3f; margin: 1.5rem 0; }
+
+
+/* ==== 4. PANTALLA DE INTRO (SPLASH SCREEN) ==== */
+/* Esta clase solo existe en inicio.html */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1060; 
+    opacity: 1; 
+    transition: opacity 1.0s ease-out;
+
+    /* === TU ARREGLO === */
+    background-image: url('../img/logo-steakhouse.png');
+    background-color: #3d2422; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+/* ==== 5. ESTILOS DE PÁGINA (Hero, Tarjetas) ==== */
+/* (Tus estilos de .hero-section, .hero-title-image, .card-dark-theme van aquí) */
+.hero-section { min-height: 80vh; background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("https://via.placeholder.com/1920x1080?text=Interior+del+Saloon+Oscuro"); background-position: center; background-repeat: no-repeat; background-size: cover; background-attachment: fixed; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
+.hero-title-image { width: 90%; max-width: 600px; height: auto; margin-bottom: 2rem; }
+.card-dark-theme { background-color: #4a2c2a; border: 1px solid #c89b3f; color: #f4f0e8; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.card-dark-theme:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(200, 155, 63, 0.2); }

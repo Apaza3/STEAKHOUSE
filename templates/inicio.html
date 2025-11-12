@@ -1,101 +1,67 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bienvenidos{% endblock %}
+
+{% block body_class %}home-page{% endblock %}
+
 
 {% block content %}
 
-<header class="hero-section mb-5 shadow-lg">
-  <div class="container fade-in-up">
-    <h1 class="display-4 text-uppercase fw-bold text-white">
-      The Steakhouse
-    </h1>
-    <p class="lead" style="font-size: 1.5rem; color: #f4f0e8;">
-      Auténtica Cocina a la Parrilla - Estilo Viejo Oeste
-    </p>
-  </div>
-</header>
+<div id="splash-screen"></div>
 
-<section class="row align-items-center mb-5 py-5 fade-in-up" style="animation-delay: 0.2s;">
-  <div class="col-md-6">
-    <h2 class="title-gold mb-3">Bienvenidos al Salon</h2>
-    <p>
-      Inspirado en la tradición y el sabor de la parrilla americana, The Steakhouse ofrece una experiencia gastronómica única en La Paz. Nos especializamos en cortes de carne premium, hamburguesas y un ambiente que te transportará al viejo oeste.
-    </p>
-    <p>
-      Actualmente, nuestro sistema de reservas se maneja por WhatsApp, pero estamos construyendo esta plataforma para darte un servicio más moderno y confiable.
-    </p>
-    
-    <a href="{% url 'reservas_page' %}" class="btn btn-lg mt-3" style="background-color: #c89b3f; border-color: #c89b3f; color: #4a2c2a; font-weight: 600;">
-      Haz tu Reserva
-    </a>
+<main id="main-content">
 
-    <a href="{% url 'reporte_ventas' %}" class="btn btn-lg mt-3 ms-2 btn-outline-light" style="border-color: #c89b3f; color: #c89b3f; font-weight: 600;">
-      Ver Reportes
-    </a>
+    <div class="hero-section text-white shadow-lg">
+        <img src="{% static 'core/images/THE_STEAKHOUSE_text_logo.png' %}" alt="The Steakhouse" class="hero-title-image">
+        <p class="lead fs-3">Auténtica parrilla americana.</p>
+        <a href="{% url 'reservas_page' %}" class="btn btn-outline-light btn-lg mt-3">
+            Haz tu Reserva
+        </a>
     </div>
-  <div class="col-md-6 text-center">
-    <img src="https://via.placeholder.com/500x350?text=Corte+de+Carne+Premium" class="img-fluid rounded shadow-lg" alt="Interior" style="border: 6px solid #c89b3f;">
-  </div>
-</section>
 
-<section class="text-center py-5 fade-in-up" style="animation-delay: 0.4s;">
-  <h2 class="title-gold mb-4">Platos Estrella</h2>
-  <div class="row">
-    
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 card-dark-theme">
-        <img src="https://via.placeholder.com/400x300?text=Jack+Daniel's+Steak" class="card-img-top" alt="Jack Daniels Steak">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Jack Daniel's Steak</h5>
-          <p class="card-text">
-            Nuestro plato estrella, con un show de flambeado con whisky.
-          </p>
-          <a href="#" class="btn btn-outline-light mt-auto align-self-start" style="border-color: #c89b3f; color: #c89b3f;">Ver más</a>
+    <div class="container my-5 py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-5 title-gold">Bienvenidos a The Steakhouse</h2>
+                <p class="fs-5">
+                    En The Steakhouse, cada corte de carne cuenta una historia. Nos dedicamos a la tradición de la parrilla americana...
+                </p>
+                <a href="{% url 'menu_page' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Ver el Menú</a>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block mt-4 mt-lg-0">
+                <img src="https://via.placeholder.com/500x350?text=Plato+Estrella" class="img-fluid rounded shadow-lg" alt="Plato principal">
+            </div>
         </div>
-      </div>
     </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 card-dark-theme">
-        <img src="https://via.placeholder.com/400x300?text=Pique+Macho" class="card-img-top" alt="Pique Macho">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Pique Macho Tradicional</h5>
-          <p class="card-text">
-            Un clásico boliviano con la calidad de The Steakhouse.
-          </p>
-          <a href="#" class="btn btn-outline-light mt-auto align-self-start" style="border-color: #c89b3f; color: #c89b3f;">Ver más</a>
+
+    <div class="container my-5">
+        <h2 class="text-center display-5 title-gold mb-5">Destacados</h2>
         </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 card-dark-theme">
-        <img src="https://via.placeholder.com/400x300?text=La+Caprichosa" class="card-img-top" alt="La Caprichosa">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">La Caprichosa</h5>
-          <p class="card-text">
-            Una de nuestras hamburguesas especiales, perfecta para compartir.
-          </p>
-          <a href="#" class="btn btn-outline-light mt-auto align-self-start" style="border-color: #c89b3f; color: #c89b3f;">Ver más</a>
-        </div>
-      </div>
-    </div>
 
-  </div>
-</section>
+</main> {% endblock %}
 
-<section class="py-5 text-center fade-in-up" style="animation-delay: 0.6s;">
-  <h2 class="title-gold mb-4">La Voz del Saloon</h2>
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <figure>
-        <blockquote class="blockquote fs-4">
-          <p>"¡Genial! Este restaurante es genial. Los camareros son fantásticos y se preocupan por todas las necesidades de los clientes. La comida es estupenda y muy sabrosa..."</p>
-        </blockquote>
-        <figcaption class="blockquote-footer" style="color: #d9c9a8;">
-          Ruben L
-        </figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
 
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const introDuration = 2000; 
+        const splashScreen = document.getElementById('splash-screen');
+        const mainContent = document.getElementById('main-content');
+        const menuTrigger = document.getElementById('menu-trigger-button');
+
+        if (splashScreen && mainContent && menuTrigger) {
+            setTimeout(function() {
+                splashScreen.style.opacity = 0;
+                mainContent.style.opacity = 1;
+                menuTrigger.style.opacity = 1;
+                
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                }, 1000); 
+                
+            }, introDuration);
+        }
+    });
+</script>
 {% endblock %}
