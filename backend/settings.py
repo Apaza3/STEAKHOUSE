@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'core',
     'reservas',
     'ventas',
-    'clientes',
     'compras',
     'pedidos',
     'productos',
