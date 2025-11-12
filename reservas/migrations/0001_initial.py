@@ -3,6 +3,7 @@
 import django.db.models.deletion
 import uuid
 from django.conf import settings
+
 from django.db import migrations, models
 
 
@@ -27,6 +28,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Reserva',
             fields=[
+
                 ('id_reserva', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('fecha', models.DateField()),
                 ('hora', models.TimeField()),
