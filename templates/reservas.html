@@ -1,175 +1,148 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hacer Reserva{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center fade-in-up">
+<main id="main-content" class="container my-5">
     
-    <div class="col-lg-7">
-        <div class="card card-parchment p-4 p-md-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
             
-            <h1 class="display-5 text-center mb-4" style="font-family: 'Rye', serif; color: #4a2c2a;">
-                Haga su Reserva
-            </h1>
+            <div class="card card-dark-theme shadow-lg">
+                <div class="card-body p-4 p-md-5">
 
-            <form id="reservaForm" method="POST">
-                {% csrf_token %} 
-                
-                <div class="row form-row-animated">
-                    <div class="col-md-6 mb-3">
-                        <label for="nombre" class="form-label fw-bold">Nombre Completo</label>
-                        <input type="text" class="form-control form-control-lg" id="nombre" name="nombre" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label fw-bold">Correo Electrónico</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Para la confirmación" required>
-                    </div>
-                </div>
+                    <h1 class="text-center title-gold display-5 mb-4">Haz tu Reserva</h1>
+                    <p class="text-center fs-5 mb-4">
+                        Asegura tu lugar en nuestra mesa. Rellena el formulario para completar tu reserva.
+                    </p>
 
-                <div class="row form-row-animated">
-                    <div class="col-md-6 mb-3">
-                        <label for="fecha" class="form-label fw-bold">Fecha de Reserva</label>
-                        <input type="date" class="form-control form-control-lg" id="fecha" name="fecha" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="hora" class="form-label fw-bold">Hora</label>
-                        <input type="time" class="form-control form-control-lg" id="hora" name="hora" required>
-                    </div>
-                </div>
+                    <form method="POST" action="{% url 'reservas_page' %}" id="reservationForm">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <h3 class="title-gold fs-4 mb-3">Detalles</h3>
+                                <div class="mb-3">
+                                    <label for="{{ form.fecha_reserva.id_for_label }}" class="form-label">Fecha de Reserva</label>
+                                    {{ form.fecha_reserva }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.hora_reserva.id_for_label }}" class="form-label">Hora de Reserva</label>
+                                    {{ form.hora_reserva }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.numero_personas.id_for_label }}" class="form-label">Número de Personas</label>
+                                    {{ form.numero_personas }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.mesa.id_for_label }}" class="form-label">Mesa (Opcional)</label>
+                                    {{ form.mesa }}
+                                    <div class="form-text">Solo se muestran mesas disponibles.</div>
+                                </div>
+                            </div>
 
-                <div class="row form-row-animated">
-                    <div class="col-md-6 mb-3">
-                        <label for="personas" class="form-label fw-bold">Número de Personas</label>
-                        <input type="number" class="form-control form-control-lg" id="personas" name="personas" min="1" max="10" placeholder="Ej. 4" required>
-                    </div>
-                     <div class="col-md-6 mb-3">
-                        <label for="telefono" class="form-label fw-bold">Teléfono (Opcional)</label>
-                        <input type="tel" class="form-control form-control-lg" id="telefono" name="telefono">
-                    </div>
-                </div>
+                            <div class="col-lg-6">
+                                <h3 class="title-gold fs-4 mb-3">Tus Datos y Pago</h3>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.cliente.id_for_label }}" class="form-label">Cliente</label>
+                                    {{ form.cliente }}
+                                </div>
 
-                <div class="mb-3 p-3 border rounded form-row-animated" style="background-color: #fcf8f0;">
-                    <label class="form-label fw-bold d-block mb-2">Tipo de Reserva</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tipo_reserva" id="soloMesa" value="MESA" checked onchange="togglePago()">
-                        <label class="form-check-label" for="soloMesa">
-                            Solo reservar mesa
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="tipo_reserva" id="pagarAdelantado" value="PAGO" onchange="togglePago()">
-                        <label class="form-check-label" for="pagarAdelantado">
-                            Pagar por adelantado (Asegurar reserva)
-                        </label>
-                    </div>
-                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.tipo_pago.id_for_label }}" class="form-label">Tipo de Reserva</label>
+                                    {{ form.tipo_pago }}
+                                </div>
 
-                <div id="seccionPago" class="mb-3 p-3 border rounded form-row-animated" style="background-color: #fcf8f0; display: none;">
-                    <label class="form-label fw-bold d-block mb-2">Método de Pago</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="metodo_pago" id="pagoQR" value="qr">
-                        <label class="form-check-label" for="pagoQR">Pago con QR (Simulado)</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="metodo_pago" id="pagoTarjeta" value="tarjeta">
-                        <label class="form-check-label" for="pagoTarjeta">Tarjeta de Crédito (Simulado)</label>
-                    </div>
-                </div>
+                                <div id="payment-policy-qr" class="alert alert-warning mt-4" style="display: none; border-color: #c89b3f;">
+                                    <h5 class="alert-heading title-gold">Política de Pago QR</h5>
+                                    <p>Se te redirigirá a una pantalla para simular un pago QR. Tu reserva quedará 'PENDIENTE' hasta confirmar el pago.</p>
+                                </div>
+                                
+                                <div id="payment-policy-tarjeta" class="alert alert-info mt-4" style="display: none; border-color: #c89b3f;">
+                                    <h5 class="alert-heading title-gold">Política de Pago con Tarjeta</h5>
+                                    <p>Se te redirigirá a un formulario de pago seguro para ingresar los datos de tu tarjeta.</p>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="form-row-animated mt-4">
-                    <button type="submit" class="btn btn-dark btn-lg w-100 fs-5" style="background-color: #c89b3f; border-color: #c89b3f; color: #4a2c2a; font-weight: 600;">
-                        Siguiente
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+                        <div class="col-12 mt-4 pt-3" style="border-top: 1px solid #c89b3f;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="id_politicas" required>
+                                <label class="form-check-label" for="id_politicas">
+                                    He leído y acepto las <a href="#">políticas de reserva</a>. (Requerido)
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mt-3" id="checkbox-no-show" style="display: none;">
+                                <input class="form-check-input" type="checkbox" id="id_politicas_no_show">
+                                <label class="form-check-label" for="id_politicas_no_show">
+                                    Entiendo la <a href="#">política de "No Show"</a> y acepto el cargo por pago adelantado. (Requerido al pagar)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-outline-light btn-lg" style="border-color: #c89b3f; color: #f4f0e8; min-width: 250px;">
+                                Continuar
+                            </button>
+                        </div>
 
-    <div class="col-lg-5 d-none d-lg-block">
-        <div class="card card-parchment p-4 fade-in-up" style="animation-delay: 0.3s; border-color: #4a2c2a;">
-            <h3 class="text-center" style="font-family: 'Rye', serif; color: #4a2c2a;">Reglas del Saloon</h3>
-            
-            <div id="politica-solo-mesa">
-                <h5 class="mt-3 fw-bold">Póliza de Reserva (Solo Mesa)</h5>
-                [cite_start]<p>Su mesa será guardada por un período de **30 minutos** después de la hora de su reserva. [cite: 55]</p>
-                <p>Si no llega en ese tiempo, la mesa podrá ser asignada a otros clientes en espera.</p>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" value="acepta" id="politicasReserva" name="politicasReserva" required>
-                    <label class="form-check-label" for="politicasReserva">
-                        He leído y acepto.
-                    </label>
+                    </form>
                 </div>
             </div>
 
-            <div id="politica-no-show" style="display: none;">
-                <h5 class="mt-3 fw-bold">Póliza de "No Show" (Pago Adelantado)</h5>
-                <p>Al pagar por adelantado, su mesa está 100% garantizada.</p>
-                [cite_start]<p>Si necesita cancelar, le pedimos que lo haga con al menos 24 horas de anticipación para un reembolso completo[cite: 59]. Las cancelaciones el mismo día o no presentarse (No Show) pueden incurrir en un cargo.</p>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" value="acepta" id="politicasNoShow" name="politicasNoShow">
-                    <label class="form-check-label" for="politicasNoShow">
-                        He leído y acepto.
-                    </label>
-                </div>
-            </div>
         </div>
     </div>
 
-</div>
+</main>
+{% endblock %}
 
 
+{% block extra_js %}
 <script>
     function togglePago() {
-        // 1. Obtiene los elementos
-        let radioPagar = document.getElementById("pagarAdelantado");
-        let seccionPago = document.getElementById("seccionPago");
+        var tipoPagoSelect = document.getElementById('id_tipo_pago');
         
-        // Secciones de Pólizas
-        let seccionPoliticaMesa = document.getElementById("politica-solo-mesa");
-        let seccionPoliticaNoShow = document.getElementById("politica-no-show");
-        
-        // Checkboxes
-        let checkMesa = document.getElementById("politicasReserva");
-        let checkNoShow = document.getElementById("politicasNoShow");
-        
-        // Radios de Pago
-        let radioQR = document.getElementById("pagoQR");
-        let radioTarjeta = document.getElementById("pagoTarjeta");
-
-        if (radioPagar.checked) {
-            // MUESTRA las secciones de pago y Póliza "No Show"
-            seccionPago.style.display = "block";
-            seccionPoliticaNoShow.style.display = "block";
-            // OCULTA la póliza de "Solo Mesa"
-            seccionPoliticaMesa.style.display = "none";
+        if (tipoPagoSelect) {
+            var tipoPago = tipoPagoSelect.value;
             
-            // HACE OBLIGATORIO el checkbox de "No Show"
-            checkNoShow.required = true; 
-            // HACE OBLIGATORIO elegir un método de pago
-            radioQR.required = true;
-            radioTarjeta.required = true;
-            
-            // QUITA el 'required' del checkbox de "Solo Mesa"
-            checkMesa.required = false;
+            // Elementos que vamos a mostrar/ocultar
+            var policyQR = document.getElementById('payment-policy-qr');
+            var policyTarjeta = document.getElementById('payment-policy-tarjeta');
+            var checkboxNoShowDiv = document.getElementById('checkbox-no-show');
+            var checkboxNoShowInput = document.getElementById('id_politicas_no_show');
 
-        } else {
-            // OCULTA las secciones de pago y Póliza "No Show"
-            seccionPago.style.display = "none";
-            seccionPoliticaNoShow.style.display = "none";
-            // MUESTRA la póliza de "Solo Mesa"
-            seccionPoliticaMesa.style.display = "block";
-            
-            // QUITA el 'required' del checkbox "No Show"
-            checkNoShow.required = false; 
-            // QUITA el 'required' de los métodos de pago
-            radioQR.required = false;
-            radioTarjeta.required = false;
+            // 1. Ocultar todo primero y resetear 'required'
+            policyQR.style.display = 'none';
+            policyTarjeta.style.display = 'none';
+            checkboxNoShowDiv.style.display = 'none';
+            checkboxNoShowInput.required = false;
 
-            // HACE OBLIGATORIO el checkbox de "Solo Mesa"
-            checkMesa.required = true;
+            // 2. Mostrar el relevante
+            if (tipoPago === 'PAGO_ADELANTADO') {
+                policyQR.style.display = 'block';
+                checkboxNoShowDiv.style.display = 'block';
+                checkboxNoShowInput.required = true; // Hacerlo requerido
+            
+            } else if (tipoPago === 'TARJETA') {
+                policyTarjeta.style.display = 'block';
+                checkboxNoShowDiv.style.display = 'block';
+                checkboxNoShowInput.required = true; // Hacerlo requerido
+            
+            } else if (tipoPago === 'SOLO_MESA') {
+                // No hace falta mostrar nada extra
+            }
         }
     }
     
-    // Llama a la función al cargar la página
-    document.addEventListener("DOMContentLoaded", togglePago);
+    document.addEventListener("DOMContentLoaded", function() {
+        var tipoPagoSelect = document.getElementById('id_tipo_pago');
+        if (tipoPagoSelect) {
+            tipoPagoSelect.addEventListener('change', togglePago);
+        }
+        // Ejecutar una vez al cargar la página
+        togglePago();
+    });
 </script>
-
 {% endblock %}

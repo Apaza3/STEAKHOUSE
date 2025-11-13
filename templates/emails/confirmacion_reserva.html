@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Reserva</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #ddd; }
+        .header { background-color: #3d2422; padding: 20px; text-align: center; }
+        .header h1 { color: #c89b3f; font-family: 'Rye', serif; margin: 0; }
+        .content { padding: 30px; }
+        .content p { font-size: 16px; line-height: 1.5; }
+        .details { background-color: #fdfaf3; border: 1px solid #c89b3f; padding: 20px; }
+        .footer { padding: 20px; text-align: center; font-size: 12px; color: #777; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #c89b3f;">The Steakhouse</h1>
+        </div>
+        <div class="content">
+            <p>Hola, <strong>{{ cliente.nombre }}</strong>,</p>
+            
+            <p>¡Tu reserva en The Steakhouse está confirmada! Muchas gracias por elegirnos.</p>
+            
+            <p>Aquí están los detalles de tu reserva:</p>
+
+            <div class="details">
+                <p><strong>Reserva ID:</strong> {{ reserva.id|truncatechars:8 }}...</p>
+                <p><strong>Fecha:</strong> {{ reserva.fecha_reserva }}</p>
+                <p><strong>Hora:</strong> {{ reserva.hora_reserva }}</p>
+                <p><strong>Personas:</strong> {{ reserva.numero_personas }}</p>
+                {% if reserva.mesa %}
+                <p><strong>Mesa:</strong> {{ reserva.mesa.numero }}</p>
+                {% endif %}
+                <p><strong>Estado:</strong> {{ reserva.get_estado_display }}</p>
+                <p><strong>Tipo de Pago:</strong> {{ reserva.get_tipo_pago_display }}</p>
+            </div>
+
+            <p style="margin-top: 20px;">
+                <strong>Política de No-Show:</strong> Te recordamos que tienes una tolerancia de 30 minutos.
+            </p>
+            
+            <p>¡Te esperamos!</p>
+            <p>El equipo de The Steakhouse</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 The Steakhouse. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

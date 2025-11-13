@@ -1,6 +1,9 @@
-# ESTE ES EL CÓDIGO NUEVO (CORRECTO)
 from django.shortcuts import render
 
-def home(request):
-    # Esta línea le dice a Django que use tu nueva plantilla
-    return render(request, 'inicio.html', {})
+# Create your views here.
+
+def inicio_view(request):
+    """
+    Vista simple que solo renderiza la plantilla de la página de inicio.
+    """
+    return render(request, 'inicio.html')

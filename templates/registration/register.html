@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Registro de Cliente{% endblock %}
+
+{% block content %}
+<main id="main-content" class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="card card-dark-theme shadow-lg">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="text-center title-gold display-5 mb-4">Crear tu Cuenta</h1>
+                    <p class="text-center fs-5 mb-4">
+                        Regístrate como cliente para gestionar tus reservas y pedidos.
+                    </p>
+                    
+                    <form method="POST" action="{% url 'register' %}" id="registrationForm">
+                        {% csrf_token %}
+                        
+                        <!-- Mostramos errores del formulario (ej. passwords no coinciden) -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <h3 class="title-gold fs-4 mt-4 mb-3">Datos del Cliente</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre</label>
+                                {{ form.nombre }}
+                                {{ form.nombre.errors }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.apellido.id_for_label }}" class="form-label">Apellido</label>
+                                {{ form.apellido }}
+                                {{ form.apellido.errors }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                {{ form.email }}
+                                {{ form.email.errors }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono (Opcional)</label>
+                                {{ form.telefono }}
+                                {{ form.telefono.errors }}
+                            </div>
+                        </div>
+
+                        <hr class="my-4" style="border-color: #c89b3f;">
+
+                        <h3 class="title-gold fs-4 mb-3">Datos de Cuenta</h3>
+                        <div class_row="g-3">
+                            <div class="mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de Usuario</label>
+                                {{ form.username }}
+                                {{ form.username.errors }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
+                                {{ form.password }}
+                                {{ form.password.errors }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password_confirm.id_for_label }}" class="form-label">Confirmar Contraseña</label>
+                                {{ form.password_confirm }}
+                                {{ form.password_confirm.errors }}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-outline-light btn-lg" style="border-color: #c89b3f; color: #f4f0e8; min-width: 250px;">
+                                Crear Cuenta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+{% endblock %}

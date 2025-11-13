@@ -1,26 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Pedido Exitoso{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center fade-in-up">
-    <div class="col-md-6 text-center">
-        <div class="card card-parchment p-5">
-            <h1 class="text-success display-1 mb-3">✅</h1>
-            <h2 class="title-gold" style="font-family: 'Rye', serif;">¡Pedido Recibido!</h2>
-            <p class="lead mt-3">
-                Tu pedido <strong>#{{ pedido.id }}</strong> ha sido enviado a la cocina.
-            </p>
-            <hr>
-            <div class="d-flex justify-content-between fs-5">
-                <span>Total a Pagar:</span>
-                <span class="fw-bold">{{ pedido.total }} Bs.</span>
+<main id="main-content" class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-dark-theme shadow-lg text-center p-5">
+                <h1 class="title-gold display-4">¡Gracias por tu pedido!</h1>
+                <p class="fs-4 mt-3">Tu pedido ha sido recibido y está en preparación.</p>
+                <p>Recibirás una notificación cuando esté listo.</p>
+                <div class="mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Volver al Inicio</a>
+                </div>
             </div>
-            <hr>
-            <p class="text-muted">Un mesero se acercará pronto a tu mesa.</p>
-            
-            <a href="{% url 'home' %}" class="btn btn-dark btn-lg mt-4" style="background-color: #4a2c2a; border-color: #4a2c2a;">
-                Volver al Inicio
-            </a>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}

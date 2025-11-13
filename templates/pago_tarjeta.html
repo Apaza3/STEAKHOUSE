@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Pago con Tarjeta{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-payment-form {
+        background-color: #fdfaf3; /* Color pergamino claro */
+        color: #3d2422; /* Texto marrón */
+        border: 2px solid #c89b3f; /* Borde dorado */
+        border-radius: 8px;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .card-payment-form .form-control { background-color: #fff; border: 1px solid #3d2422; }
+    .card-payment-form .form-label { font-weight: bold; }
+    #card-icon-container { font-size: 2.5rem; height: 40px; }
+    #card-icon-container .fa-brands { opacity: 0; transition: opacity 0.3s ease; position: absolute; }
+    #card-icon-container .fa-brands.visible { opacity: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main id="main-content" class="container my-5">
+
+    <div class="card-payment-form p-4 p-md-5">
+        <h1 class="text-center title-gold display-6 mb-4">Simulación de Pago</h1>
+        <p class="text-center">Reserva ID: {{ reserva.id|truncatechars:8 }}...</p>
+        
+        <form method="POST" action="{% url 'payment_tarjeta_confirm' reserva.id %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="card-number" class="form-label">Número de Tarjeta</label>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-lg" id="card-number" placeholder="4922 0000 0000 0000" maxlength="19" required>
+                    <span class="input-group-text" id="card-icon-container">
+                        <i class="fa-brands fa-cc-visa" id="icon-visa"></i>
+                        <i class="fa-brands fa-cc-mastercard" id="icon-mastercard"></i>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="card-name" class="form-label">Nombre en la Tarjeta</label>
+                <input type="text" class="form-control form-control-lg" id="card-name" placeholder="John M. Doe" required>
+            </div>
+            
+            <div class="row">
+                <div class="col-7 mb-3">
+                    <label for="card-expiry" class="form-label">Expira (MM/YY)</label>
+                    <input type="text" class="form-control form-control-lg" id="card-expiry" placeholder="12/29" maxlength="5" required>
+                </div>
+                <div class="col-5 mb-3">
+                    <label for="card-cvc" class="form-label">CVC</label>
+                    <input type="text" class="form-control form-control-lg" id="card-cvc" placeholder="123" maxlength="4" required>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-dark btn-lg" style="background-color: #3d2422;">
+                    Pagar (Simulación)
+                </button>
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+            
+        </form>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const cardNumberInput = document.getElementById('card-number');
+        const iconVisa = document.getElementById('icon-visa');
+        const iconMastercard = document.getElementById('icon-mastercard');
+        
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, ''); // Limpiar espacios
+            
+            iconVisa.classList.remove('visible');
+            iconMastercard.classList.remove('visible');
+            
+            if (/^4/.test(value)) {
+                iconVisa.classList.add('visible');
+            } else if (/^5[1-5]/.test(value)) {
+                iconMastercard.classList.add('visible');
+            }
+        });
+    });
+</script>
+{% endblock %}

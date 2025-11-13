@@ -2,19 +2,21 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # --- Flujo de Reserva ---
-    # Esto le dice a Django: "Cuando alguien visite /reservas/, 
-    # usa la vista 'reservation_view'"
+    # /reservas/
     path('', views.reservation_view, name='reservas_page'),
     
-    # --- Flujo de Simulación de Pago QR ---
+    # /reservas/espera-qr/UUID/
+    path('espera-qr/<uuid:reserva_id>/', views.payment_waiting_view, name='payment_waiting_view'),
     
-    # 1. La página que muestra el QR (para la PC)
-    path('esperando-pago/<uuid:id_reserva>/', views.payment_waiting_view, name='payment_waiting'),
+    # /reservas/confirmar-qr/UUID/  (Para el celular)
+    path('confirmar-qr/<uuid:reserva_id>/', views.payment_confirm_view, name='payment_confirm_view'),
+    
+    # /reservas/estado-reserva/UUID/ (Para el polling)
+    path('estado-reserva/<uuid:reserva_id>/', views.check_reservation_status_view, name='check_reservation_status_view'),
+    
+    # /reservas/pago-tarjeta/UUID/
+    path('pago-tarjeta/<uuid:reserva_id>/', views.payment_tarjeta_view, name='payment_tarjeta_view'),
 
-    # 2. La URL que va DENTRO del QR (para el Celular)
-    path('confirmar-pago/<uuid:id_reserva>/', views.payment_confirm_view, name='payment_confirm'),
-    
-    # 3. La URL de la API que revisa el estado (para el JavaScript)
-    path('api/estado-reserva/<uuid:id_reserva>/', views.check_reservation_status_view, name='check_reservation_status'),
+    # /reservas/confirmar-tarjeta/UUID/
+    path('confirmar-tarjeta/<uuid:reserva_id>/', views.payment_tarjeta_confirm, name='payment_tarjeta_confirm'),
 ]

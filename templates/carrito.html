@@ -1,84 +1,68 @@
-{% extends 'base.html' %} {% block content %}
-<div class="fade-in-up">
-  <h1
-    class="display-5 text-center title-gold mb-5"
-    style="font-family: 'Rye', serif"
-  >
-    Tu Pedido
-  </h1>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Mi Carrito{% endblock %}
 
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card card-parchment p-4">
-        {% if items_carrito %}
-        <div class="table-responsive">
-          <table class="table table-hover" style="color: #3d2422">
-            <thead style="border-bottom: 2px solid #c89b3f">
-              <tr>
-                <th>Producto</th>
-                <th class="text-center">Cantidad</th>
-                <th class="text-end">Precio Unit.</th>
-                <th class="text-end">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in items_carrito %}
-              <tr>
-                <td class="fw-bold">{{ item.producto.nombre_producto }}</td>
-                <td class="text-center">{{ item.cantidad }}</td>
-                <td class="text-end">{{ item.producto.precio }} Bs.</td>
-                <td class="text-end fw-bold">{{ item.subtotal }} Bs.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot style="border-top: 2px solid #c89b3f">
-              <tr>
-                <td colspan="3" class="text-end fs-4 fw-bold">TOTAL:</td>
-                <td class="text-end fs-4 fw-bold title-gold">
-                  {{ total_pedido }} Bs.
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+{% block content %}
+<main id="main-content" class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-dark-theme shadow-lg">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="text-center title-gold display-4 mb-5">Mi Carrito</h1>
 
-        <div class="d-flex justify-content-between mt-4">
-          <a href="{% url 'menu_page' %}" class="btn btn-outline-dark">
-            ← Seguir Pidiendo
-          </a>
-          <form
-            method="POST"
-            action="{% url 'confirmar_pedido' %}"
-            class="d-inline"
-          >
-            {% csrf_token %}
-            <button
-              type="submit"
-              class="btn btn-lg fw-bold"
-              style="background-color: #c89b3f; color: #3d2422"
-            >
-              Confirmar Pedido
-            </button>
-          </form>
-        </div>
+                    {% if items %}
+                    <div class="table-responsive">
+                        <table class="table" style="color: #f4f0e8;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col">Cantidad</th>
+                                    <th scope="col">Precio Unitario</th>
+                                    <th scope="col">Subtotal</th>
+                                    <th scope="col">Quitar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.nombre }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>{{ item.precio }} Bs.</td>
+                                    <td>{{ item.subtotal|floatformat:2 }} Bs.</td>
+                                    <td>
+                                        <!-- (Funcionalidad de quitar no implementada aún, es más compleja) -->
+                                        <a href="#" class="btn btn-sm btn-outline-danger">X</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end fs-4 title-gold">Total:</td>
+                                    <td class="fs-4 title-gold">{{ total_pedido|floatformat:2 }} Bs.</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
 
-        {% else %}
-        <div class="text-center py-5">
-          <h3>Tu carrito está vacío 🏜️</h3>
-          <p class="text-muted">
-            Parece que aún no te has decidido por nada del menú.
-          </p>
-          <a
-            href="{% url 'menu_page' %}"
-            class="btn btn-lg mt-3"
-            style="background-color: #c89b3f; color: #3d2422"
-          >
-            Ir al Menú
-          </a>
+                    <div class="text-center mt-5">
+                        <a href="{% url 'confirmar_pedido' %}" class="btn btn-outline-light btn-lg" style="border-color: #c89b3f; color: #f4f0e8; min-width: 250px;">
+                            Confirmar Pedido
+                        </a>
+                        <a href="{% url 'menu_page' %}" class="btn btn-link" style="color: #f4f0e8;">Seguir comprando</a>
+                    </div>
+
+                    {% else %}
+                    <p class="text-center fs-3">Tu carrito está vacío.</p>
+                    <div class="text-center">
+                        <a href="{% url 'menu_page' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Ir al Menú</a>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
         </div>
-        {% endif %}
-      </div>
     </div>
-  </div>
-</div>
+</main>
 {% endblock %}

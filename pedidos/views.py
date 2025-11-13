@@ -1,119 +1,113 @@
-from django.shortcuts import render
-
-from .models import Producto
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Producto
-
+from django.contrib.auth.decorators import login_required
 from .models import Producto, Pedido, DetallePedido
+from clientes.models import Cliente # Necesitamos esto para ligar el pedido
 
+# ===============================================
+# VISTA PARA MOSTRAR EL MENÚ
+# ===============================================
 def menu_view(request):
-    categorias = Producto.CATEGORIA_CHOICES
-    
-    # CAMBIO: Usamos .all() para traer TODO, sin importar si está disponible o no
-    productos = Producto.objects.all() 
-    
-    context = {
-        'categorias': categorias,
-        'productos': productos,
-    }
-    return render(request, 'menu.html', context)
+    productos = Producto.objects.filter(disponible=True)
+    return render(request, 'menu.html', {'productos': productos})
 
-def agregar_al_carrito(request, producto_id):
-    """Añade un producto a la sesión del usuario."""
-    # 1. Obtener el carrito de la sesión (o crear uno vacío si no existe)
+# ===============================================
+# VISTA PARA AÑADIR AL CARRITO (EN LA SESIÓN)
+# ===============================================
+def agregar_al_carrito_view(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    
+    # Usamos la sesión de Django para guardar el carrito
     carrito = request.session.get('carrito', {})
     
-    # 2. Convertir el ID a string (las sesiones usan claves string)
-    producto_id_str = str(producto_id)
+    # Convertimos el ID a string porque la sesión usa JSON
+    producto_id_str = str(producto.id)
     
-    # 3. Si el producto ya está, aumentamos la cantidad. Si no, lo añadimos.
+    # Añadimos o incrementamos la cantidad
     if producto_id_str in carrito:
-        carrito[producto_id_str] += 1
+        carrito[producto_id_str]['cantidad'] += 1
     else:
-        carrito[producto_id_str] = 1
-        
-    # 4. Guardar el carrito actualizado en la sesión
+        carrito[producto_id_str] = {'cantidad': 1, 'precio': float(producto.precio), 'nombre': producto.nombre_producto}
+    
     request.session['carrito'] = carrito
+    messages.success(request, f"'{producto.nombre_producto}' añadido al carrito.")
     
-    messages.success(request, 'Producto añadido a tu pedido.')
-    # Recargamos la misma página del menú
-    return redirect('menu_page')
+    return redirect('menu_page') # Vuelve a la página del menú
 
-def ver_carrito(request):
-    """Muestra el resumen del pedido actual."""
+# ===============================================
+# VISTA PARA VER EL CARRITO
+# ===============================================
+def ver_carrito_view(request):
     carrito = request.session.get('carrito', {})
-    items_carrito = []
+    items = []
     total_pedido = 0
-    
-    # Recuperamos los objetos Producto reales basados en los IDs de la sesión
-    for producto_id, cantidad in carrito.items():
-        producto = get_object_or_404(Producto, id=int(producto_id))
-        subtotal = producto.precio * cantidad
-        total_pedido += subtotal
-        items_carrito.append({
-            'producto': producto,
-            'cantidad': cantidad,
+
+    for producto_id, item in carrito.items():
+        subtotal = item['cantidad'] * item['precio']
+        items.append({
+            'producto_id': producto_id,
+            'nombre': item['nombre'],
+            'cantidad': item['cantidad'],
+            'precio': item['precio'],
             'subtotal': subtotal
         })
-        
-    context = {
-        'items_carrito': items_carrito,
-        'total_pedido': total_pedido
-    }
-    return render(request, 'carrito.html', context)
+        total_pedido += subtotal
 
+    return render(request, 'carrito.html', {'items': items, 'total_pedido': total_pedido})
 
-def confirmar_pedido(request):
-    """Toma el carrito de la sesión y crea un Pedido en la BD."""
+# ===============================================
+# VISTA PARA CONFIRMAR EL PEDIDO (GUARDAR EN BD)
+# ===============================================
+@login_required(login_url='login') # Proteger esta vista
+def confirmar_pedido_view(request):
     carrito = request.session.get('carrito', {})
-    
     if not carrito:
-        messages.error(request, "Tu carrito está vacío.")
+        messages.error(request, 'Tu carrito está vacío.')
         return redirect('menu_page')
 
     try:
-        # 1. Creamos la cabecera del Pedido
-        # (Por ahora sin usuario ni mesa, lo mejoraremos luego)
-        nuevo_pedido = Pedido.objects.create(
-            estado_pedido='PENDIENTE',
-            total=0 # Lo calcularemos ahora
-        )
+        # Asumimos que el Cliente está enlazado al User
+        cliente_actual = request.user.cliente
+    except Cliente.DoesNotExist:
+        messages.error(request, 'Error: Tu usuario no está enlazado a un perfil de cliente.')
+        return redirect('home')
 
-        total_pedido = 0
+    # 1. Crear el Pedido (la cabecera)
+    nuevo_pedido = Pedido.objects.create(
+        usuario=request.user,
+        # 'mesa' se deja en null, asumiendo que es un pedido online o se asignará después
+        estado_pedido='PENDIENTE' 
+        # El total se calculará ahora
+    )
+    
+    total_final = 0
+    
+    # 2. Crear los Detalles del Pedido
+    for producto_id, item_data in carrito.items():
+        producto = get_object_or_404(Producto, id=int(producto_id))
+        cantidad = item_data['cantidad']
+        precio_unitario = item_data['precio']
+        subtotal = cantidad * precio_unitario
         
-        # 2. Creamos los detalles (los ítems)
-        for producto_id, cantidad in carrito.items():
-            producto = Producto.objects.get(id=int(producto_id))
-            subtotal = producto.precio * cantidad
-            
-            DetallePedido.objects.create(
-                pedido=nuevo_pedido,
-                producto=producto,
-                cantidad=cantidad,
-                precio_unitario=producto.precio, # Guardamos el precio actual
-                subtotal=subtotal
-            )
-            total_pedido += subtotal
+        DetallePedido.objects.create(
+            pedido=nuevo_pedido,
+            producto=producto,
+            cantidad=cantidad,
+            precio_unitario=precio_unitario,
+            subtotal=subtotal # Asignamos el subtotal calculado
+        )
+        total_final += subtotal
+    
+    # 3. Actualizar el total del pedido
+    nuevo_pedido.total = total_final
+    nuevo_pedido.save()
+    
+    # 4. Limpiar el carrito de la sesión
+    del request.session['carrito']
+    
+    # 5. Redirigir a página de éxito
+    return redirect('pedido_exitoso')
 
-        # 3. Actualizamos el total del pedido
-        nuevo_pedido.total = total_pedido
-        nuevo_pedido.save()
 
-        # 4. Vaciamos el carrito de la sesión
-        del request.session['carrito']
-        request.session.modified = True
-
-        # 5. Redirigimos a la página de éxito
-        return redirect('pedido_exitoso', pedido_id=nuevo_pedido.id)
-
-    except Exception as e:
-        print(f"Error al crear pedido: {e}")
-        messages.error(request, "Hubo un error al procesar tu pedido.")
-        return redirect('ver_carrito')
-
-def pedido_exitoso(request, pedido_id):
-    """Muestra la confirmación final."""
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    return render(request, 'pedido_exitoso.html', {'pedido': pedido})
+def pedido_exitoso_view(request):
+    return render(request, 'pedido_exitoso.html')

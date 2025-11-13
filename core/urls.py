@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views  # Importa las vistas (views.py) de esta app
+from . import views
 
 urlpatterns = [
-    # Cuando alguien visite la URL raíz de esta app, llama a la vista "home"
-    path('', views.home, name='home'),
+    # Esta línea usa la 'inicio_view' que arreglamos en core/views.py
+    path('', views.inicio_view, name='home'),
 ]
