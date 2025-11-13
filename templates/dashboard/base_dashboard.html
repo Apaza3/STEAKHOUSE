@@ -23,7 +23,6 @@
             color: #f4f0e8;
             font-size: 1.1rem;
             margin-bottom: 10px;
-            /* Añadido para que el botón funcione bien */
             padding: .5rem 1rem;
             border-radius: .25rem;
         }
@@ -41,32 +40,17 @@
             color: #3d2422;
             font-family: 'Rye', serif;
         }
-
-        /* --- ¡AÑADIDO! Estilo para el botón de Logout --- */
         #dashboard-logout-button {
-            /* Resetea estilos de botón */
-            background: none;
-            border: none;
-            padding: 0;
-            
-            /* Asigna estilos de link del sidebar */
-            color: #f4f0e8;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            padding: .5rem 1rem; /* Asegura mismo padding que <a> */
-            display: block;
-            width: 100%;
-            text-align: left; /* Alinea como los <a> */
-            cursor: pointer;
-            border-radius: .25rem;
+            background: none; border: none; padding: 0;
+            color: #f4f0e8; font-size: 1.1rem; margin-bottom: 10px;
+            padding: .5rem 1rem; display: block; width: 100%;
+            text-align: left; cursor: pointer; border-radius: .25rem;
         }
         #dashboard-logout-button:hover {
             color: #ffffff;
             background-color: #c89b3f;
         }
         #dashboard-logout-button .fa { margin-right: 10px; }
-        /* --- FIN --- */
-
     </style>
 </head>
 <body>
@@ -75,35 +59,42 @@
     <div class="sidebar d-flex flex-column">
         <h2 class="fs-4 text-center mb-4" style="font-family: 'Rye', serif; color: #c89b3f;">THE STEAKHOUSE</h2>
         <h3 class="fs-5 text-center mb-4">Panel de Admin</h3>
+        
+        <!-- === MENÚ CORREGIDO === -->
         <ul class="nav flex-column mb-auto">
+            <!-- ¡NUEVO! Enlace de Pedidos (al principio) -->
+            <li class="nav-item">
+                <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_pedidos' %}">
+                    <i class="fa fa-receipt"></i> Pedidos
+                </a>
+            </li>
+            
             <li class="nav-item">
                 <a class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_productos' %}">
-                    <i class="fa fa-utensils"></i> Productos
+                    <i class="fa fa.utensils"></i> Productos
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_usuarios' %}">
-                    <i class="fa fa-users"></i> Usuarios
+                    <i class="fa fa.users"></i> Usuarios
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reportes' %}">
-                    <i class="fa fa-chart-line"></i> Reportes/Ventas
+                    <i class="fa fa.chart-line"></i> Reportes/Ventas
                 </a>
             </li>
         </ul>
+        <!-- === FIN DEL MENÚ === -->
+        
         <div class="mt-4">
             <a href="{% url 'home' %}" class="nav-link text-center"><i class="fa fa-globe"></i> Ver Sitio Web</a>
-
-            <!-- === ¡ARREGLO DE LOGOUT! === -->
-            <!-- Reemplazamos el <a> por un <form> -->
             <form action="{% url 'logout' %}" method="POST" class="text-center">
                 {% csrf_token %}
-                <button type="submit" id="dashboard-logout-button">
-                    <i class="fa fa-sign-out-alt"></i> Cerrar Sesión
+                <button typeid="submit" id="dashboard-logout-button">
+                    <i class="fa fa.sign-out-alt"></i> Cerrar Sesión
                 </button>
             </form>
-            <!-- === FIN DE ARREGLO === -->
         </div>
     </div>
 

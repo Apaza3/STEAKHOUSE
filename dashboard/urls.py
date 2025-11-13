@@ -15,7 +15,11 @@ urlpatterns = [
     path('usuarios/toggle-staff/<int:user_id>/', views.user_toggle_staff, name='user_toggle_staff'),
     path('usuarios/eliminar/<int:user_id>/', views.user_delete, name='user_delete'),
     
-    # --- ¡NUEVA LÍNEA! ---
     # URLs de Reportes
     path('reportes/', views.reportes_ventas_view, name='dashboard_reportes'),
+    
+    # --- ¡NUEVAS LÍNEAS! ---
+    # URLs de Pedidos
+    path('pedidos/', views.pedido_list, name='dashboard_pedidos'),
+    path('pedidos/detalle/<int:pk>/', views.pedido_detail, name='pedido_detail'),
 ]

@@ -1,0 +1,61 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fs-2">Gestión de Pedidos</h1>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header card-header-gold">
+        <h5 class="mb-0">Historial de Pedidos</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">ID Pedido</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Total (Bs.)</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pedidos %}
+                    <tr>
+                        <td><strong>#{{ p.id }}</strong></td>
+                        <td>{{ p.usuario.username }}</td>
+                        <td>{{ p.fecha_pedido|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if p.estado_pedido == 'PENDIENTE' %}
+                                <span class="badge bg-warning text-dark">{{ p.get_estado_pedido_display }}</span>
+                            {% elif p.estado_pedido == 'EN_PREPARACION' %}
+                                <span class="badge bg-info text-dark">{{ p.get_estado_pedido_display }}</span>
+                            {% elif p.estado_pedido == 'LISTO' %}
+                                <span class="badge bg-primary">{{ p.get_estado_pedido_display }}</span>
+                            {% elif p.estado_pedido == 'ENTREGADO' %}
+                                <span class="badge bg-success">{{ p.get_estado_pedido_display }}</span>
+                            {% elif p.estado_pedido == 'CANCELADO' %}
+                                <span class="badge bg-danger">{{ p.get_estado_pedido_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ p.total|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'pedido_detail' p.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-eye"></i> Ver Detalle
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay pedidos registrados todavía.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

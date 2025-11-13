@@ -1,0 +1,79 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block content %}
+<a href="{% url 'dashboard_pedidos' %}" class="btn btn-secondary mb-3">
+    <i class="fa fa-arrow-left"></i> Volver a la lista de Pedidos
+</a>
+
+<div class="row">
+    <!-- Columna 1: Detalles del Pedido -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Detalle del Pedido #{{ pedido.id }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Producto</th>
+                                <th scope="col">Cant.</th>
+                                <th scope="col">P. Unitario</th>
+                                <th scope="col">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pedido.detalles.all %}
+                            <tr>
+                                <td>{{ item.producto.nombre_producto }}</td>
+                                <td>{{ item.cantidad }}</td>
+                                <td>{{ item.precio_unitario|floatformat:2 }} Bs.</td>
+                                <td>{{ item.subtotal|floatformat:2 }} Bs.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end fs-5 fw-bold" style="color: #c89b3f;">TOTAL</td>
+                                <td class="fs-5 fw-bold" style="color: #c89b3f;">{{ pedido.total|floatformat:2 }} Bs.</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna 2: Información y Acciones -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Información del Pedido</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Cliente:</strong> {{ pedido.usuario.username }}</p>
+                <p><strong>Email:</strong> {{ pedido.usuario.email }}</p>
+                <p><strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</p>
+                <hr>
+
+                <!-- Formulario para cambiar estado -->
+                <form method="POST">
+                    {% csrf_token %}
+                    <label for="estado_pedido" class="form-label fw-bold">Actualizar Estado del Pedido:</label>
+                    <select name="estado_pedido" class="form-select">
+                        {% for value, name in pedido.ESTADO_PEDIDO_CHOICES %}
+                            <option value="{{ value }}" {% if pedido.estado_pedido == value %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary w-100 mt-3" style="background-color: #3d2422; border-color: #3d2422;">
+                        Actualizar Estado
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
