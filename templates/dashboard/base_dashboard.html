@@ -76,7 +76,7 @@
         <h2 class="fs-4 text-center mb-4" style="font-family: 'Rye', serif; color: #c89b3f;">THE STEAKHOUSE</h2>
         <h3 class="fs-5 text-center mb-4">Panel de Admin</h3>
         <ul class="nav flex-column mb-auto">
-             <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_productos' %}">
                     <i class="fa fa-utensils"></i> Productos
                 </a>
@@ -87,7 +87,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reportes' %}">
                     <i class="fa fa-chart-line"></i> Reportes/Ventas
                 </a>
             </li>

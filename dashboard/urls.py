@@ -10,9 +10,12 @@ urlpatterns = [
     path('productos/editar/<int:pk>/', views.producto_update, name='producto_update'),
     path('productos/eliminar/<int:pk>/', views.producto_delete, name='producto_delete'),
     
-    # --- ¡NUEVAS LÍNEAS! ---
     # URLs de Usuarios
     path('usuarios/', views.user_list, name='dashboard_usuarios'),
     path('usuarios/toggle-staff/<int:user_id>/', views.user_toggle_staff, name='user_toggle_staff'),
     path('usuarios/eliminar/<int:user_id>/', views.user_delete, name='user_delete'),
+    
+    # --- ¡NUEVA LÍNEA! ---
+    # URLs de Reportes
+    path('reportes/', views.reportes_ventas_view, name='dashboard_reportes'),
 ]

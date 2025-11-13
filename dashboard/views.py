@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from clientes.models import Cliente
 from productos.models import Producto
 from productos.forms import ProductoForm
+# (Próximamente importaremos Pedido y Reserva aquí)
 
 # ===============================================
 # DECORADOR PARA PROTEGER VISTAS DE ADMIN
@@ -78,13 +79,12 @@ def producto_delete(request, pk):
     return render(request, 'dashboard/producto_delete.html', context)
 
 # ===============================================
-# ¡NUEVO! VISTAS DE GESTIÓN DE USUARIOS
+# VISTAS DE GESTIÓN DE USUARIOS
 # ===============================================
 
 @admin_requerido
 def user_list(request):
     """Muestra todos los usuarios (admins y clientes)"""
-    # Usamos el modelo User de Django porque es la fuente de verdad
     usuarios = User.objects.all().order_by('username')
     context = {
         'usuarios': usuarios
@@ -99,7 +99,6 @@ def user_toggle_staff(request, user_id):
         return redirect('dashboard_usuarios')
         
     user = get_object_or_404(User, id=user_id)
-    # Invierte el estado de 'is_staff'
     user.is_staff = not user.is_staff
     user.save()
     
@@ -119,7 +118,18 @@ def user_delete(request, user_id):
         
     user = get_object_or_404(User, id=user_id)
     username = user.username
-    user.delete() # Esto borrará el User y (por 'on_delete=models.CASCADE') el Cliente
+    user.delete() 
     
     messages.success(request, f"El usuario '{username}' ha sido eliminado permanentemente.")
     return redirect('dashboard_usuarios')
+
+# ===============================================
+# ¡NUEVO! VISTA DE REPORTES DE VENTAS
+# ===============================================
+
+@admin_requerido
+def reportes_ventas_view(request):
+    # Por ahora, esta vista solo muestra el template.
+    # Más adelante, aquí consultaremos los modelos Pedido y Reserva.
+    context = {}
+    return render(request, 'dashboard/reportes_ventas.html', context)
