@@ -3,11 +3,12 @@ from django.urls import reverse
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
-from .models import Reserva
+from .models import Reserva, Mesa
+from clientes.models import Cliente # Importamos Cliente
 from .forms import ReservaForm
-from core.utils import enviar_email_automatico # ¡Tu función de email!
+from core.utils import enviar_email_automatico
+from django.contrib.auth.decorators import login_required # ¡IMPORTANTE!
 
-# --- Librerías para generar el QR ---
 import qrcode
 import io
 import base64
@@ -15,24 +16,34 @@ import base64
 # ===============================================
 # VISTA DEL FORMULARIO DE RESERVA
 # ===============================================
+@login_required(login_url='login') # ¡PROTEGIDA!
 def reservation_view(request):
+    
+    # Intentamos encontrar el cliente enlazado al usuario
+    try:
+        cliente_actual = Cliente.objects.get(usuario=request.user)
+    except Cliente.DoesNotExist:
+        messages.error(request, 'Error: Tu usuario no está enlazado a un perfil de cliente.')
+        return redirect('home')
+        
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
             reserva = form.save(commit=False)
             
-            # Lógica de redirección basada en el tipo de pago
+            # Asignamos el cliente automáticamente
+            reserva.cliente = cliente_actual 
+            
             if reserva.tipo_pago == 'SOLO_MESA':
                 reserva.estado = 'CONFIRMADA'
                 reserva.save()
                 
-                # ¡ENVIAR CORREO DE CONFIRMACIÓN!
                 try:
                     enviar_email_automatico(
-                        asunto='¡Tu reserva en The Steakhouse está confirmada!',
-                        template_path='emails/confirmacion_reserva.html',
-                        context_datos={'reserva': reserva, 'cliente': reserva.cliente},
-                        email_destino=reserva.cliente.email
+                        '¡Tu reserva en The Steakhouse está confirmada!',
+                        'emails/confirmacion_reserva.html',
+                        {'reserva': reserva, 'cliente': reserva.cliente},
+                        reserva.cliente.email
                     )
                     messages.success(request, '¡Reserva confirmada! Se ha enviado un correo con los detalles.')
                 except Exception as e:
@@ -43,40 +54,41 @@ def reservation_view(request):
             elif reserva.tipo_pago == 'PAGO_ADELANTADO':
                 reserva.estado = 'PENDIENTE'
                 reserva.save()
-                # Redirige a la vista de espera de QR
-                return redirect('payment_waiting_view', reserva_id=reserva.id)
+                return redirect('payment_waiting', reserva_id=reserva.id)
 
             elif reserva.tipo_pago == 'TARJETA':
                 reserva.estado = 'PENDIENTE'
                 reserva.save()
-                # Redirige a la NUEVA vista de pago con tarjeta
-                return redirect('payment_tarjeta_view', reserva_id=reserva.id)
+                return redirect('payment_tarjeta', reserva_id=reserva.id)
             
     else:
-        form = ReservaForm()
+        # Pre-llenamos el formulario con el cliente
+        form = ReservaForm(initial={'cliente': cliente_actual})
 
+    # Pasamos las mesas disponibles al formulario
+    mesas_disponibles = Mesa.objects.filter(estado='DISPONIBLE')
+    form.fields['mesa'].queryset = mesas_disponibles
+    
     return render(request, 'reservas.html', {'form': form})
 
 # ===============================================
-# VISTAS DE SIMULACIÓN DE PAGO (QR)
+# VISTAS DE SIMULACIÓN DE PAGO
 # ===============================================
 
-# 1. VISTA DE ESPERA DE PAGO (PARA LA PC)
+@login_required(login_url='login')
 def payment_waiting_view(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
+    reserva = get_object_or_404(Reserva, id=reserva_id, cliente__usuario=request.user)
     
-    # Construye la URL que irá dentro del QR
     confirm_url = request.build_absolute_uri(
-        reverse('payment_confirm_view', args=[reserva.id])
+        reverse('payment_confirm', args=[reserva.id])
     )
     
-    # Genera la imagen del QR en memoria
+    # Generar QR
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(confirm_url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     
-    # Convierte la imagen a formato Base64 para pasarla al HTML
     buffered = io.BytesIO()
     img.save(buffered, format="PNG")
     qr_image_base64 = base64.b64encode(buffered.getvalue()).decode()
@@ -84,63 +96,57 @@ def payment_waiting_view(request, reserva_id):
     context = {
         'reserva': reserva,
         'qr_image': qr_image_base64,
-        'check_status_url': reverse('check_reservation_status_view', args=[reserva.id])
+        'check_status_url': reverse('check_reservation_status', args=[reserva.id])
     }
     return render(request, 'payment_waiting.html', context)
 
-
-# 2. VISTA PARA EL CELULAR (EL "COMANDO" DE PAGO)
+# (Esta vista no necesita login, ya que la URL es secreta)
 def payment_confirm_view(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
     
     if reserva.estado == 'PENDIENTE':
+        reserva.estado_pago = 'PAGADO' # (Nota: este campo ya no existe, pero lo mantenemos por si acaso)
         reserva.estado = 'CONFIRMADA'
         reserva.save()
         
-        # ¡ACCIÓN CLAVE 2! Enviar el email de confirmación AHORA
         try:
             enviar_email_automatico(
-                asunto='¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
-                template_path='emails/confirmacion_reserva.html',
-                context_datos={'reserva': reserva, 'cliente': reserva.cliente},
-                email_destino=reserva.cliente.email
+                '¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
+                'emails/confirmacion_reserva.html',
+                {'reserva': reserva, 'cliente': reserva.cliente},
+                reserva.cliente.email
             )
         except Exception as e:
-            print(f"Error al enviar email de confirmación QR: {e}")
+            print(f"Error al enviar email de confirmación de pago: {e}")
 
     return HttpResponse("<h1>¡Pago Simulado Exitosamente!</h1><p>Tu reserva está confirmada. Puedes cerrar esta ventana.</p>")
 
-
-# 3. VISTA API PARA POLLING (EL "SONDEO" DE JAVASCRIPT)
+@login_required(login_url='login')
 def check_reservation_status_view(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
-    return JsonResponse({'status': reserva.estado}) # Devuelve 'PENDIENTE' o 'CONFIRMADA'
+    reserva = get_object_or_404(Reserva, id=reserva_id, cliente__usuario=request.user)
+    return JsonResponse({'status': reserva.estado})
 
-# ===============================================
-# VISTAS DE SIMULACIÓN DE PAGO (TARJETA)
-# ===============================================
+# === VISTAS PARA TARJETA ===
 
+@login_required(login_url='login')
 def payment_tarjeta_view(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
+    reserva = get_object_or_404(Reserva, id=reserva_id, cliente__usuario=request.user)
     return render(request, 'pago_tarjeta.html', {'reserva': reserva})
 
+@login_required(login_url='login')
 def payment_tarjeta_confirm(request, reserva_id):
-    # Esta vista sería llamada por el formulario de la tarjeta
-    reserva = get_object_or_404(Reserva, id=reserva_id)
+    reserva = get_object_or_404(Reserva, id=reserva_id, cliente__usuario=request.user)
     
     if reserva.estado == 'PENDIENTE':
-        # (Aquí iría la lógica de validación de la tarjeta con una API real)
-        
-        # Si el pago es exitoso:
         reserva.estado = 'CONFIRMADA'
         reserva.save()
         
         try:
             enviar_email_automatico(
-                asunto='¡Pago Aceptado! Tu reserva en The Steakhouse está lista.',
-                template_path='emails/confirmacion_reserva.html',
-                context_datos={'reserva': reserva, 'cliente': reserva.cliente},
-                email_destino=reserva.cliente.email
+                '¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
+                'emails/confirmacion_reserva.html',
+                {'reserva': reserva, 'cliente': reserva.cliente},
+                reserva.cliente.email
             )
             messages.success(request, '¡Pago aceptado y reserva confirmada! Se ha enviado un correo.')
         except Exception as e:

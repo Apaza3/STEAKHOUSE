@@ -47,7 +47,7 @@ class Pedido(models.Model):
     )
 
     mesa = models.ForeignKey(Mesa, on_delete=models.SET_NULL, null=True, blank=True)
-    mesero = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, help_text="Usuario que tomó el pedido")
+    mesero = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, help_text="Usuario que tomó el pedido", related_name='ventas_atendidas')
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Total calculado de la venta")
     creado_en = models.DateTimeField(auto_now_add=True)

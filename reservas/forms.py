@@ -1,39 +1,35 @@
 from django import forms
-from .models import Reserva
-from core.models import Mesa
-from clientes.models import Cliente
+from .models import Reserva, Mesa
 
 class ReservaForm(forms.ModelForm):
-    # Hacemos que la fecha y hora sean 'Inputs' de HTML5
-    fecha_reserva = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-lg'})
-    )
-    hora_reserva = forms.TimeField(
-        widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control form-control-lg'})
-    )
-
+    
     class Meta:
         model = Reserva
         fields = [
-            'cliente', 
-            'mesa', 
-            'fecha_reserva', 
-            'hora_reserva', 
-            'numero_personas', 
-            'tipo_pago'
+            'fecha_reserva',
+            'hora_reserva',
+            'numero_personas',
+            'mesa', # El campo 'cliente' se quita de aquí
+            'tipo_pago',
         ]
+        widgets = {
+            'fecha_reserva': forms.DateInput(attrs={'class': 'form-control form-control-lg', 'type': 'date'}),
+            'hora_reserva': forms.TimeInput(attrs={'class': 'form-control form-control-lg', 'type': 'time'}),
+            'numero_personas': forms.NumberInput(attrs={'class': 'form-control form-control-lg', 'min': '1'}),
+            'mesa': forms.Select(attrs={'class': 'form-select form-select-lg'}),
+            'tipo_pago': forms.Select(attrs={'class': 'form-select form-select-lg', 'id': 'id_tipo_pago'}),
+        }
+        labels = {
+            'fecha_reserva': 'Fecha de Reserva',
+            'hora_reserva': 'Hora de Reserva',
+            'numero_personas': 'Número de Personas',
+            'mesa': 'Mesa (Opcional)',
+            'tipo_pago': 'Tipo de Reserva',
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # Aplicamos clases de Bootstrap a todos los campos
-        self.fields['cliente'].widget.attrs.update({'class': 'form-select form-select-lg'})
-        self.fields['mesa'].widget.attrs.update({'class': 'form-select form-select-lg'})
-        self.fields['numero_personas'].widget.attrs.update({'class': 'form-control form-control-lg'})
-        self.fields['tipo_pago'].widget.attrs.update({'class': 'form-select form-select-lg'})
-        
-        # Hacemos que la mesa sea opcional en el formulario
+        # Hacemos que el campo 'mesa' no sea obligatorio
         self.fields['mesa'].required = False
-        
-        # Filtramos para mostrar solo mesas disponibles
-        self.fields['mesa'].queryset = Mesa.objects.filter(estado='DISPONIBLE')
+        # El queryset de 'mesa' se actualizará en la vista
+        self.fields['mesa'].queryset = Mesa.objects.none()

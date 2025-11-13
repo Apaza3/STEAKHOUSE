@@ -3,46 +3,62 @@
 
 {% block title %}Bienvenidos{% endblock %}
 
+<!-- Añadimos una clase al body (ver main.css) -->
 {% block body_class %}home-page{% endblock %}
 
 
 {% block content %}
 
+<!-- ======== PANTALLA DE INTRO (SPLASH) ======== -->
 <div id="splash-screen"></div>
 
+<!-- ======== CONTENIDO PRINCIPAL DE LA PÁGINA ======== -->
 <main id="main-content">
 
+    <!-- 1. HERO BANNER con el TÍTULO (Logo Circular) -->
     <div class="hero-section text-white shadow-lg">
+        
         <img src="{% static 'core/images/THE_STEAKHOUSE_text_logo.png' %}" alt="The Steakhouse" class="hero-title-image">
+
         <p class="lead fs-3">Auténtica parrilla americana.</p>
-        <a href="{% url 'reservas_page' %}" class="btn btn-outline-light btn-lg mt-3">
-            Haz tu Reserva
-        </a>
+        
+        <!-- === ¡BOTONES AÑADIDOS! === -->
+        <div class="mt-3">
+            <a href="{% url 'reservas_page' %}" class="btn btn-outline-light btn-lg m-2">
+                Haz tu Reserva
+            </a>
+            <a href="{% url 'menu_page' %}" class="btn btn-outline-light btn-lg m-2" style="border-color: #c89b3f; color: #f4f0e8;">
+                Ver el Menú
+            </a>
+        </div>
+        <!-- === FIN === -->
     </div>
 
+    <!-- 2. SECCIÓN DE BIENVENIDA -->
     <div class="container my-5 py-5">
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h2 class="display-5 title-gold">Bienvenidos a The Steakhouse</h2>
                 <p class="fs-5">
                     En The Steakhouse, cada corte de carne cuenta una historia. Nos dedicamos a la tradición de la parrilla americana...
-                </p>
-                <a href="#" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Ver el Menú</a>
+                </S>
+                <!-- (Botón de menú aquí abajo ya no es tan necesario, pero lo dejamos) -->
+                <a href="{% url 'menu_page' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Explorar Platos</a>
             </div>
             <div class="col-lg-6 d-none d-lg-block mt-4 mt-lg-0">
                 <img src="https://via.placeholder.com/500x350?text=Plato+Estrella" class="img-fluid rounded shadow-lg" alt="Plato principal">
             </div>
         </div>
     </div>
+    
+    <!-- (Resto de tu contenido de 'inicio.html'...) -->
 
-    <div class="container my-5">
-        <h2 class="text-center display-5 title-gold mb-5">Destacados</h2>
-        </div>
-
-</main> {% endblock %}
+</main>
+{% endblock %}
 
 
 {% block extra_js %}
+<!-- (Tu JavaScript de la intro va aquí, no ha cambiado) -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const introDuration = 2000; 
@@ -61,6 +77,10 @@
                 }, 1000); 
                 
             }, introDuration);
+        } else {
+            // Fallback para otras páginas
+            if (mainContent) mainContent.style.opacity = 1;
+            if (menuTrigger) menuTrigger.style.opacity = 1;
         }
     });
 </script>
