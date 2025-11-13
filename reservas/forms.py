@@ -9,8 +9,9 @@ class ReservaForm(forms.ModelForm):
             'fecha_reserva',
             'hora_reserva',
             'numero_personas',
-            'mesa', # El campo 'cliente' se quita de aquí
+            'mesa',
             'tipo_pago',
+            'cliente', # ¡Lo mantenemos aquí para que el form lo valide!
         ]
         widgets = {
             'fecha_reserva': forms.DateInput(attrs={'class': 'form-control form-control-lg', 'type': 'date'}),
@@ -18,6 +19,12 @@ class ReservaForm(forms.ModelForm):
             'numero_personas': forms.NumberInput(attrs={'class': 'form-control form-control-lg', 'min': '1'}),
             'mesa': forms.Select(attrs={'class': 'form-select form-select-lg'}),
             'tipo_pago': forms.Select(attrs={'class': 'form-select form-select-lg', 'id': 'id_tipo_pago'}),
+            
+            # --- ¡AQUÍ ESTÁ EL CAMBIO! ---
+            # Hacemos que el campo 'cliente' sea invisible.
+            # La vista se encargará de rellenarlo.
+            'cliente': forms.HiddenInput(),
+            # --- FIN DEL CAMBIO ---
         }
         labels = {
             'fecha_reserva': 'Fecha de Reserva',
