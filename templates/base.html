@@ -35,6 +35,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
+            <!-- Lista de navegación -->
             <ul class="nav-links">
                 <li><a href="{% url 'home' %}">Inicio</a></li>
                 <li><a href="{% url 'menu_page' %}">Menú</a></li>
@@ -43,23 +44,35 @@
                 
                 <li class="divider"></li>
 
+                <!-- Lógica de Usuario -->
                 {% if user.is_authenticated %}
                     <li><a href="#">Mi Perfil</a></li>
                     <li><a href="#">Mis Pedidos</a></li>
                     
                     {% if user.is_staff %}
                     <li class="divider"></li>
-                    <li><a href="#">Ver Reportes (Admin)</a></li>
+                    <li><a href="{% url 'dashboard_home' %}">Panel de Admin</a></li>
                     {% endif %}
 
                     <li class="divider"></li>
-                    <li><a href="{% url 'logout' %}">Salir</a></li>
+                    
+                    <!-- === ¡AQUÍ ESTÁ EL ARREGLO! === -->
+                    <!-- Reemplazamos el <a> por un <form> -->
+                    <li>
+                        <form action="{% url 'logout' %}" method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link-button">Salir</button>
+                        </form>
+                    </li>
+                    <!-- === FIN DEL ARREGLO === -->
+
                 {% else %}
                     <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
                     <li><a href="{% url 'register' %}">Registrarse</a></li>
                 {% endif %}
             </ul>
 
+            <!-- Carrito (fijo al final del menú) -->
             <a href="{% url 'ver_carrito' %}" class="btn btn-outline-light position-relative w-100 mt-auto">
                 Carrito 🛒
                 {% if request.session.carrito %}
@@ -68,7 +81,7 @@
                 </span>
                 {% endif %}
             </a>
-        </div>
+</div>
     </div>
 
     {% if messages %}

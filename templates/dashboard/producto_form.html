@@ -1,0 +1,65 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">{% if producto %}Editar Producto{% else %}Crear Nuevo Producto{% endif %}</h5>
+            </div>
+            <div class="card-body p-4">
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.nombre_producto.id_for_label }}" class="form-label">Nombre del Producto</label>
+                        {{ form.nombre_producto }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                        {{ form.descripcion }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.precio.id_for_label }}" class="form-label">Precio (Bs.)</label>
+                            {{ form.precio }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.categoria.id_for_label }}" class="form-label">Categoría</label>
+                            {{ form.categoria }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.imagen.id_for_label }}" class="form-label">Foto del Producto</label>
+                        {{ form.imagen }}
+                        {% if producto.imagen %}
+                            <small class="d-block mt-1">Actual: <a href="{{ producto.imagen.url }}" target="_blank">{{ producto.imagen.name }}</a></small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        {{ form.disponible }}
+                        <label class="form-check-label" for="{{ form.disponible.id_for_label }}">
+                            ¿Está disponible para la venta?
+                        </label>
+                    </div>
+
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard_productos' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary" style="background-color: #3d2422; border-color: #3d2422;">
+                            Guardar Producto
+                        </button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

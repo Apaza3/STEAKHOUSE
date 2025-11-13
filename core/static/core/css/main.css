@@ -84,3 +84,30 @@ ul.nav-links li.divider { height: 2px; background-color: #c89b3f; margin: 1.5rem
 .hero-title-image { width: 90%; max-width: 600px; height: auto; margin-bottom: 2rem; }
 .card-dark-theme { background-color: #4a2c2a; border: 1px solid #c89b3f; color: #f4f0e8; transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .card-dark-theme:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(200, 155, 63, 0.2); }
+
+/* ... (después de ul.nav-links li a:hover) ... */
+
+/* === ¡ESTILO NUEVO PARA EL BOTÓN SALIR! === */
+ul.nav-links li .nav-link-button {
+    /* 1. Copiamos todos los estilos del <a> */
+    color: #f4f0e8;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-family: 'Rye', serif;
+    padding: 8px 15px;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    
+    /* 2. Reseteamos los estilos de <button> */
+    background: none;
+    border: none;
+    text-align: left; /* Alinear como los <a> */
+    width: 100%; /* Ocupar todo el <li> */
+}
+ul.nav-links li .nav-link-button:hover {
+    background-color: #c89b3f;
+    color: #2a1a19;
+    cursor: pointer; /* Mostrar la manito */
+}
+/* === FIN DEL ESTILO NUEVO === */

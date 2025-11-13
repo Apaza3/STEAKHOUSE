@@ -31,9 +31,9 @@ class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     
     def get_success_url(self):
-        # Redirigir a /admin/ si es staff, o a / (home) si es cliente
+        # ¡ARREGLO! Redirige a /panel/ si es staff, o a / (home) si es cliente
         if self.request.user.is_staff:
-            return reverse_lazy('admin:index')
+            return reverse_lazy('dashboard_home')
         return reverse_lazy('home')
 
     def form_invalid(self, form):
