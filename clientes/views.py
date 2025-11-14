@@ -14,6 +14,12 @@ def register_view(request):
         if form.is_valid():
             cliente = form.save()
             
+            # ==========================================================
+            # ¡ESTA ES LA LÍNEA QUE FALTABA!
+            # Sin esto, 'login()' no sabe cómo manejar al nuevo usuario.
+            cliente.usuario.backend = 'django.contrib.auth.backends.ModelBackend'
+            # ==========================================================
+
             # Iniciar sesión automáticamente al nuevo usuario
             login(request, cliente.usuario)
             
@@ -22,6 +28,8 @@ def register_view(request):
     else:
         form = ClienteRegistrationForm()
         
+    # Esta línea maneja tanto las peticiones GET (formulario vacío)
+    # como los POST inválidos (formulario con errores).
     return render(request, 'registration/register.html', {'form': form})
 
 # ===============================================

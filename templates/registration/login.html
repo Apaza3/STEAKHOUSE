@@ -1,46 +1,133 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}Iniciar Sesión{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Estilo específico para la página de login */
+    .login-page-background {
+        /* Usamos una imagen de fondo "Fuego/Parrilla" */
+        background-image: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<main id="main-content" class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            
-            <div class="card card-dark-theme shadow-lg">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="text-center title-gold display-5 mb-4">Iniciar Sesión</h1>
+<!-- 
+  ================================================================
+  SECCIÓN DE LOGIN (FASE 2)
+  ================================================================
+-->
+<div class="login-page-background d-flex align-items-center py-5" style="min-height: calc(100vh - 140px);"> <!-- 140px = alto aprox de header+footer -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
+                
+                <!-- 
+                  Usamos la clase .login-container de main.css 
+                  para el efecto de vidrio oscuro (backdrop-filter) 
+                -->
+                <div class="login-container">
                     
-                    <form method="POST" action="{% url 'login' %}">
+                    <!-- 1. Logo -->
+                    <div class="text-center mb-4">
+                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="width: 100px;">
+                    </div>
+                    
+                    <!-- 2. Mensaje de Bienvenida -->
+                    <h3 class="text-center text-white font-serif-display mb-1">
+                        Bienvenido de Vuelta
+                    </h3>
+                    <p class="text-center text-secondary mb-4">
+                        Ingresa tus credenciales para continuar.
+                    </p>
+
+                    <!-- Formulario de Login -->
+                    <form method="POST">
                         {% csrf_token %}
                         
+                        <!-- Campo de Usuario con botón de Limpiar -->
                         <div class="mb-3">
-                            <label for="id_username" class="form-label fs-5">Nombre de Usuario</label>
-                            <input type="text" name="username" class="form-control form-control-lg" id="id_username" required>
+                            <label for="id_username" class="form-label fw-bold">Usuario:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary">
+                                    <i class="fa fa-user text-danger-emphasis"></i>
+                                </span>
+                                <input type="text" name="username" id="id_username" class="form-control form-control-lg" placeholder="Tu nombre de usuario" required>
+                                <!-- 3. Botón de Limpiar -->
+                                <span class="btn-clear" id="clear-username" title="Limpiar">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                            </div>
                         </div>
                         
-                        <div class="mb-4">
-                            <label for="id_password" class="form-label fs-5">Contraseña</label>
-                            <input type="password" name="password" class="form-control form-control-lg" id="id_password" required>
+                        <!-- Campo de Contraseña con botón de Limpiar -->
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label fw-bold">Contraseña:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary">
+                                    <i class="fa fa-lock text-danger-emphasis"></i>
+                                </span>
+                                <input type="password" name="password" id="id_password" class="form-control form-control-lg" placeholder="Tu contraseña" required>
+                                <!-- 3. Botón de Limpiar -->
+                                <span class="btn-clear" id="clear-password" title="Limpiar">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                            </div>
                         </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-outline-light btn-lg" style="border-color: #c89b3f; color: #f4f0e8;">
-                                Entrar
+
+                        <!-- Botón de Envío -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primario btn-lg fw-bold">
+                                Iniciar Sesión
                             </button>
                         </div>
+                        
+                        <!-- Enlaces -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="#" class="text-decoration-none text-danger-emphasis">¿Olvidaste tu contraseña?</a>
+                            <a href="{% url 'register' %}" class="text-decoration-none text-white">¿No tienes cuenta? Regístrate</a>
+                        </div>
                     </form>
-                    
-                    <hr class="my-4" style="border-color: #c89b3f;">
-                    
-                    <div class="text-center">
-                        <p>¿No tienes una cuenta?</p>
-                        <a href="{% url 'register' %}" class="btn btn-dark" style="background-color: #4a2c2a; border-color: #c89b3f;">Regístrate Aquí</a>
-                    </div>
+
                 </div>
             </div>
-
         </div>
     </div>
-</main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 
+  ================================================================
+  JAVASCRIPT PARA BOTONES DE LIMPIAR
+  ================================================================
+-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Limpiar campo de usuario
+        const clearUser = document.getElementById('clear-username');
+        const userInput = document.getElementById('id_username');
+        if (clearUser && userInput) {
+            clearUser.addEventListener('click', function() {
+                userInput.value = '';
+                userInput.focus();
+            });
+        }
+        
+        // Limpiar campo de contraseña
+        const clearPass = document.getElementById('clear-password');
+        const passInput = document.getElementById('id_password');
+        if (clearPass && passInput) {
+            clearPass.addEventListener('click', function() {
+                passInput.value = '';
+                passInput.focus();
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -1,86 +1,239 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Registro de Cliente{% endblock %}
+
+{% block title %}Crear Cuenta{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilo específico para la página de registro (igual que login) */
+    .register-page-background {
+        background-image: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>{% endblock %}
 
 {% block content %}
-<main id="main-content" class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            
-            <div class="card card-dark-theme shadow-lg">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="text-center title-gold display-5 mb-4">Crear tu Cuenta</h1>
-                    <p class="text-center fs-5 mb-4">
-                        Regístrate como cliente para gestionar tus reservas y pedidos.
-                    </p>
+<!-- 
+  ================================================================
+  SECCIÓN DE REGISTRO (FASE 2) - CORREGIDO
+  ================================================================
+-->
+<div class="register-page-background d-flex align-items-center flex-grow-1 py-3 py-lg-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
+                
+                <div class="login-container">
                     
-                    <form method="POST" action="{% url 'register' %}" id="registrationForm">
+                    <!-- Logo -->
+                    <div class="text-center mb-4">
+                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="width: 100px;">
+                    </div>
+                    
+                    <!-- Mensaje de Bienvenida -->
+                    <h3 class="text-center text-white font-serif-display mb-1">
+                        Crear una Cuenta
+                    </h3>
+                    <p class="text-center text-secondary mb-4">
+                        Regístrate para hacer reservas y pedidos.
+                    </p>
+
+                    <!-- Formulario de Registro -->
+                    <form method="POST">
                         {% csrf_token %}
-                        
-                        <!-- Mostramos errores del formulario (ej. passwords no coinciden) -->
+
+                        <!-- ============================================= -->
+                        <!-- MOSTRAR ERRORES GENERALES (ej. Passwords no coinciden) -->
+                        <!-- ============================================= -->
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
+                            <div class="alert alert-danger" role="alert">
                                 {% for error in form.non_field_errors %}
-                                    <p>{{ error }}</p>
+                                    {{ error }}
                                 {% endfor %}
                             </div>
                         {% endif %}
 
-                        <h3 class="title-gold fs-4 mt-4 mb-3">Datos del Cliente</h3>
-                        <div class="row g-3">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre</label>
-                                {{ form.nombre }}
-                                {{ form.nombre.errors }}
+                        <!-- ============================================= -->
+                        <!-- ¡IMPORTANTE! MOSTRAR CAMPOS DEL MODELO CLIENTE -->
+                        <!-- (nombre, apellido, telefono)                 -->
+                        <!-- ============================================= -->
+                        <div class.row>
+                            <div class="col-md-6">
+                                <!-- Campo Nombre (de Cliente) -->
+                                <div class="mb-3">
+                                    <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">Nombre:</label>
+                                    <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}" 
+                                           class="form-control form-control-lg {% if form.nombre.errors %}is-invalid{% endif %}" 
+                                           placeholder="Tu nombre" 
+                                           value="{{ form.nombre.value|default:'' }}" required>
+                                    {% if form.nombre.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.nombre.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.apellido.id_for_label }}" class="form-label">Apellido</label>
-                                {{ form.apellido }}
-                                {{ form.apellido.errors }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                                {{ form.email }}
-                                {{ form.email.errors }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono (Opcional)</label>
-                                {{ form.telefono }}
-                                {{ form.telefono.errors }}
+                            <div class="col-md-6">
+                                <!-- Campo Apellido (de Cliente) -->
+                                <div class="mb-3">
+                                    <label for="{{ form.apellido.id_for_label }}" class="form-label fw-bold">Apellido:</label>
+                                    <input type="text" name="{{ form.apellido.name }}" id="{{ form.apellido.id_for_label }}" 
+                                           class="form-control form-control-lg {% if form.apellido.errors %}is-invalid{% endif %}" 
+                                           placeholder="Tu apellido" 
+                                           value="{{ form.apellido.value|default:'' }}" required>
+                                    {% if form.apellido.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.apellido.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
 
-                        <hr class="my-4" style="border-color: #c89b3f;">
+                        <!-- Campo de Usuario (de User) -->
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label fw-bold">Usuario:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary {% if form.username.errors %}border-danger{% endif %}">
+                                    <i class="fa fa-user text-danger-emphasis"></i>
+                                </span>
+                                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
+                                       class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}" 
+                                       placeholder="Elige un nombre de usuario" 
+                                       value="{{ form.username.value|default:'' }}" required>
+                                <span class="btn-clear" id="clear-username" title="Limpiar">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
 
-                        <h3 class="title-gold fs-4 mb-3">Datos de Cuenta</h3>
-                        <div class_row="g-3">
-                            <div class="mb-3">
-                                <label for="{{ form.username.id_for_label }}" class="form-label">Nombre de Usuario</label>
-                                {{ form.username }}
-                                {{ form.username.errors }}
+                        <!-- Campo de Email (de Cliente Y User) -->
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Email:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary {% if form.email.errors %}border-danger{% endif %}">
+                                    <i class="fa fa.envelope text-danger-emphasis"></i>
+                                </span>
+                                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" 
+                                       class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" 
+                                       placeholder="Tu correo electrónico" 
+                                       value="{{ form.email.value|default:'' }}" required>
+                                <span class="btn-clear" id="clear-email" title="Limpiar">
+                                    <i class="fa fa-times"></i>
+                                </span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.password.id_for_label }}" class="form-label">Contraseña</label>
-                                {{ form.password }}
-                                {{ form.password.errors }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.password_confirm.id_for_label }}" class="form-label">Confirmar Contraseña</label>
-                                {{ form.password_confirm }}
-                                {{ form.password_confirm.errors }}
-                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo de Teléfono (de Cliente) -->
+                        <div class="mb-3">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">Teléfono (Opcional):</label>
+                            <input type="text" name="{{ form.telefono.name }}" id="{{ form.telefono.id_for_label }}" 
+                                   class="form-control form-control-lg {% if form.telefono.errors %}is-invalid{% endif %}" 
+                                   placeholder="Ej. 77712345" 
+                                   value="{{ form.telefono.value|default:'' }}">
+                            {% if form.telefono.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.telefono.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                         
-                        <div class="text-center mt-5">
-                            <button type="submit" class="btn btn-outline-light btn-lg" style="border-color: #c89b3f; color: #f4f0e8; min-width: 250px;">
-                                Crear Cuenta
+                        <!-- Campo de Contraseña 1 -->
+                        <div class="mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label fw-bold">Contraseña:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary {% if form.password.errors %}border-danger{% endif %}">
+                                    <i class="fa fa-lock text-danger-emphasis"></i>
+                                </span>
+                                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" 
+                                       class="form-control form-control-lg {% if form.password.errors %}is-invalid{% endif %}" 
+                                       placeholder="Crea una contraseña" required>
+                                <span class="btn-clear" id="clear-password" title="Limpiar">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                            </div>
+                             {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ============================================= -->
+                        <!-- ¡CORREGIDO! usa "password_confirm" -->
+                        <!-- ============================================= -->
+                        <div class="mb-3">
+                            <label for="{{ form.password_confirm.id_for_label }}" class="form-label fw-bold">Confirmar Contraseña:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary {% if form.password_confirm.errors %}border-danger{% endif %}">
+                                    <i class="fa fa-lock text-danger-emphasis"></i>
+                                </span>
+                                <input type="password" name="{{ form.password_confirm.name }}" id="{{ form.password_confirm.id_for_label }}" 
+                                       class="form-control form-control-lg {% if form.password_confirm.errors %}is-invalid{% endif %}" 
+                                       placeholder="Repite la contraseña" required>
+                                <span class="btn-clear" id="clear-password-confirm" title="Limpiar">
+                                    <i class="fa fa-times"></i>
+                                </span>
+                            </div>
+                             {% if form.password_confirm.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password_confirm.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botón de Envío -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primario btn-lg fw-bold">
+                                Registrarme
                             </button>
                         </div>
+                        
+                        <!-- Enlaces -->
+                        <div class="text-center mt-4">
+                            <a href="{% url 'login' %}" class="text-decoration-none text-white">¿Ya tienes cuenta? Inicia sesión</a>
+                        </div>
                     </form>
+
                 </div>
             </div>
-
         </div>
     </div>
-</main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Script para los botones de limpiar -->
+<script>
+    function setupClearButton(buttonId, inputId) {
+        const clearButton = document.getElementById(buttonId);
+        const inputField = document.getElementById(inputId);
+        
+        if (clearButton && inputField) {
+            clearButton.addEventListener('click', function() {
+                inputField.value = '';
+                inputField.focus();
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        setupClearButton('clear-username', '{{ form.username.id_for_label }}');
+        setupClearButton('clear-email', '{{ form.email.id_for_label }}');
+        setupClearButton('clear-password', '{{ form.password.id_for_label }}');
+        setupClearButton('clear-password-confirm', '{{ form.password_confirm.id_for_label }}');
+    });
+</script>
 {% endblock %}
