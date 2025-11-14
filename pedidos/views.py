@@ -5,14 +5,13 @@ from .models import Producto, Pedido, DetallePedido
 from clientes.models import Cliente
 
 # ===============================================
-# VISTA DEL MENÚ (CORREGIDA)
+# VISTA DEL MENÚ (Protegida)
 # ===============================================
-@login_required(login_url='login') 
+@login_required(login_url='login') # ¡PROTEGIDA!
 def menu_view(request):
     productos = Producto.objects.filter(disponible=True)
     
-    # --- ¡NUEVA LÓGICA DE CÁLCULO! ---
-    # Hacemos los cálculos aquí, no en el template.
+    # Lógica del carrito (para el modal)
     carrito_session = request.session.get('carrito', {})
     items_del_carrito = []
     total_del_carrito = 0
@@ -24,22 +23,21 @@ def menu_view(request):
             'nombre': item['nombre'],
             'cantidad': item['cantidad'],
             'precio': item['precio'],
-            'subtotal': subtotal  # Pasamos el subtotal ya calculado
+            'subtotal': subtotal
         })
         total_del_carrito += subtotal
-    # --- FIN DE LA LÓGICA ---
     
     context = {
         'productos': productos,
-        'items_del_carrito': items_del_carrito, # Usamos la lista calculada
-        'total_del_carrito': total_del_carrito  # Usamos el total calculado
+        'items_del_carrito': items_del_carrito,
+        'total_del_carrito': total_del_carrito
     }
     return render(request, 'menu.html', context)
 
 # ===============================================
 # VISTA PARA AÑADIR AL CARRITO
 # ===============================================
-@login_required(login_url='login')
+@login_required(login_url='login') # ¡PROTEGIDA!
 def agregar_al_carrito_view(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     carrito = request.session.get('carrito', {})
@@ -58,13 +56,14 @@ def agregar_al_carrito_view(request, producto_id):
 # ===============================================
 # VISTA PARA VER EL CARRITO (Simplificada)
 # ===============================================
-@login_required(login_url='login')
+@login_required(login_url='login') # ¡PROTEGIDA!
 def ver_carrito_view(request):
-    # Redirige de nuevo al menú, donde se muestra el modal
+    # Esta vista ahora solo redirige al menú.
+    # El carrito se mostrará en un modal en la misma página del menú.
     return redirect('menu_page')
 
 # ===============================================
-# VISTA PARA CONFIRMAR EL PEDIDO (CORREGIDA)
+# VISTA PARA CONFIRMAR EL PEDIDO (¡CORREGIDA!)
 # ===============================================
 @login_required(login_url='login') 
 def confirmar_pedido_view(request):
@@ -73,19 +72,22 @@ def confirmar_pedido_view(request):
         messages.error(request, 'Tu carrito está vacío.')
         return redirect('menu_page')
 
-    # --- ¡ARREGLO DEL AttributeError! ---
+    # --- ¡ESTE ES EL ARREGLO DEL CRASH! ---
     try:
+        # Ahora sí podemos buscar 'request.user.cliente'
+        # porque el modelo Cliente TIENE el campo 'usuario'.
         cliente_actual = request.user.cliente 
     except Cliente.DoesNotExist:
+        # Si falla (ej. es 'potasio'), no enlazamos cliente.
         cliente_actual = None 
     # --- FIN DEL ARREGLO ---
 
     # 1. Crear el Pedido
     nuevo_pedido = Pedido.objects.create(
-        usuario=request.user,
-        cliente=cliente_actual,
-        estado_pedido='EN_PREPARACION',
-        total = 0 
+        usuario=request.user,  # El User logueado
+        cliente=cliente_actual, # El Cliente enlazado (si existe)
+        estado_pedido='EN_PREPARACION', # Como es pago en restaurante, entra a preparación
+        total = 0 # El total se calculará ahora
     )
     
     total_final = 0
@@ -99,6 +101,7 @@ def confirmar_pedido_view(request):
             pedido=nuevo_pedido,
             producto=producto,
             cantidad=cantidad
+            # El precio_unitario y subtotal se calculan solos (ver models.py)
         )
         total_final += detalle.subtotal
     

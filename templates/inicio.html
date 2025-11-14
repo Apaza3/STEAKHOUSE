@@ -1,87 +1,146 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Bienvenidos{% endblock %}
-
-<!-- Añadimos una clase al body (ver main.css) -->
-{% block body_class %}home-page{% endblock %}
-
+{% block title %}Bienvenidos a The Steakhouse{% endblock %}
 
 {% block content %}
 
-<!-- ======== PANTALLA DE INTRO (SPLASH) ======== -->
-<div id="splash-screen"></div>
-
-<!-- ======== CONTENIDO PRINCIPAL DE LA PÁGINA ======== -->
-<main id="main-content">
-
-    <!-- 1. HERO BANNER con el TÍTULO (Logo Circular) -->
-    <div class="hero-section text-white shadow-lg">
-        
-        <img src="{% static 'core/images/THE_STEAKHOUSE_text_logo.png' %}" alt="The Steakhouse" class="hero-title-image">
-
-        <p class="lead fs-3">Auténtica parrilla americana.</p>
-        
-        <!-- === ¡BOTONES AÑADIDOS! === -->
-        <div class="mt-3">
-            <a href="{% url 'reservas_page' %}" class="btn btn-outline-light btn-lg m-2">
-                Haz tu Reserva
-            </a>
-            <a href="{% url 'menu_page' %}" class="btn btn-outline-light btn-lg m-2" style="border-color: #c89b3f; color: #f4f0e8;">
-                Ver el Menú
-            </a>
-        </div>
-        <!-- === FIN === -->
-    </div>
-
-    <!-- 2. SECCIÓN DE BIENVENIDA -->
-    <div class="container my-5 py-5">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="display-5 title-gold">Bienvenidos a The Steakhouse</h2>
-                <p class="fs-5">
-                    En The Steakhouse, cada corte de carne cuenta una historia. Nos dedicamos a la tradición de la parrilla americana...
-                </S>
-                <!-- (Botón de menú aquí abajo ya no es tan necesario, pero lo dejamos) -->
-                <a href="{% url 'menu_page' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Explorar Platos</a>
-            </div>
-            <div class="col-lg-6 d-none d-lg-block mt-4 mt-lg-0">
-                <img src="https://via.placeholder.com/500x350?text=Plato+Estrella" class="img-fluid rounded shadow-lg" alt="Plato principal">
-            </div>
-        </div>
-    </div>
+<!-- 
+  ================================================================
+  SECCIÓN 1: BIENVENIDA (HERO) - (Versión Bootstrap)
+  ================================================================
+-->
+<!-- El 'id' es para el ancla del smooth scroll -->
+<div id="inicio" class="position-relative d-flex align-items-center justify-content-center" style="min-height: 75vh; padding-top: 4rem; padding-bottom: 8rem;">
+    <!-- Este div crea el overlay oscuro sobre la imagen de fondo del body -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-25"></div>
     
-    <!-- (Resto de tu contenido de 'inicio.html'...) -->
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <h1 class="font-serif-display text-white" style="font-size: 4.5rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.7);">
+                    Pasión por la <span class="text-danger">Parrilla</span>
+                </h1>
+                <p class="mt-4 text-light fs-4" style="font-weight: 300;">
+                    Descubre una experiencia gastronómica inolvidable. Los mejores cortes, el ambiente perfecto.
+                </p>
+                <a href="{% url 'reservas_page' %}" class="btn btn-danger btn-lg mt-4 py-3 px-5 fs-5 fw-bold shadow-lg">
+                    Hacer una Reserva
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-</main>
-{% endblock %}
+<!-- 
+  ================================================================
+  SECCIÓN 2: CUERPO (BODY) CON CONTENIDO INTERCALADO - (Versión Bootstrap)
+  ================================================================
+-->
 
+<!-- ============================================= -->
+<!-- Fila 1: "Quiénes Somos" (Texto / Imagen)      -->
+<!-- Fondo: Base (#1a1a1a)                       -->
+<!-- ============================================= -->
+<div id="nosotros" class="section-container">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <!-- Columna de Texto -->
+            <div class="col-lg-6">
+                <div class="text-container-overlay">
+                    <h2 class="section-title">Quiénes Somos</h2>
+                    <p class="fs-5 mb-3">
+                        The Steakhouse nació de un sueño: traer los mejores cortes de carne del mundo y prepararlos con la pasión del fuego boliviano. Somos más que un restaurante; somos un punto de encuentro para los amantes del buen comer.
+                    </p>
+                    <p class="fs-5">
+                        Nuestro compromiso es con la calidad, desde el origen de nuestros ingredientes hasta el servicio experto en tu mesa. Cada plato cuenta una historia.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Columna de Imagen -->
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
+                     alt="Corte de carne jugoso a la parrilla"
+                     class="img-fluid content-image">
+            </div>
+        </div>
+    </div>
+</div>
 
-{% block extra_js %}
-<!-- (Tu JavaScript de la intro va aquí, no ha cambiado) -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const introDuration = 2000; 
-        const splashScreen = document.getElementById('splash-screen');
-        const mainContent = document.getElementById('main-content');
-        const menuTrigger = document.getElementById('menu-trigger-button');
+<!-- ============================================= -->
+<!-- Fila 2: "Nuestros Horarios" (Imagen / Texto)   -->
+<!-- Fondo: Alternativo (#24201f)                -->
+<!-- ============================================= -->
+<div id="horarios" class="section-container section-bg-alt">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <!-- Columna de Imagen (Orden: 1) -->
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" 
+                     alt="Ambiente interior del restaurante The Steakhouse"
+                     class="img-fluid content-image">
+            </div>
 
-        if (splashScreen && mainContent && menuTrigger) {
-            setTimeout(function() {
-                splashScreen.style.opacity = 0;
-                mainContent.style.opacity = 1;
-                menuTrigger.style.opacity = 1;
-                
-                setTimeout(() => {
-                    splashScreen.style.display = 'none';
-                }, 1000); 
-                
-            }, introDuration);
-        } else {
-            // Fallback para otras páginas
-            if (mainContent) mainContent.style.opacity = 1;
-            if (menuTrigger) menuTrigger.style.opacity = 1;
-        }
-    });
-</script>
+            <!-- Columna de Texto (Orden: 2) -->
+            <div class="col-lg-6">
+                <div class="text-container-overlay">
+                    <h2 class="section-title">Nuestros Horarios</h2>
+                    <p class="fs-5 mb-4">
+                        Te esperamos para compartir momentos inolvidables. Encuéntranos en el corazón de Megacenter.
+                    </p>
+                    <ul class="list-unstyled fs-5">
+                        <li class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-3">
+                            <span class="fw-bold text-danger-emphasis">Lunes a Jueves:</span>
+                            <span>12:00 PM - 10:00 PM</span>
+                        </li>
+                        <li class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-3">
+                            <span class="fw-bold text-danger-emphasis">Viernes y Sábado:</span>
+                            <span>12:00 PM - 11:30 PM</span>
+                        </li>
+                        <li class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-3">
+                            <span class="fw-bold text-danger-emphasis">Domingos:</span>
+                            <span>11:00 AM - 9:00 PM</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================= -->
+<!-- Fila 3: "Novedades" (Texto / Imagen)          -->
+<!-- Fondo: Base (#1a1a1a)                       -->
+<!-- ============================================= -->
+<div id="novedades" class="section-container">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <!-- Columna de Texto (Orden: 1) -->
+            <div class="col-lg-6">
+                <div class="text-container-overlay">
+                    <h2 class="section-title">Novedades</h2>
+                    <h3 class="font-serif-display text-white fs-2 mb-3">El Corte del Mes: Tomahawk</h3>
+                    <p class="fs-5 mb-3">
+                        Este mes, te retamos a probar nuestra estrella: un imponente Tomahawk de 1.2kg, madurado a la perfección y sellado en nuestras brasas.
+                    </p>
+                    <p class="fs-5">
+                        Ideal para compartir (o no), viene acompañado de dos guarniciones a elección y nuestra salsa chimichurri de la casa.
+                    </p>
+                    <a href="{% url 'menu_page' %}" class="btn btn-link text-danger-emphasis fs-5 p-0 mt-3 fw-bold">
+                        Ver el menú completo <i class="fa fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Columna de Imagen (Orden: 2) -->
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1626082896462-a2c2629c4bbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" 
+                     alt="Impresionante corte Tomahawk servido"
+                     class="img-fluid content-image">
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

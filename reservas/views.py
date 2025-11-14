@@ -25,7 +25,8 @@ def reservation_view(request):
     try:
         cliente_actual = request.user.cliente
     except Cliente.DoesNotExist:
-        messages.error(request, 'Error: Tu usuario no está enlazado a un perfil de cliente. (Solo los admins deben ver esto)')
+        # Si es 'potasio' o un admin sin perfil de cliente
+        messages.error(request, 'Las cuentas de Administrador no pueden hacer reservas. Por favor, usa una cuenta de cliente.')
         return redirect('home')
         
     if request.method == 'POST':

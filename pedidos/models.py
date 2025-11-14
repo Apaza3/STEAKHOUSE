@@ -18,7 +18,7 @@ class Pedido(models.Model):
     
     # Relaciones (FK)
     # El 'usuario' es QUIÉN HIZO EL PEDIDO (el login)
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='pedidos')
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="pedidos")
     # El 'cliente' son LOS DATOS de facturación (si es un cliente registrado)
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True) 
     
@@ -33,13 +33,13 @@ class Pedido(models.Model):
         return f"Pedido #{self.id} - Total: {self.total} Bs."
 
 # ===============================================
-# MODELO "DETALLEPEDIDO" (Sin cambios)
+# MODELO "DETALLEPEDIDO" (Con save() automático)
 # ===============================================
 class DetallePedido(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='detalles', on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.PROTECT) 
     cantidad = models.PositiveIntegerField(default=1)
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2) # Se guarda el precio al momento de la compra
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
 
     def save(self, *args, **kwargs):
