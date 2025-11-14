@@ -26,13 +26,12 @@ urlpatterns = [
     path('pedidos/', views.pedido_list, name='dashboard_pedidos'),
     path('pedidos/detalle/<int:pk>/', views.pedido_detail, name='pedido_detail'),
 
-    # ===============================================
-    # ¡NUEVO! URLs DE RESERVAS
-    # ===============================================
+    # URLs de Reservas
     path('reservas/', views.reserva_list, name='dashboard_reservas'),
-    # (Más adelante añadiremos 'reserva_detail', 'reserva_update', etc.)
-    # ===============================================
     
-    # URLs de Reportes
-    path('reportes/', views.reportes_ventas_view, name='dashboard_reportes'),
+    # ===============================================
+    # URLs DE REPORTES (¡ACTUALIZADA!)
+    # ===============================================
+    # ¡CAMBIADO! Apunta a la nueva vista
+    path('reportes/', views.reportes_view, name='dashboard_reportes'),
 ]

@@ -1,0 +1,262 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load humanize %}
+
+{% block content %}
+<h1 class="fs-2 mb-4">Reportes Generales</h1>
+
+<!-- Fila de Resumen (KPls) -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-bg-success shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Ingresos por Ventas</h5>
+                <p class="card-text fs-2 fw-bold">{{ total_ventas|floatformat:2|intcomma }} Bs.</p>
+                <small>{{ num_ventas }} pedidos completados</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-primary shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Ingresos por Reservas</h5>
+                <p class="card-text fs-2 fw-bold">{{ total_reservas|floatformat:2|intcomma }} Bs.</p>
+                <small>{{ num_reservas }} reservas pagadas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-warning text-dark shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Ingresos Totales</h5>
+                <p class="card-text fs-2 fw-bold">{{ total_ventas|add:total_reservas|floatformat:2|intcomma }} Bs.</p>
+                <small>Ventas + Reservas</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =============================================== -->
+<!-- FILA DE GRÁFICOS
+<!-- =============================================== -->
+<div class="row mt-4">
+    <!-- Gráfico 1: Platos más vendidos -->
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Top 5 Platos Más Vendidos</h5>
+            </div>
+            <div class="card-body" style="background-color: #3d2422;">
+                <canvas id="platosChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráfico 2: Tipos de Mesa -->
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Popularidad de Mesas</h5>
+            </div>
+            <div class="card-body" style="background-color: #3d2422;">
+                <canvas id="tiposChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico 3: Tamaño de Grupos -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Tamaño de Grupos (Reservas)</h5>
+            </div>
+            <div class="card-body" style="background-color: #3d2422;">
+                <canvas id="tamanosChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- =============================================== -->
+<!-- Fila de Tablas Detalladas (Como antes)
+<!-- =============================================== -->
+<div class="row mt-4">
+    <!-- Columna 1: Reporte de Ventas -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Últimas Ventas (Pedidos Entregados)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID Pedido</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in ventas %}
+                            <tr>
+                                <td><a href="{% url 'pedido_detail' v.pk %}">#{{ v.id }}</a></td>
+                                <td>{{ v.cliente.nombre|default:v.usuario.username }}</td>
+                                <td>{{ v.fecha_pedido|date:"d/m/Y" }}</td>
+                                <td class="text-end"><strong>{{ v.total|floatformat:2 }} Bs.</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No hay ventas completadas.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna 2: Reporte de Reservas -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Últimas Reservas (Pagadas)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID Reserva</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reservas %}
+                            <tr>
+                                <td><code>{{ r.id|slice:":8" }}...</code></td>
+                                <td>{{ r.cliente.nombre }}</td>
+                                <td>{{ r.fecha_reserva|date:"d/m/Y" }}</td>
+                                <td class="text-end"><strong>{{ r.monto_pagado|floatformat:2 }} Bs.</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No hay reservas pagadas.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- =============================================== -->
+<!-- JAVASCRIPT PARA GRÁFICOS (¡RE-CORREGIDO!)
+ =============================================== -->
+{% block extra_js %}
+<!-- 1. Importamos Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+    // Configuración global para que los gráficos se vean bien en modo oscuro
+    Chart.defaults.color = '#e0e0e0';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+    // --- Gráfico 1: Platos Más Vendidos (Barra Horizontal) ---
+    const ctxPlatos = document.getElementById('platosChart');
+    new Chart(ctxPlatos, {
+        type: 'bar',
+        data: {
+            labels: {{ platos_labels|safe }},
+            datasets: [{
+                label: 'Cantidad Vendida',
+                data: {{ platos_data|safe }},
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.7)',
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(234, 179, 8, 0.7)',
+                    'rgba(163, 163, 163, 0.7)',
+                    'rgba(107, 114, 128, 0.7)'
+                ],
+                borderColor: [
+                    '#ef4444',
+                    '#f59e0b',
+                    '#eab308',
+                    '#a3a3a3',
+                    '#6b7280'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',           // <-- ¡COMA AÑADIDA!
+            responsive: true,         // <-- ¡COMA AÑADIDA!
+            maintainAspectRatio: false, // <-- ¡COMA AÑADIDA!
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },                        // <-- ¡COMA AÑADIDA!
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // --- Gráfico 2: Tipos de Mesa (Doughnut) ---
+    const ctxTipos = document.getElementById('tiposChart');
+    new Chart(ctxTipos, {
+        type: 'doughnut',
+        data: {
+            labels: {{ tipos_labels|safe }},
+            datasets: [{
+                label: 'Reservas',
+                data: {{ tipos_data|safe }},
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)', // Azul
+                    'rgba(255, 206, 86, 0.7)'  // Amarillo
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // --- Gráfico 3: Tamaño de Grupos (Pie) ---
+    const ctxTamanos = document.getElementById('tamanosChart');
+    new Chart(ctxTamanos, {
+        type: 'pie',
+        data: {
+            labels: {{ tamanos_labels|safe }},
+            datasets: [{
+                label: 'Nº de Reservas',
+                data: {{ tamanos_data|safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // <-- ¡COMA AÑADIDA!
+        }
+    });
+
+</script>
+{% endblock %}
