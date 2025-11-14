@@ -1,0 +1,69 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fs-2">Gestión de Clientes</h1>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header card-header-gold">
+        <h5 class="mb-0">Todos los Clientes Registrados</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Nombre Completo</th>
+                        <th scope="col">Teléfono</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td><strong>{{ u.username }}</strong></td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            {% if u.cliente %}
+                                {{ u.cliente.nombre }} {{ u.cliente.apellido }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.cliente and u.cliente.telefono %}
+                                {{ u.cliente.telefono }}
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Todos aquí serán Clientes -->
+                            <span class="badge bg-secondary">Cliente</span>
+                        </td>
+                        <td>
+                            <!-- No permitimos promover clientes desde aquí -->
+                            <!-- Solo permitimos eliminar -->
+                            <form action="{% url 'user_delete' u.id %}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Seguro que quieres ELIMINAR a {{ u.username }}? Esta acción es permanente.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Cliente">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay clientes registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

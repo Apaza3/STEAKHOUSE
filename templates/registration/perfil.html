@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Usamos el mismo fondo que el login/registro */
+    .perfil-page-background {
+        background-image: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="perfil-page-background d-flex align-items-center flex-grow-1 py-3 py-lg-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                
+                <div class="login-container">
+                    
+                    <!-- Logo -->
+                    <div class="text-center mb-4">
+                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="width: 100px;">
+                    </div>
+
+                    <!-- Título -->
+                    <h3 class="text-center text-white font-serif-display mb-1">
+                        Mi Perfil
+                    </h3>
+                    <p class="text-center text-secondary mb-4">
+                        Actualiza tu información personal.
+                    </p>
+
+                    <!-- Formulario de Edición de Perfil -->
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <!-- Errores Generales -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- Campo Nombre -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">Nombre:</label>
+                                <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}" 
+                                       class="form-control form-control-lg {% if form.nombre.errors %}is-invalid{% endif %}" 
+                                       value="{{ form.nombre.value|default:'' }}" required>
+                                {% if form.nombre.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.nombre.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Campo Apellido -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.apellido.id_for_label }}" class="form-label fw-bold">Apellido:</label>
+                                <input type="text" name="{{ form.apellido.name }}" id="{{ form.apellido.id_for_label }}" 
+                                       class="form-control form-control-lg {% if form.apellido.errors %}is-invalid{% endif %}" 
+                                       value="{{ form.apellido.value|default:'' }}" required>
+                                {% if form.apellido.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.apellido.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Campo Username -->
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label fw-bold">Usuario:</label>
+                            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
+                                   class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}" 
+                                   value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+
+                        <!-- Campo Email -->
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Email:</label>
+                            <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" 
+                                   class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" 
+                                   value="{{ form.email.value|default:'' }}" required>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Teléfono -->
+                        <div class="mb-3">
+                            <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">Teléfono (Opcional):</label>
+                            <input type="text" name="{{ form.telefono.name }}" id="{{ form.telefono.id_for_label }}" 
+                                   class="form-control form-control-lg {% if form.telefono.errors %}is-invalid{% endif %}" 
+                                   value="{{ form.telefono.value|default:'' }}">
+                            {% if form.telefono.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.telefono.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botón de Envío -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primario btn-lg fw-bold">
+                                Guardar Cambios
+                            </button>
+                        </div>
+                        
+                        <!-- =================================================== -->
+                        <!-- ¡NUEVO! ENLACE A CAMBIAR CONTRASEÑA
+                        <!-- =================================================== -->
+                        <div class="text-center mt-4">
+                            <a href="{% url 'password_change' %}" class="text-decoration-none text-white">¿Quieres cambiar tu contraseña?</a>
+                        </div>
+                        
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

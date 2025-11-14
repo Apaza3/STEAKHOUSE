@@ -28,6 +28,7 @@ def dashboard_home(request):
 # ===============================================
 # VISTAS DEL PANEL DE PRODUCTOS (CRUD)
 # ===============================================
+# (Tus vistas de producto_list, producto_create, etc. van aquí - no cambian)
 @admin_requerido
 def producto_list(request):
     productos = Producto.objects.all().order_by('nombre_producto')
@@ -47,10 +48,7 @@ def producto_create(request):
     context = {'form': form}
     return render(request, 'dashboard/producto_form.html', context)
 
-# --- ¡AQUÍ ESTÁ LA CORRECCIÓN DEL TYPO! ---
-@admin_requerido 
-# (Antes decía @admin_bupper)
-# --- FIN DE LA CORRECCIÓN ---
+@admin_requerido
 def producto_update(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -75,19 +73,32 @@ def producto_delete(request, pk):
     return render(request, 'dashboard/producto_delete.html', context)
 
 # ===============================================
-# VISTAS DE GESTIÓN DE USUARIOS
+# VISTAS DE GESTIÓN DE USUARIOS (¡CORREGIDAS!)
 # ===============================================
-@admin_requerido
-def user_list(request):
-    usuarios = User.objects.all().order_by('username')
-    context = { 'usuarios': usuarios }
-    return render(request, 'dashboard/user_list.html', context)
 
+# VISTA 1: SOLO EMPLEADOS (is_staff=True)
+@admin_requerido
+def empleado_list(request):
+    # ¡CORREGIDO! Filtramos solo para staff.
+    usuarios = User.objects.filter(is_staff=True).order_by('username')
+    context = { 'usuarios': usuarios }
+    return render(request, 'dashboard/user_list.html', context) # Reusamos tu template
+
+# VISTA 2: SOLO CLIENTES (is_staff=False)
+@admin_requerido
+def cliente_list(request):
+    # ¡NUEVO! Filtramos solo para NO staff.
+    clientes = User.objects.filter(is_staff=False).order_by('username')
+    context = { 'usuarios': clientes }
+    # Usaremos un template nuevo para clientes
+    return render(request, 'dashboard/client_list.html', context)
+
+# (Las vistas user_toggle_staff y user_delete se quedan igual)
 @admin_requerido
 def user_toggle_staff(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "No puedes cambiar tu propio estado de administrador.")
-        return redirect('dashboard_usuarios')
+        return redirect('dashboard_empleados') # Redirigir a empleados
     user = get_object_or_404(User, id=user_id)
     user.is_staff = not user.is_staff
     user.save()
@@ -95,32 +106,32 @@ def user_toggle_staff(request, user_id):
         messages.success(request, f"'{user.username}' ha sido promovido a Administrador.")
     else:
         messages.success(request, f"'{user.username}' ha sido degradado a Usuario normal.")
-    return redirect('dashboard_usuarios')
+    return redirect('dashboard_empleados') # Redirigir a empleados
 
 @admin_requerido
 def user_delete(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "No puedes eliminarte a ti mismo.")
-        return redirect('dashboard_usuarios')
+        return redirect('dashboard_empleados') # Redirigir a empleados
     user = get_object_or_404(User, id=user_id)
     username = user.username
     user.delete() 
     messages.success(request, f"El usuario '{username}' ha sido eliminado permanentemente.")
-    return redirect('dashboard_usuarios')
+    return redirect('dashboard_empleados') # Redirigir a empleados
 
 # ===============================================
 # VISTA DE REPORTES DE VENTAS
 # ===============================================
+# (Tu vista de reportes_ventas_view se queda igual)
 @admin_requerido
 def reportes_ventas_view(request):
     context = {}
     return render(request, 'dashboard/reportes_ventas.html', context)
 
-
 # ===============================================
 # VISTAS DE GESTIÓN DE PEDIDOS
 # ===============================================
-
+# (Tus vistas de pedido_list y pedido_detail se quedan igual)
 @admin_requerido
 def pedido_list(request):
     pedidos = Pedido.objects.all().order_by('-fecha_pedido')

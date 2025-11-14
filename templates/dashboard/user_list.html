@@ -2,13 +2,15 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="fs-2">Gestión de Usuarios</h1>
-    <!-- (Opcional) Aquí podríamos poner un botón de "Añadir Usuario" -->
+    <!-- ¡CAMBIADO! -->
+    <h1 class="fs-2">Gestión de Empleados</h1>
+    <!-- (Opcional) Aquí podríamos poner un botón de "Añadir Empleado" -->
 </div>
 
 <div class="card shadow-sm">
     <div class="card-header card-header-gold">
-        <h5 class="mb-0">Todos los Usuarios Registrados</h5>
+        <!-- ¡CAMBIADO! -->
+        <h5 class="mb-0">Personal (Admins/Staff)</h5>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -28,7 +30,6 @@
                         <td><strong>{{ u.username }}</strong></td>
                         <td>{{ u.email }}</td>
                         <td>
-                            <!-- Intentamos obtener el nombre del 'Cliente' enlazado -->
                             {% if u.cliente %}
                                 {{ u.cliente.nombre }} {{ u.cliente.apellido }}
                             {% else %}
@@ -39,13 +40,14 @@
                             {% if u.is_superuser %}
                                 <span class="badge bg-danger">Super Admin</span>
                             {% elif u.is_staff %}
+                                <!-- Esto es lo que se verá siempre ahora -->
                                 <span class="badge bg-info">Admin</span>
                             {% else %}
+                                <!-- Esto ya no debería aparecer -->
                                 <span class="badge bg-secondary">Cliente</span>
                             {% endif %}
                         </td>
                         <td>
-                            <!-- No podemos editar al superadmin 'potasio' (o a nosotros mismos) -->
                             {% if not u.is_superuser and u.id != request.user.id %}
                                 <!-- Formulario para Promover/Degradar -->
                                 <form action="{% url 'user_toggle_staff' u.id %}" method="POST" style="display: inline-block;">
