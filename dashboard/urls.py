@@ -11,20 +11,19 @@ urlpatterns = [
     path('productos/eliminar/<int:pk>/', views.producto_delete, name='producto_delete'),
     
     # ===============================================
-    # URLs DE USUARIOS (¡CORREGIDAS!)
+    # ¡NUEVO! URLs DE MESAS (CRUD)
     # ===============================================
-    
-    # ¡CAMBIADO! 'usuarios/' ahora es 'empleados/' y usa la nueva vista 'empleado_list'
+    path('mesas/', views.mesa_list, name='dashboard_mesas'),
+    path('mesas/crear/', views.mesa_create, name='mesa_create'),
+    path('mesas/editar/<int:pk>/', views.mesa_update, name='mesa_update'),
+    path('mesas/eliminar/<int:pk>/', views.mesa_delete, name='mesa_delete'),
+    # ===============================================
+
+    # URLs DE USUARIOS (¡CORREGIDAS!)
     path('empleados/', views.empleado_list, name='dashboard_empleados'),
-    
-    # ¡NUEVO! Ruta para la lista de clientes
     path('clientes/', views.cliente_list, name='dashboard_clientes'),
-    
-    # Estas dos vistas (toggle y delete) las reusamos, no cambian
     path('usuarios/toggle-staff/<int:user_id>/', views.user_toggle_staff, name='user_toggle_staff'),
     path('usuarios/eliminar/<int:user_id>/', views.user_delete, name='user_delete'),
-    
-    # ===============================================
     
     # URLs de Reportes
     path('reportes/', views.reportes_ventas_view, name='dashboard_reportes'),

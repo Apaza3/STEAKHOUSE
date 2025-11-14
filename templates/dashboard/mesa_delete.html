@@ -1,0 +1,28 @@
+html
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">Confirmar Eliminación</h5>
+            </div>
+            <div class="card-body">
+                <p class="fs-5">¿Estás seguro de que quieres eliminar la <strong>Mesa {{ mesa.numero }}</strong>?</p>
+                <p>Esta acción no se puede deshacer.</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa fa-trash me-2"></i> Sí, eliminar
+                    </button>
+                    <a href="{% url 'dashboard_mesas' %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

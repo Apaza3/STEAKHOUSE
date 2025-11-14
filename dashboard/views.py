@@ -4,8 +4,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from clientes.models import Cliente
+from core.models import Mesa               # <--- ¡NUEVA IMPORTACIÓN!
 from productos.models import Producto
 from productos.forms import ProductoForm
+from .forms import MesaForm                # <--- ¡NUEVA IMPORTACIÓN!
 from pedidos.models import Pedido, DetallePedido
 
 # ===============================================
@@ -45,7 +47,7 @@ def producto_create(request):
             return redirect('dashboard_productos')
     else:
         form = ProductoForm()
-    context = {'form': form}
+    context = {'form': form, 'titulo': 'Crear Nuevo Producto'} # Añadido título
     return render(request, 'dashboard/producto_form.html', context)
 
 @admin_requerido
@@ -59,7 +61,7 @@ def producto_update(request, pk):
             return redirect('dashboard_productos')
     else:
         form = ProductoForm(instance=producto)
-    context = {'form': form, 'producto': producto}
+    context = {'form': form, 'titulo': f'Editar {producto.nombre_producto}'} # Añadido título
     return render(request, 'dashboard/producto_form.html', context)
 
 @admin_requerido
@@ -73,32 +75,72 @@ def producto_delete(request, pk):
     return render(request, 'dashboard/producto_delete.html', context)
 
 # ===============================================
-# VISTAS DE GESTIÓN DE USUARIOS (¡CORREGIDAS!)
+# ¡NUEVO! VISTAS DE GESTIÓN DE MESAS (CRUD)
 # ===============================================
+@admin_requerido
+def mesa_list(request):
+    mesas = Mesa.objects.all().order_by('numero')
+    context = {'mesas': mesas}
+    return render(request, 'dashboard/mesa_list.html', context)
 
-# VISTA 1: SOLO EMPLEADOS (is_staff=True)
+@admin_requerido
+def mesa_create(request):
+    if request.method == 'POST':
+        form = MesaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Mesa creada exitosamente.')
+            return redirect('dashboard_mesas')
+    else:
+        form = MesaForm()
+    context = {'form': form, 'titulo': 'Crear Nueva Mesa'}
+    return render(request, 'dashboard/mesa_form.html', context)
+
+@admin_requerido
+def mesa_update(request, pk):
+    mesa = get_object_or_404(Mesa, pk=pk)
+    if request.method == 'POST':
+        form = MesaForm(request.POST, instance=mesa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Mesa {mesa.numero} actualizada exitosamente.')
+            return redirect('dashboard_mesas')
+    else:
+        form = MesaForm(instance=mesa)
+    context = {'form': form, 'titulo': f'Editar Mesa {mesa.numero}'}
+    return render(request, 'dashboard/mesa_form.html', context)
+
+@admin_requerido
+def mesa_delete(request, pk):
+    mesa = get_object_or_404(Mesa, pk=pk)
+    if request.method == 'POST':
+        mesa.delete()
+        messages.success(request, f'Mesa {mesa.numero} eliminada.')
+        return redirect('dashboard_mesas')
+    context = {'mesa': mesa}
+    return render(request, 'dashboard/mesa_delete.html', context)
+
+# ===============================================
+# VISTAS DE GESTIÓN DE USUARIOS
+# ===============================================
+# (empleado_list, cliente_list, etc. se quedan igual)
 @admin_requerido
 def empleado_list(request):
-    # ¡CORREGIDO! Filtramos solo para staff.
     usuarios = User.objects.filter(is_staff=True).order_by('username')
     context = { 'usuarios': usuarios }
-    return render(request, 'dashboard/user_list.html', context) # Reusamos tu template
+    return render(request, 'dashboard/user_list.html', context)
 
-# VISTA 2: SOLO CLIENTES (is_staff=False)
 @admin_requerido
 def cliente_list(request):
-    # ¡NUEVO! Filtramos solo para NO staff.
     clientes = User.objects.filter(is_staff=False).order_by('username')
     context = { 'usuarios': clientes }
-    # Usaremos un template nuevo para clientes
     return render(request, 'dashboard/client_list.html', context)
 
-# (Las vistas user_toggle_staff y user_delete se quedan igual)
 @admin_requerido
 def user_toggle_staff(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "No puedes cambiar tu propio estado de administrador.")
-        return redirect('dashboard_empleados') # Redirigir a empleados
+        return redirect('dashboard_empleados')
     user = get_object_or_404(User, id=user_id)
     user.is_staff = not user.is_staff
     user.save()
@@ -106,32 +148,31 @@ def user_toggle_staff(request, user_id):
         messages.success(request, f"'{user.username}' ha sido promovido a Administrador.")
     else:
         messages.success(request, f"'{user.username}' ha sido degradado a Usuario normal.")
-    return redirect('dashboard_empleados') # Redirigir a empleados
+    return redirect('dashboard_empleados')
 
 @admin_requerido
 def user_delete(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "No puedes eliminarte a ti mismo.")
-        return redirect('dashboard_empleados') # Redirigir a empleados
+        return redirect('dashboard_empleados')
     user = get_object_or_404(User, id=user_id)
     username = user.username
     user.delete() 
     messages.success(request, f"El usuario '{username}' ha sido eliminado permanentemente.")
-    return redirect('dashboard_empleados') # Redirigir a empleados
+    return redirect('dashboard_empleados')
 
 # ===============================================
 # VISTA DE REPORTES DE VENTAS
 # ===============================================
-# (Tu vista de reportes_ventas_view se queda igual)
 @admin_requerido
 def reportes_ventas_view(request):
     context = {}
     return render(request, 'dashboard/reportes_ventas.html', context)
 
+
 # ===============================================
 # VISTAS DE GESTIÓN DE PEDIDOS
 # ===============================================
-# (Tus vistas de pedido_list y pedido_detail se quedan igual)
 @admin_requerido
 def pedido_list(request):
     pedidos = Pedido.objects.all().order_by('-fecha_pedido')

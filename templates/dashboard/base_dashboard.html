@@ -1,12 +1,12 @@
+html
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- (head... favicons, fuentes, css, styles... todo igual que antes) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Admin - The Steakhouse</title>
-    
-    <!-- (head... favicons, fuentes, css, styles... todo igual que antes) -->
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/favicon/apple-touch-icon.png' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicon/favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicon/favicon-16x16.png' %}">
@@ -63,6 +63,7 @@
 
     <!-- 1. NUEVO HEADER (igual que antes) -->
     <header id="main-header" class="sticky-top">
+        <!-- (El código del header no cambia) -->
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
@@ -88,7 +89,7 @@
                                     <li><a class="dropdown-item active" href="{% url 'dashboard_home' %}">Panel de Admin</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     {% endif %}
-                                    <li><a class="dropdown-item" href="#">Mi Perfil (Pronto)</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form action="{% url 'logout' %}" method="POST" class="d-inline">
@@ -128,20 +129,23 @@
                     </a>
                 </li>
                 
-                <!-- ¡CAMBIADO! Ahora es Empleados -->
+                <!-- ¡NUEVO! Enlace a Mesas -->
+                <li class="nav-item">
+                    <a class="nav-link {% if 'mesa' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_mesas' %}">
+                        <i class="fa fa-chair"></i> Mesas
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link {% if 'empleado' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_empleados' %}">
                         <i class="fa fa-user-shield"></i> Empleados
                     </a>
                 </li>
-                
-                <!-- ¡NUEVO! Link a Clientes -->
                 <li class="nav-item">
                     <a class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_clientes' %}">
                         <i class="fa fa-users"></i> Clientes
                     </a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reportes' %}">
                         <i class="fa fa-chart-line"></i> Reportes/Ventas
@@ -156,7 +160,7 @@
                 {% for message in messages %}
                 <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button typebutton" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
             {% endif %}
