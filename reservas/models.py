@@ -2,7 +2,7 @@ from django.db import models
 from core.models import Mesa
 from clientes.models import Cliente
 import uuid
-from datetime import datetime, timedelta # ¡Importante!
+from datetime import datetime, timedelta
 
 class Reserva(models.Model):
     
@@ -32,20 +32,16 @@ class Reserva(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     tipo_pago = models.CharField(max_length=20, choices=TIPO_PAGO_CHOICES, default='SOLO_MESA')
 
-    # ===============================================
-    # ¡NUEVOS CAMPOS DE LÓGICA DE NEGOCIO!
-    # ===============================================
-    
-    # Campo para la Duración (Punto 1 del profesor)
+    # Campos de Lógica de Negocio
     duracion_horas = models.IntegerField(default=2, help_text="Duración de la reserva en horas")
-    
-    # Campo para saber cuándo termina (se auto-calculará)
     hora_fin = models.TimeField(null=True, blank=True, editable=False)
-    
-    # Campo para el Pago (Punto 2 del profesor)
     monto_pagado = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    # ===============================================
+    # ===================================================
+    # ¡NUEVO CAMPO REQUERIDO!
+    # ===================================================
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    # ===================================================
 
     def __str__(self):
         return f'Reserva de {self.cliente.nombre} [{self.estado}]'
@@ -53,7 +49,6 @@ class Reserva(models.Model):
     def save(self, *args, **kwargs):
         # Lógica para auto-calcular la hora de fin
         if self.hora_reserva and self.duracion_horas:
-            # Combinamos fecha (cualquiera) y hora para poder sumar
             inicio_dt = datetime.combine(datetime.today(), self.hora_reserva)
             fin_dt = inicio_dt + timedelta(hours=self.duracion_horas)
             self.hora_fin = fin_dt.time()

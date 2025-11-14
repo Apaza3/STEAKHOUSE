@@ -107,8 +107,10 @@
                                     <li><a class="dropdown-item" href="{% url 'dashboard_home' %}">Panel de Admin</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     {% endif %}
+                                    <!-- ESTO ES LO NUEVO -->
                                     <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
-                                    <li><a class="dropdown-item" href="#">Mis Pedidos</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'mis_reservas' %}">Mis Reservas</a></li>
+                                    <li><a class="dropdown-item" href="#">Mis Pedidos (Pronto)</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <!-- Formulario de Logout (corregido) -->

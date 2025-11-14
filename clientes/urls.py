@@ -6,9 +6,11 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.CustomLogoutView.as_view(), name='logout'),
     path('perfil/', views.perfil_view, name='perfil'),
+    path('password/', views.CustomPasswordChangeView.as_view(), name='password_change'),
     
     # ===================================================
-    # ¡NUEVO! RUTA PARA CAMBIAR CONTRASEÑA
+    # ¡NUEVO! RUTAS PARA GESTIONAR "MIS RESERVAS"
     # ===================================================
-    path('password/', views.CustomPasswordChangeView.as_view(), name='password_change'),
+    path('mis-reservas/', views.mis_reservas_view, name='mis_reservas'),
+    path('cancelar-reserva/<uuid:reserva_id>/', views.cancelar_reserva_view, name='cancelar_reserva'),
 ]

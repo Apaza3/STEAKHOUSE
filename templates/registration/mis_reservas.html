@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %} <!-- Para mostrar los montos -->
+
+{% block title %}Mis Reservas{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Usamos el mismo fondo que el login/perfil */
+    .reservas-page-background {
+        background-color: #1a1a1a;
+        /* Fondo de parrilla sutil */
+        background-image: linear-gradient(rgba(26, 26, 26, 0.9), rgba(26, 26, 26, 0.9)), 
+                          url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+    .card-reserva {
+        background-color: rgba(30, 21, 19, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid #4d3a36;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reservas-page-background d-flex align-items-center flex-grow-1 py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <h1 class="text-center text-white font-serif-display mb-4">Mis Reservas</h1>
+                
+                {% if not reservas_con_info %}
+                    <div class="login-container text-center p-5">
+                        <h4 class="text-white">No tienes reservas</h4>
+                        <p class="text-secondary">Todas tus reservas activas y pasadas aparecerán aquí.</p>
+                        <a href="{% url 'reservas_page' %}" class="btn btn-primario mt-3">Hacer una reserva ahora</a>
+                    </div>
+                {% endif %}
+
+                {% for item in reservas_con_info %}
+                <div class="card card-reserva shadow-lg mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #4d3a36;">
+                        <h5 class="mb-0 font-serif-display text-white">
+                            Reserva para: {{ item.reserva.fecha_reserva|date:"d M, Y" }}
+                        </h5>
+                        <!-- Lógica de Badges de Estado -->
+                        {% if item.reserva.estado == 'CONFIRMADA' %}
+                            <span class="badge bg-success fs-6">Confirmada</span>
+                        {% elif item.reserva.estado == 'PENDIENTE' %}
+                            <span class="badge bg-warning text-dark fs-6">Pendiente de Pago</span>
+                        {% elif item.reserva.estado == 'CANCELADA' %}
+                            <span class="badge bg-danger fs-6">Cancelada</span>
+                        {% elif item.reserva.estado == 'COMPLETADA' %}
+                            <span class="badge bg-info fs-6">Completada</span>
+                        {% elif item.reserva.estado == 'NO_SHOW' %}
+                            <span class="badge bg-dark fs-6">No Show</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Detalles de la Reserva -->
+                            <div class="col-md-8">
+                                <h4 class="text-white">
+                                    {% if item.reserva.mesa %}
+                                        Mesa {{ item.reserva.mesa.numero }} ({{ item.reserva.mesa.get_tipo_display }})
+                                    {% else %}
+                                        Mesa sin Asignar
+                                    {% endif %}
+                                </h4>
+                                <ul class="list-unstyled text-light mb-0">
+                                    <li><i class="fa fa-users me-2 text-danger-emphasis"></i> {{ item.reserva.numero_personas }} personas</li>
+                                    <li><i class="fa fa-clock me-2 text-danger-emphasis"></i> {{ item.reserva.hora_reserva|time:"H:i" }} - {{ item.reserva.hora_fin|time:"H:i" }} ({{ item.reserva.duracion_horas }}h)</li>
+                                    <li class="small text-muted mt-2">ID: <code>{{ item.reserva.id|slice:":8" }}...</code></li>
+                                </ul>
+                            </div>
+                            <!-- Acciones y Reembolso -->
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                {% if item.se_puede_cancelar %}
+                                    <h6 class="text-white">Política de Cancelación:</h6>
+                                    <p class="text-warning small">
+                                        {{ item.info_reembolso.mensaje }}
+                                    </p>
+                                    
+                                    <!-- Formulario de Cancelación con Advertencia JS -->
+                                    <form action="{% url 'cancelar_reserva' item.reserva.id %}" method="POST" 
+                                          onsubmit="return confirm('¿Estás seguro de que quieres cancelar esta reserva?\n\nADVERTENCIA: {{ item.info_reembolso.mensaje }}');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            Cancelar Reserva
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <h6 class="text-white">Política de Cancelación:</h6>
+                                    <p class="text-muted small">
+                                        {% if item.reserva.estado == 'CANCELADA' %}
+                                            Esta reserva ya fue cancelada.
+                                        {% else %}
+                                            Esta reserva ya no se puede cancelar (la fecha ya pasó).
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
