@@ -22,6 +22,20 @@
                         
                         <!-- El campo de cliente ahora está oculto -->
                         {{ form.cliente }}
+                        
+                        <!-- ¡NUEVO! Mostrar errores del formulario -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="fa fa-exclamation-triangle me-2"></i>
+                            <strong>El formulario tiene errores.</strong> Por favor, revisa los campos marcados.
+                            <!-- 
+                            {% for field, error_list in form.errors.items %}
+                                {{ field }}: {{ error_list|join:", " }}
+                            {% endfor %}
+                            -->
+                        </div>
+                        {% endif %}
+
 
                         <div class="row g-4">
                             <!-- Columna 1: Detalles de la Reserva -->
@@ -30,19 +44,28 @@
                                 <div class="mb-3">
                                     <label for="{{ form.fecha_reserva.id_for_label }}" class="form-label">Fecha de Reserva</label>
                                     {{ form.fecha_reserva }}
+                                    {% if form.fecha_reserva.errors %}<div class="invalid-feedback d-block">{{ form.fecha_reserva.errors.as_text }}</div>{% endif %}
                                 </div>
                                 <div class="mb-3">
                                     <label for="{{ form.hora_reserva.id_for_label }}" class="form-label">Hora de Reserva</label>
                                     {{ form.hora_reserva }}
+                                    {% if form.hora_reserva.errors %}<div class="invalid-feedback d-block">{{ form.hora_reserva.errors.as_text }}</div>{% endif %}
                                 </div>
+                                
+                                <!-- =============================================== -->
+                                <!-- ¡CAMPO CORREGIDO!
+                                <!-- =============================================== -->
+                                <div class="mb-3">
+                                    <label for="{{ form.duracion_horas.id_for_label }}" class="form-label">{{ form.duracion_horas.label }}</label>
+                                    {{ form.duracion_horas }}
+                                    {% if form.duracion_horas.errors %}<div class="invalid-feedback d-block">{{ form.duracion_horas.errors.as_text }}</div>{% endif %}
+                                </div>
+                                <!-- =============================================== -->
+
                                 <div class="mb-3">
                                     <label for="{{ form.numero_personas.id_for_label }}" class="form-label">Número de Personas</label>
                                     {{ form.numero_personas }}
-                                </div>
-                                <div class="mb-3">
-                                    <label for="{{ form.mesa.id_for_label }}" class="form-label">Mesa (Opcional)</label>
-                                    {{ form.mesa }}
-                                    <div class="form-text">Solo se muestran mesas disponibles.</div>
+                                    {% if form.numero_personas.errors %}<div class="invalid-feedback d-block">{{ form.numero_personas.errors.as_text }}</div>{% endif %}
                                 </div>
                             </div>
 
@@ -56,8 +79,8 @@
                                     <div class="card card-dark-theme" style="background-color: #3d2422;">
                                         <div class="card-body">
                                             <h5 class="card-title">{{ cliente_actual.nombre }} {{ cliente_actual.apellido }}</h5>
-                                            <p class="card-text mb-0">{{ cliente_actual.email }}</g>
-                                            <p class="card-text text-muted">{{ cliente_actual.telefono|default_if_none:"Sin teléfono" }}</g>
+                                            <p class="card-text mb-0">{{ cliente_actual.email }}</p>
+                                            <p class="card-text text-muted">{{ cliente_actual.telefono|default_if_none:"Sin teléfono" }}</p>
                                         </div>
                                     </div>
                                     <div class="form-text">
@@ -69,18 +92,19 @@
                                 <div class="mb-3">
                                     <label for="{{ form.tipo_pago.id_for_label }}" class="form-label">Tipo de Reserva</label>
                                     {{ form.tipo_pago }}
+                                    {% if form.tipo_pago.errors %}<div class="invalid-feedback d-block">{{ form.tipo_pago.errors.as_text }}</div>{% endif %}
                                 </div>
 
                                 <!-- Políticas de "No Show" (Ocultas por defecto) -->
                                 <div id="payment-policy-qr" class="alert alert-warning mt-4" style="display: none; border-color: #c89b3f;">
-                                    <h5 class="alert-heading title-gold">Política de Pago QR</h5>
-                                    <p>Se te redirigirá a una pantalla para simular un pago QR.</p>
+                                    <h5 class="alert-heading title-gold">Política de Pago QR (30 Bs)</h5>
+                                    <p>Se te redirigirá a una pantalla para simular un pago de 30 Bs.</p>
                                 </div>
                                 
                                 <!-- Info de Pago con Tarjeta (Oculta por defecto) -->
                                 <div id="payment-policy-tarjeta" class="alert alert-info mt-4" style="display: none; border-color: #c89b3f;">
-                                    <h5 class="alert-heading title-gold">Política de Pago con Tarjeta</h5>
-                                    <p>Se te redirigirá a un formulario de pago seguro.</p>
+                                    <h5 class="alert-heading title-gold">Política de Pago con Tarjeta (30 Bs)</h5>
+                                    <p>Se te redirigirá a un formulario de pago seguro por 30 Bs.</p>
                                 </div>
                             </div>
                         </div>
