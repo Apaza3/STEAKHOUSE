@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
 from clientes.models import Cliente
-from core.models import Mesa               # <--- ¡NUEVA IMPORTACIÓN!
+from core.models import Mesa
 from productos.models import Producto
 from productos.forms import ProductoForm
-from .forms import MesaForm                # <--- ¡NUEVA IMPORTACIÓN!
+from .forms import MesaForm
 from pedidos.models import Pedido, DetallePedido
+from reservas.models import Reserva           # <--- ¡NUEVA IMPORTACIÓN!
 
 # ===============================================
 # DECORADOR PARA PROTEGER VISTAS DE ADMIN
@@ -25,12 +26,12 @@ def admin_requerido(function):
 # ===============================================
 @admin_requerido
 def dashboard_home(request):
-    return redirect('dashboard_pedidos')
+    # ¡Cambiado! Que la página principal sea la lista de reservas
+    return redirect('dashboard_reservas')
 
 # ===============================================
 # VISTAS DEL PANEL DE PRODUCTOS (CRUD)
 # ===============================================
-# (Tus vistas de producto_list, producto_create, etc. van aquí - no cambian)
 @admin_requerido
 def producto_list(request):
     productos = Producto.objects.all().order_by('nombre_producto')
@@ -47,7 +48,7 @@ def producto_create(request):
             return redirect('dashboard_productos')
     else:
         form = ProductoForm()
-    context = {'form': form, 'titulo': 'Crear Nuevo Producto'} # Añadido título
+    context = {'form': form, 'titulo': 'Crear Nuevo Producto'}
     return render(request, 'dashboard/producto_form.html', context)
 
 @admin_requerido
@@ -61,7 +62,7 @@ def producto_update(request, pk):
             return redirect('dashboard_productos')
     else:
         form = ProductoForm(instance=producto)
-    context = {'form': form, 'titulo': f'Editar {producto.nombre_producto}'} # Añadido título
+    context = {'form': form, 'titulo': f'Editar {producto.nombre_producto}'}
     return render(request, 'dashboard/producto_form.html', context)
 
 @admin_requerido
@@ -75,7 +76,7 @@ def producto_delete(request, pk):
     return render(request, 'dashboard/producto_delete.html', context)
 
 # ===============================================
-# ¡NUEVO! VISTAS DE GESTIÓN DE MESAS (CRUD)
+# VISTAS DE GESTIÓN DE MESAS (CRUD)
 # ===============================================
 @admin_requerido
 def mesa_list(request):
@@ -123,7 +124,6 @@ def mesa_delete(request, pk):
 # ===============================================
 # VISTAS DE GESTIÓN DE USUARIOS
 # ===============================================
-# (empleado_list, cliente_list, etc. se quedan igual)
 @admin_requerido
 def empleado_list(request):
     usuarios = User.objects.filter(is_staff=True).order_by('username')
@@ -162,15 +162,6 @@ def user_delete(request, user_id):
     return redirect('dashboard_empleados')
 
 # ===============================================
-# VISTA DE REPORTES DE VENTAS
-# ===============================================
-@admin_requerido
-def reportes_ventas_view(request):
-    context = {}
-    return render(request, 'dashboard/reportes_ventas.html', context)
-
-
-# ===============================================
 # VISTAS DE GESTIÓN DE PEDIDOS
 # ===============================================
 @admin_requerido
@@ -197,3 +188,23 @@ def pedido_detail(request, pk):
         'pedido': pedido
     }
     return render(request, 'dashboard/pedido_detail.html', context)
+
+# ===============================================
+# ¡NUEVO! VISTAS DE GESTIÓN DE RESERVAS
+# ===============================================
+@admin_requerido
+def reserva_list(request):
+    # Obtenemos todas las reservas, ordenadas por fecha y hora (más nuevas primero)
+    reservas = Reserva.objects.all().order_by('-fecha_reserva', '-hora_reserva')
+    context = {
+        'reservas': reservas
+    }
+    return render(request, 'dashboard/reserva_list.html', context)
+    
+# ===============================================
+# VISTA DE REPORTES DE VENTAS
+# ===============================================
+@admin_requerido
+def reportes_ventas_view(request):
+    context = {}
+    return render(request, 'dashboard/reportes_ventas.html', context)

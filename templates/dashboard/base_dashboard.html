@@ -1,4 +1,3 @@
-html
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
@@ -118,6 +117,14 @@ html
             
             <!-- === ¡MENÚ ACTUALIZADO! === -->
             <ul class="nav flex-column mb-auto">
+                
+                <!-- ¡NUEVO! Enlace a Reservas (Primero) -->
+                <li class="nav-item">
+                    <a class="nav-link {% if 'reserva' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reservas' %}">
+                        <i class="fa fa-calendar-alt"></i> Reservas
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_pedidos' %}">
                         <i class="fa fa-receipt"></i> Pedidos
@@ -128,14 +135,11 @@ html
                         <i class="fa fa-utensils"></i> Productos
                     </a>
                 </li>
-                
-                <!-- ¡NUEVO! Enlace a Mesas -->
                 <li class="nav-item">
                     <a class="nav-link {% if 'mesa' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_mesas' %}">
                         <i class="fa fa-chair"></i> Mesas
                     </a>
                 </li>
-                
                 <li class="nav-item">
                     <a class="nav-link {% if 'empleado' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_empleados' %}">
                         <i class="fa fa-user-shield"></i> Empleados
@@ -148,7 +152,7 @@ html
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reportes' %}">
-                        <i class="fa fa-chart-line"></i> Reportes/Ventas
+                        <i class="fa fa-chart-line"></i> Reportes
                     </a>
                 </li>
             </ul>

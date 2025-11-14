@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'pedidos',
     'productos',
     'dashboard',
+    'django.contrib.humanize',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
