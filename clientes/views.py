@@ -6,13 +6,11 @@ from django.urls import reverse_lazy
 from .forms import ClienteRegistrationForm, ClienteEditForm
 from django.contrib.auth.decorators import login_required
 from .models import Cliente
-from reservas.models import Reserva # <-- ¡NUEVA IMPORTACIÓN!
-from django.utils import timezone   # <-- ¡NUEVA IMPORTACIÓN!
-from datetime import datetime       # <-- ¡NUEVA IMPORTACIÓN!
+from reservas.models import Reserva 
+from django.utils import timezone   
+from datetime import datetime       
 
-# ===============================================
-# VISTA DE REGISTRO
-# ===============================================
+# ... (Tu vista register_view, CustomLoginView y CustomLogoutView se quedan IGUAL) ...
 def register_view(request):
     if request.method == 'POST':
         form = ClienteRegistrationForm(request.POST)
@@ -26,9 +24,6 @@ def register_view(request):
         form = ClienteRegistrationForm()
     return render(request, 'registration/register.html', {'form': form})
 
-# ===============================================
-# VISTA DE LOGIN
-# ===============================================
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     
@@ -41,9 +36,6 @@ class CustomLoginView(LoginView):
         messages.error(self.request, 'Usuario o contraseña incorrectos. Inténtalo de nuevo.')
         return super().form_invalid(form)
 
-# ===============================================
-# VISTA DE LOGOUT
-# ===============================================
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('home')
 
@@ -52,7 +44,7 @@ class CustomLogoutView(LogoutView):
         return super().dispatch(request, *args, **kwargs)
 
 # ===============================================
-# VISTA DE PERFIL DE CLIENTE
+# VISTA DE PERFIL DE CLIENTE (¡ACTUALIZADA!)
 # ===============================================
 @login_required
 def perfil_view(request):
@@ -63,7 +55,8 @@ def perfil_view(request):
         return redirect('home')
         
     if request.method == 'POST':
-        form = ClienteEditForm(request.POST, instance=cliente, user=request.user)
+        # ¡CAMBIO! Añadimos request.FILES para la foto
+        form = ClienteEditForm(request.POST, request.FILES, instance=cliente, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, '¡Tu perfil ha sido actualizado exitosamente!')
@@ -93,47 +86,34 @@ class CustomPasswordChangeView(PasswordChangeView):
         messages.error(self.request, 'Error al cambiar la contraseña. Por favor, revisa los campos.')
         return super().form_invalid(form)
 
-# ===================================================
-# ¡NUEVO! LÓGICA DE REEMBOLSO (para las vistas de abajo)
-# ===================================================
+# ... (Tus vistas _calcular_reembolso, mis_reservas_view y cancelar_reserva_view se quedan IGUAL) ...
 def _calcular_reembolso(reserva, ahora):
     """
     Calcula el monto de reembolso y el mensaje según las reglas de negocio.
     """
-    # Si no pagó o no está confirmada, no hay reembolso
     if reserva.monto_pagado <= 0 or reserva.estado not in ['CONFIRMADA', 'PENDIENTE']:
         return {'monto': 0, 'mensaje': 'Esta reserva no es reembolsable.'}
 
-    # 1. Regla: 20 minutos después de crearla (Reembolso completo)
     if reserva.created_at:
         tiempo_desde_creacion = ahora - reserva.created_at
         if tiempo_desde_creacion.total_seconds() <= 1200: # 20 minutos
             return {'monto': 30.00, 'mensaje': 'Reembolso completo de 30 Bs (cancelación rápida dentro de los 20 min).'}
 
-    # 2. Regla: Tiempo ANTES de la reserva
-    # Combinamos la fecha y hora de la reserva en un objeto datetime con zona horaria
     inicio_reserva_dt = timezone.make_aware(datetime.combine(reserva.fecha_reserva, reserva.hora_reserva))
     tiempo_para_reserva = inicio_reserva_dt - ahora
     
-    # Si la reserva ya pasó, no hay reembolso
     if tiempo_para_reserva.total_seconds() < 0:
         return {'monto': 0, 'mensaje': 'Esta reserva ya pasó. No es reembolsable.'}
 
-    # Si cancela 1 hora antes
     if tiempo_para_reserva.total_seconds() >= 3600: # 1 hora
         return {'monto': 15.00, 'mensaje': 'Reembolso parcial de 15 Bs (cancelación 1 hora antes).'}
     
-    # Si cancela 30 minutos antes
     if tiempo_para_reserva.total_seconds() >= 1800: # 30 minutos
         return {'monto': 10.00, 'mensaje': 'Reembolso parcial de 10 Bs (cancelación 30 min antes).'}
 
-    # Si falta menos de 30 minutos
     return {'monto': 0, 'mensaje': 'No reembolsable (falta menos de 30 min para la reserva).'}
 
 
-# ===================================================
-# ¡NUEVO! VISTA "MIS RESERVAS"
-# ===================================================
 @login_required
 def mis_reservas_view(request):
     try:
@@ -142,17 +122,13 @@ def mis_reservas_view(request):
         messages.error(request, 'No tienes un perfil de cliente.')
         return redirect('home')
 
-    # Obtenemos todas las reservas del cliente
     reservas = Reserva.objects.filter(cliente=cliente).order_by('-fecha_reserva', '-hora_reserva')
     
     ahora = timezone.now()
     reservas_con_info = []
     
     for reserva in reservas:
-        # Calculamos el reembolso para cada una
         info_reembolso = _calcular_reembolso(reserva, ahora)
-        
-        # Comprobamos si la reserva aún se puede cancelar
         se_puede_cancelar = reserva.estado in ['PENDIENTE', 'CONFIRMADA'] and (timezone.make_aware(datetime.combine(reserva.fecha_reserva, reserva.hora_reserva)) > ahora)
         
         reservas_con_info.append({
@@ -167,17 +143,12 @@ def mis_reservas_view(request):
     return render(request, 'registration/mis_reservas.html', context)
 
 
-# ===================================================
-# ¡NUEVO! VISTA "CANCELAR RESERVA"
-# ===================================================
 @login_required
 def cancelar_reserva_view(request, reserva_id):
-    # Aseguramos que la reserva exista y sea de este cliente
     reserva = get_object_or_404(Reserva, id=reserva_id, cliente__usuario=request.user)
     
     ahora = timezone.now()
     
-    # Verificamos que todavía se pueda cancelar
     se_puede_cancelar = reserva.estado in ['PENDIENTE', 'CONFIRMADA'] and (timezone.make_aware(datetime.combine(reserva.fecha_reserva, reserva.hora_reserva)) > ahora)
 
     if not se_puede_cancelar:
@@ -185,15 +156,11 @@ def cancelar_reserva_view(request, reserva_id):
         return redirect('mis_reservas')
 
     if request.method == 'POST':
-        # Calculamos el reembolso
         info_reembolso = _calcular_reembolso(reserva, ahora)
         
-        # 1. Cambiamos el estado de la reserva
         reserva.estado = 'CANCELADA'
-        # (El 'monto_pagado' lo dejamos como está, el admin gestionará el reembolso)
         reserva.save()
         
-        # 2. ¡Liberamos la mesa!
         if reserva.mesa:
             reserva.mesa.estado = 'DISPONIBLE'
             reserva.mesa.save()
@@ -201,5 +168,4 @@ def cancelar_reserva_view(request, reserva_id):
         messages.success(request, f'Reserva cancelada. {info_reembolso["mensaje"]}')
         return redirect('mis_reservas')
     
-    # Si es GET, simplemente redirige (no deberíamos llegar aquí)
     return redirect('mis_reservas')

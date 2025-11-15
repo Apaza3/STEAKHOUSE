@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- (head... favicons, fuentes, css, styles... todo igual que antes) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Admin - The Steakhouse</title>
+    
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/favicon/apple-touch-icon.png' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicon/favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicon/favicon-16x16.png' %}">
@@ -16,12 +16,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="{% static 'core/css/main.css' %}" />
+    
     <style>
         :root {
             --header-height: 80px; 
         }
         body { 
-            background-color: #f8f9fa; 
             padding-top: var(--header-height);
         }
         .sidebar {
@@ -34,6 +34,7 @@
             color: #f4f0e8;
             padding: 20px;
             overflow-y: auto;
+            z-index: 1020; 
         }
         .sidebar .nav-link {
             color: #f4f0e8;
@@ -50,19 +51,35 @@
         .content {
             margin-left: 280px;
             padding: 30px;
+            width: calc(100% - 280px);
         }
         .card-header-gold {
             background-color: #c89b3f;
             color: #3d2422;
             font-family: 'Playfair Display', serif;
         }
+
+        /* --- ¡NUEVO! Estilos para la foto y rol en el header --- */
+        .profile-pic-nav {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #c89b3f;
+            margin-right: 10px;
+        }
+        .badge-rol {
+            font-size: 0.8rem;
+            padding: 0.4em 0.8em;
+            vertical-align: middle;
+        }
+        /* --------------------------------------------------- */
+
     </style>
 </head>
 <body class="site-container">
 
-    <!-- 1. NUEVO HEADER (igual que antes) -->
-    <header id="main-header" class="sticky-top">
-        <!-- (El código del header no cambia) -->
+    <header id="main-header" class="fixed-top" style="z-index: 1030;"> 
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
@@ -79,9 +96,27 @@
                         </li>
                         {% if user.is_authenticated %}
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-user me-1"></i>
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    
+                                    {% if user.cliente.foto_perfil %}
+                                        <img src="{{ user.cliente.foto_perfil.url }}" alt="Foto de perfil" class="profile-pic-nav">
+                                    {% else %}
+                                        <i class="fa fa-user me-2" style="font-size: 1.2rem;"></i>
+                                    {% endif %}
+
                                     Hola, {{ user.username }}
+                                    
+                                    {% with user.groups.first as group %}
+                                        {% if user.is_superuser %}
+                                            <span class="badge-rol badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill ms-2">Admin</span>
+                                        {% elif group.name == 'Cajero' %}
+                                            <span class="badge-rol badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill ms-2">Cajero</span>
+                                        {% elif group.name == 'Mesero' %}
+                                            <span class="badge-rol badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill ms-2">Mesero</span>
+                                        {% elif user.is_staff %}
+                                            <span class="badge-rol badge bg-secondary-emphasis text-secondary-emphasis border border-secondary-subtle rounded-pill ms-2">Staff</span>
+                                        {% endif %}
+                                    {% endwith %}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
                                     {% if user.is_staff %}
@@ -107,29 +142,28 @@
         </nav>
     </header>
 
-    <!-- 2. LAYOUT DEL PANEL -->
     <div class="d-flex">
-        <!-- Menú Lateral del Panel (¡ACTUALIZADO!) -->
         <div class="sidebar d-flex flex-column">
             <h3 class="fs-5 text-center mb-4" style="font-family: 'Playfair Display', serif; color: #c89b3f;">
                 Panel de Administración
             </h3>
             
-            <!-- === ¡MENÚ ACTUALIZADO! === -->
             <ul class="nav flex-column mb-auto">
                 
-                <!-- ¡NUEVO! Enlace a Reservas (Primero) -->
+                {% if user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'reserva' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reservas' %}">
                         <i class="fa fa-calendar-alt"></i> Reservas
                     </a>
                 </li>
-                
                 <li class="nav-item">
                     <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_pedidos' %}">
                         <i class="fa fa-receipt"></i> Pedidos
                     </a>
                 </li>
+                {% endif %}
+
+                {% if user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_productos' %}">
                         <i class="fa fa-utensils"></i> Productos
@@ -155,16 +189,16 @@
                         <i class="fa fa-chart-line"></i> Reportes
                     </a>
                 </li>
+                {% endif %}
             </ul>
-        </div>
+            </div>
 
-        <!-- Contenido Principal -->
         <main class="content">
             {% if messages %}
                 {% for message in messages %}
                 <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button typebutton" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
             {% endif %}
@@ -174,5 +208,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -19,6 +19,10 @@ urlpatterns = [
     # URLs de Usuarios
     path('empleados/', views.empleado_list, name='dashboard_empleados'),
     path('clientes/', views.cliente_list, name='dashboard_clientes'),
+    
+    # ¡NUEVA RUTA!
+    path('empleados/crear/', views.empleado_create_view, name='empleado_create'),
+    
     path('usuarios/toggle-staff/<int:user_id>/', views.user_toggle_staff, name='user_toggle_staff'),
     path('usuarios/eliminar/<int:user_id>/', views.user_delete, name='user_delete'),
     
@@ -29,9 +33,6 @@ urlpatterns = [
     # URLs de Reservas
     path('reservas/', views.reserva_list, name='dashboard_reservas'),
     
-    # ===============================================
-    # URLs DE REPORTES (¡ACTUALIZADA!)
-    # ===============================================
-    # ¡CAMBIADO! Apunta a la nueva vista
+    # URLs de Reportes
     path('reportes/', views.reportes_view, name='dashboard_reportes'),
 ]

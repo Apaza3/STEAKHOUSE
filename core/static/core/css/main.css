@@ -235,3 +235,56 @@ body {
 .btn-clear:hover {
     color: #fff;
 }
+
+/* ===============================================
+   6. Estilos del Panel de Admin (Dashboard)
+   =============================================== */
+
+/* Tarjeta oscura para formularios del panel */
+.content .card-dark {
+    background-color: rgba(30, 21, 19, 0.85); /* Mismo fondo que el login */
+    backdrop-filter: blur(10px);
+    border: 1px solid #4d3a36; /* Mismo borde que el login */
+    color: #f3f4f6;
+}
+
+/* Etiquetas de formulario en el panel */
+.content .form-label {
+    color: #f3f4f6;
+    font-weight: 600;
+}
+
+/* * Inputs y Selects Oscuros
+ * Expande el estilo de login-container para que aplique 
+ * a .content (panel de admin)
+ */
+.login-container .form-control,
+.content .form-control,
+.login-container .form-select,
+.content .form-select {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid #4d3a36;
+    color: #fff;
+    padding: 0.75rem 1rem;
+}
+
+.login-container .form-control:focus,
+.content .form-control:focus,
+.login-container .form-select:focus,
+.content .form-select:focus {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: #ef4444;
+    box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
+    color: #fff;
+}
+
+.login-container .form-control::placeholder,
+.content .form-control::placeholder {
+    color: #9ca3af; /* text-gray-400 */
+}
+
+/* Asegura que las opciones del select se vean bien en modo oscuro */
+.content .form-select option {
+    background: #3d2422;
+    color: #f3f4f6;
+}

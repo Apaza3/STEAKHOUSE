@@ -1,0 +1,80 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm card-dark">
+            <div class="card-header card-header-gold">
+                <h5 class="mb-0">{{ titulo }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <h5 class="mt-2">Datos de Perfil</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label">{{ form.nombre.label }}</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}<div class="invalid-feedback d-block">{{ form.nombre.errors.as_text }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.apellido.id_for_label }}" class="form-label">{{ form.apellido.label }}</label>
+                            {{ form.apellido }}
+                            {% if form.apellido.errors %}<div class="invalid-feedback d-block">{{ form.apellido.errors.as_text }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.telefono.id_for_label }}" class="form-label">{{ form.telefono.label }}</label>
+                        {{ form.telefono }}
+                        {% if form.telefono.errors %}<div class="invalid-feedback d-block">{{ form.telefono.errors.as_text }}</div>{% endif %}
+                    </div>
+
+                    <hr>
+                    <h5 class="mt-4">Datos de Cuenta (Login)</h5>
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="invalid-feedback d-block">{{ form.username.errors.as_text }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors.as_text }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}<div class="invalid-feedback d-block">{{ form.password.errors.as_text }}</div>{% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mt-4">Rol del Empleado</h5>
+                    <div class="mb-3">
+                        <label for="{{ form.rol.id_for_label }}" class="form-label">{{ form.rol.label }}</label>
+                        {{ form.rol }}
+                        {% if form.rol.errors %}<div class="invalid-feedback d-block">{{ form.rol.errors.as_text }}</div>{% endif %}
+                    </div>
+                    <hr>
+                    
+                    <button type="submit" class="btn btn-primary" style="background-color: #c89b3f; border-color: #c89b3f;">
+                        <i class="fa fa-save me-2"></i> Crear Empleado
+                    </button>
+                    <a href="{% url 'dashboard_empleados' %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

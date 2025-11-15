@@ -7,32 +7,54 @@ from clientes.models import Cliente
 from core.models import Mesa
 from productos.models import Producto
 from productos.forms import ProductoForm
-from .forms import MesaForm
+from .forms import MesaForm, EmpleadoCreateForm
 from pedidos.models import Pedido, DetallePedido
 from reservas.models import Reserva
-from django.db.models import Sum, Count, F # ¡Importante para los reportes!
-import json # ¡Importante para pasar datos a JS!
+from django.db.models import Sum, Count, F
+import json
 
-# ... (Tu decorador admin_requerido se queda igual) ...
-def admin_requerido(function):
+# ===============================================
+# ¡CAMBIO! DECORADORES DE SEGURIDAD
+# ===============================================
+
+def staff_requerido(function):
+    """
+    Decorador que verifica que el usuario sea un empleado (is_staff).
+    Usado para vistas generales del panel (ej. ver reservas, ver pedidos).
+    """
     return user_passes_test(
         lambda u: u.is_authenticated and u.is_staff,
         login_url='login',
         redirect_field_name=None
     )(function)
 
-@admin_requerido
+def admin_requerido(function):
+    """
+    Decorador que verifica que el usuario sea un SUPERUSUARIO (is_superuser).
+    Usado para vistas sensibles (ej. crear empleados, productos, mesas, ver reportes).
+    """
+    return user_passes_test(
+        lambda u: u.is_authenticated and u.is_superuser,
+        login_url='dashboard_home', # Si no es admin, lo manda al inicio del panel
+        redirect_field_name=None
+    )(function)
+
+# ===============================================
+
+@staff_requerido # <-- CAMBIO
 def dashboard_home(request):
     return redirect('dashboard_reservas')
 
-# ... (Tus vistas de CRUD de Producto se quedan igual) ...
-@admin_requerido
+# ===============================================
+# VISTAS DEL PANEL DE PRODUCTOS (CRUD)
+# ===============================================
+@admin_requerido # <-- CAMBIO
 def producto_list(request):
     productos = Producto.objects.all().order_by('nombre_producto')
     context = {'productos': productos}
     return render(request, 'dashboard/producto_list.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def producto_create(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
@@ -45,7 +67,7 @@ def producto_create(request):
     context = {'form': form, 'titulo': 'Crear Nuevo Producto'}
     return render(request, 'dashboard/producto_form.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def producto_update(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -59,7 +81,7 @@ def producto_update(request, pk):
     context = {'form': form, 'titulo': f'Editar {producto.nombre_producto}'}
     return render(request, 'dashboard/producto_form.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def producto_delete(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -69,14 +91,16 @@ def producto_delete(request, pk):
     context = {'producto': producto}
     return render(request, 'dashboard/producto_delete.html', context)
 
-# ... (Tus vistas de CRUD de Mesa se quedan igual) ...
-@admin_requerido
+# ===============================================
+# VISTAS DE GESTIÓN DE MESAS (CRUD)
+# ===============================================
+@admin_requerido # <-- CAMBIO
 def mesa_list(request):
     mesas = Mesa.objects.all().order_by('numero')
     context = {'mesas': mesas}
     return render(request, 'dashboard/mesa_list.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def mesa_create(request):
     if request.method == 'POST':
         form = MesaForm(request.POST)
@@ -89,7 +113,7 @@ def mesa_create(request):
     context = {'form': form, 'titulo': 'Crear Nueva Mesa'}
     return render(request, 'dashboard/mesa_form.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def mesa_update(request, pk):
     mesa = get_object_or_404(Mesa, pk=pk)
     if request.method == 'POST':
@@ -103,7 +127,7 @@ def mesa_update(request, pk):
     context = {'form': form, 'titulo': f'Editar Mesa {mesa.numero}'}
     return render(request, 'dashboard/mesa_form.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def mesa_delete(request, pk):
     mesa = get_object_or_404(Mesa, pk=pk)
     if request.method == 'POST':
@@ -113,20 +137,22 @@ def mesa_delete(request, pk):
     context = {'mesa': mesa}
     return render(request, 'dashboard/mesa_delete.html', context)
 
-# ... (Tus vistas de Gestión de Usuarios se quedan igual) ...
-@admin_requerido
+# ===============================================
+# VISTAS DE GESTIÓN DE USUARIOS
+# ===============================================
+@admin_requerido # <-- CAMBIO
 def empleado_list(request):
     usuarios = User.objects.filter(is_staff=True).order_by('username')
     context = { 'usuarios': usuarios }
     return render(request, 'dashboard/user_list.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def cliente_list(request):
     clientes = User.objects.filter(is_staff=False).order_by('username')
     context = { 'usuarios': clientes }
     return render(request, 'dashboard/client_list.html', context)
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def user_toggle_staff(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "No puedes cambiar tu propio estado de administrador.")
@@ -140,7 +166,7 @@ def user_toggle_staff(request, user_id):
         messages.success(request, f"'{user.username}' ha sido degradado a Usuario normal.")
     return redirect('dashboard_empleados')
 
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def user_delete(request, user_id):
     if request.user.id == user_id:
         messages.error(request, "No puedes eliminarte a ti mismo.")
@@ -151,8 +177,32 @@ def user_delete(request, user_id):
     messages.success(request, f"El usuario '{username}' ha sido eliminado permanentemente.")
     return redirect('dashboard_empleados')
 
-# ... (Tus vistas de Pedidos y Reservas se quedan igual) ...
-@admin_requerido
+# ===================================================
+# VISTA PARA CREAR EMPLEADOS
+# ===================================================
+@admin_requerido # <-- CAMBIO
+def empleado_create_view(request):
+    if request.method == 'POST':
+        form = EmpleadoCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Nuevo empleado creado exitosamente.')
+            return redirect('dashboard_empleados')
+        else:
+            messages.error(request, 'Error al crear el empleado. Revisa los campos.')
+    else:
+        form = EmpleadoCreateForm()
+    
+    context = {
+        'form': form,
+        'titulo': 'Crear Nuevo Empleado'
+    }
+    return render(request, 'dashboard/empleado_form.html', context)
+
+# ===============================================
+# VISTAS DE GESTIÓN DE PEDIDOS
+# ===============================================
+@staff_requerido # <-- CAMBIO
 def pedido_list(request):
     pedidos = Pedido.objects.all().order_by('-fecha_pedido')
     context = {
@@ -160,7 +210,7 @@ def pedido_list(request):
     }
     return render(request, 'dashboard/pedido_list.html', context)
 
-@admin_requerido
+@staff_requerido # <-- CAMBIO
 def pedido_detail(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk)
     
@@ -177,7 +227,10 @@ def pedido_detail(request, pk):
     }
     return render(request, 'dashboard/pedido_detail.html', context)
 
-@admin_requerido
+# ===============================================
+# VISTAS DE GESTIÓN DE RESERVAS
+# ===============================================
+@staff_requerido # <-- CAMBIO
 def reserva_list(request):
     reservas = Reserva.objects.all().order_by('-fecha_reserva', '-hora_reserva')
     context = {
@@ -186,9 +239,9 @@ def reserva_list(request):
     return render(request, 'dashboard/reserva_list.html', context)
     
 # ===============================================
-# VISTA DE REPORTES (¡ACTUALIZADA CON GRÁFICOS!)
+# VISTA DE REPORTES
 # ===============================================
-@admin_requerido
+@admin_requerido # <-- CAMBIO
 def reportes_view(request):
     
     # --- 1. DATOS PARA KPIs (Como antes) ---
@@ -201,8 +254,6 @@ def reportes_view(request):
     num_reservas = reservas_pagadas.count()
 
     # --- 2. DATOS PARA GRÁFICOS (¡NUEVO!) ---
-
-    # Gráfico 1: Platos más vendidos (Top 5)
     platos_vendidos = DetallePedido.objects.filter(pedido__estado_pedido='ENTREGADO') \
         .values('producto__nombre_producto') \
         .annotate(total_vendido=Sum('cantidad')) \
@@ -211,7 +262,6 @@ def reportes_view(request):
     platos_labels = [item['producto__nombre_producto'] for item in platos_vendidos]
     platos_data = [item['total_vendido'] for item in platos_vendidos]
 
-    # Gráfico 2: Popularidad de Tipos de Mesa (Premium vs Normal)
     tipos_mesa_pop = Reserva.objects \
         .filter(estado__in=['CONFIRMADA', 'COMPLETADA'], mesa__isnull=False) \
         .values('mesa__tipo') \
@@ -221,7 +271,6 @@ def reportes_view(request):
     tipos_labels = [item['mesa__tipo'].capitalize() for item in tipos_mesa_pop]
     tipos_data = [item['conteo'] for item in tipos_mesa_pop]
 
-    # Gráfico 3: Tamaño de Grupos (Cuántas personas vienen)
     tamanos_grupo = Reserva.objects \
         .filter(estado__in=['CONFIRMADA', 'COMPLETADA']) \
         .values('numero_personas') \
@@ -233,17 +282,12 @@ def reportes_view(request):
 
     # --- 3. CONTEXTO ---
     context = {
-        # KPIs
         'total_ventas': total_ventas,
         'num_ventas': num_ventas,
         'total_reservas': total_reservas,
         'num_reservas': num_reservas,
-        
-        # Tablas (como antes)
         'ventas': ventas.order_by('-fecha_pedido')[:20],
         'reservas': reservas_pagadas.order_by('-fecha_reserva')[:20],
-        
-        # Gráficos (¡NUEVO!) - Usamos json.dumps para pasar a JS de forma segura
         'platos_labels': json.dumps(platos_labels),
         'platos_data': json.dumps(platos_data),
         'tipos_labels': json.dumps(tipos_labels),

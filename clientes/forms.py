@@ -32,6 +32,7 @@ class ClienteRegistrationForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Opcional'}),
         }
 
+    # ... (Todas tus funciones clean_username, clean_email, clean_password_confirm y save se quedan IGUAL) ...
     def clean_username(self):
         """Valida que el nombre de usuario no exista."""
         username = self.cleaned_data.get('username')
@@ -77,24 +78,30 @@ class ClienteRegistrationForm(forms.ModelForm):
         return cliente
 
 # ===================================================
-# ¡NUEVO! FORMULARIO PARA EDITAR PERFIL DE CLIENTE (CORREGIDO)
+# FORMULARIO PARA EDITAR PERFIL DE CLIENTE (¡ACTUALIZADO!)
 # ===================================================
 class ClienteEditForm(forms.ModelForm):
     """
     Formulario para que un Cliente edite sus propios datos.
-    ¡AHORA INCLUYE USERNAME!
+    ¡AHORA INCLUYE FOTO DE PERFIL!
     """
-    # Añadimos el campo username que viene del modelo User
     username = forms.CharField(
         label='Nombre de Usuario', 
         max_length=100,
         widget=forms.TextInput(attrs={'class': 'form-control form-control-lg'})
     )
+    
+    # ¡NUEVO! Campo de Foto de Perfil
+    foto_perfil = forms.ImageField(
+        label='Foto de Perfil (Opcional)',
+        required=False, # <-- Importante: es opcional
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control form-control-lg'})
+    )
 
     class Meta:
         model = Cliente
         # ¡CAMPO AÑADIDO!
-        fields = ['nombre', 'apellido', 'username', 'email', 'telefono']
+        fields = ['foto_perfil', 'nombre', 'apellido', 'username', 'email', 'telefono']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
@@ -106,21 +113,19 @@ class ClienteEditForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        # Rellenamos el campo 'username' con el valor actual del User
         if self.user:
             self.fields['username'].initial = self.user.username
 
+    # ... (Tus funciones clean_username y clean_email se quedan IGUAL) ...
     def clean_username(self):
         """
         Valida que el nuevo username no esté en uso por OTRO usuario.
         """
         username = self.cleaned_data.get('username')
         
-        # Si no ha cambiado, es válido
         if username == self.user.username:
             return username
             
-        # Si ha cambiado, revisamos que no exista
         if User.objects.filter(username=username).exclude(id=self.user.id).exists():
             raise forms.ValidationError("Este nombre de usuario ya está en uso. Por favor, elige otro.")
              
