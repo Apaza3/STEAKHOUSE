@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1u)i7v98&35^ynrg=hatf18=nhaq(q4-8%b=s_0+2^*kh&w)ei'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True 
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.95', '.onrender.com']
 
@@ -86,9 +86,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-LANGUAGE_CODE = 'es-bo' # Cambiado a español de Bolivia
+LANGUAGE_CODE = 'es-bo'
 TIME_ZONE = 'America/La_Paz'
-USE_I18N = True
+USE_I1N = True
 USE_TZ = True
 
 
@@ -99,26 +99,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # ===================================================
-# ¡CONFIGURACIÓN DE EMAIL CORREGIDA!
+# ¡CONFIGURACIÓN DE EMAIL (MODO GMAIL REAL - CUENTA NUEVA)!
 # ===================================================
 
-# Para desarrollo (DEBUG=True), usamos la consola.
-# ¡Esto imprimirá el email en tu terminal de `runserver`!
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Usamos el backend de SMTP (el real)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
-# --- CONFIGURACIÓN DE GMAIL (PARA PRODUCCIÓN) ---
-# (La dejamos aquí, pero Django la ignorará mientras DEBUG=True)
-#
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'www.ajgamer4852h@gmail.com'
-# EMAIL_HOST_PASSWORD = 'flcz kuof xgiu wqho' 
-#
-# NOTA: Para que esto funcione en Render, debes poner
-# EMAIL_HOST_USER y EMAIL_HOST_PASSWORD como Variables de Entorno
-# y NO dejarlas escritas aquí.
+# ¡Tus nuevas credenciales!
+EMAIL_HOST_USER = 'emisistemas2@gmail.com'  # El nuevo email del restaurante
+EMAIL_HOST_PASSWORD = 'evzn cpts uxbj lbwx' # La nueva Contraseña de Aplicación
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # ===================================================
 
 

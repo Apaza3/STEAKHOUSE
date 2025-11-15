@@ -9,17 +9,15 @@ from .forms import ReservaForm
 from core.utils import enviar_email_automatico
 from django.contrib.auth.decorators import login_required
 
-# --- ¡Nuevas importaciones para la lógica de tiempo y búsquedas! ---
 import qrcode
 import io
 import base64
 from datetime import datetime, timedelta
 from django.db.models import Q
-# --- Fin de nuevas importaciones ---
 
 
 # ===============================================
-# VISTA DEL FORMULARIO DE RESERVA (¡REESCRITA!)
+# VISTA DEL FORMULARIO DE RESERVA (¡CORREGIDA!)
 # ===============================================
 @login_required(login_url='login') 
 def reservation_view(request):
@@ -34,13 +32,11 @@ def reservation_view(request):
         form = ReservaForm(request.POST)
         
         if form.is_valid():
-            # Datos limpios del formulario
             fecha = form.cleaned_data['fecha_reserva']
             hora_inicio = form.cleaned_data['hora_reserva']
             duracion = int(form.cleaned_data['duracion_horas'])
             personas = form.cleaned_data['numero_personas']
             
-            # 1. Calcular hora de fin
             try:
                 inicio_dt = datetime.combine(fecha, hora_inicio)
                 fin_dt = inicio_dt + timedelta(hours=duracion)
@@ -49,36 +45,30 @@ def reservation_view(request):
                 messages.error(request, f"Error al calcular la hora: {e}")
                 return render(request, 'reservas.html', {'form': form, 'cliente_actual': cliente_actual})
 
-            # 2. Buscar mesas OCUPADAS en ese horario
-            # Lógica de solapamiento: (start1 <= end2) AND (end1 >= start2)
             reservas_en_conflicto = Reserva.objects.filter(
                 fecha_reserva=fecha,
-                estado__in=['CONFIRMADA', 'PENDIENTE'] # Solo contamos las activas
+                estado__in=['CONFIRMADA', 'PENDIENTE']
             ).filter(
                 Q(hora_reserva__lt=hora_fin) & Q(hora_fin__gt=hora_inicio)
             )
             
-            # Obtenemos los IDs de las mesas que están ocupadas
             mesas_ocupadas_ids = reservas_en_conflicto.values_list('mesa_id', flat=True)
 
-            # 3. Buscar una mesa LIBRE que cumpla los requisitos
             mesa_disponible = Mesa.objects.filter(
-                estado='DISPONIBLE',           # Que esté disponible
-                capacidad__gte=personas     # Y que quepan las personas
+                estado='DISPONIBLE',
+                capacidad__gte=personas
             ).exclude(
-                id__in=mesas_ocupadas_ids     # Y que NO esté en la lista de ocupadas
-            ).order_by('capacidad').first()   # Obtenemos la más pequeña que quepa
+                id__in=mesas_ocupadas_ids
+            ).order_by('capacidad').first()
 
-            # 4. Asignar la mesa (si se encontró)
             if mesa_disponible:
                 reserva = form.save(commit=False)
                 reserva.cliente = cliente_actual
-                reserva.mesa = mesa_disponible # ¡Mesa asignada!
+                reserva.mesa = mesa_disponible
                 
-                # ¡NUEVA LÓGICA DE PAGO (30 Bs)!
                 if reserva.tipo_pago == 'PAGO_ADELANTADO' or reserva.tipo_pago == 'TARJETA':
                     reserva.estado = 'PENDIENTE'
-                    reserva.monto_pagado = 30.00 # ¡Guardamos los 30 Bs!
+                    reserva.monto_pagado = 30.00
                     reserva.save()
                     
                     if reserva.tipo_pago == 'PAGO_ADELANTADO':
@@ -92,32 +82,32 @@ def reservation_view(request):
                     reserva.save()
                     
                     try:
+                        # ===================================================
+                        # ¡LLAMADA CORREGIDA! (Argumentos en orden)
+                        # ===================================================
                         enviar_email_automatico(
-                            '¡Tu reserva en The Steakhouse está confirmada!',
-                            'emails/confirmacion_reserva.html',
-                            {'reserva': reserva, 'cliente': reserva.cliente},
-                            reserva.cliente.email
+                            template_path='emails/confirmacion_reserva.html',
+                            context_datos={'reserva': reserva, 'cliente': reserva.cliente},
+                            asunto='¡Tu reserva en The Steakhouse está confirmada!',
+                            email_destino=reserva.cliente.email
                         )
                         messages.success(request, f'¡Reserva confirmada para la Mesa {reserva.mesa.numero}! Se ha enviado un correo con los detalles.')
                     except Exception as e:
+                        # (La función 'enviar_email' ya imprime el error, pero por si acaso)
                         messages.warning(request, f'Reserva confirmada (Mesa {reserva.mesa.numero}), pero no se pudo enviar el correo: {e}')
                     
                     return redirect('home')
 
             else:
-                # Si no se encontró mesa_disponible
                 messages.error(request, f'Lo sentimos, no hay mesas disponibles para {personas} personas en esa fecha y hora. Por favor, intenta otro horario.')
-                # Devolvemos el formulario con los datos que el usuario ya puso
                 return render(request, 'reservas.html', {'form': form, 'cliente_actual': cliente_actual})
 
         else:
-            # Si el formulario no es válido (ej. fecha pasada)
             messages.error(request, 'El formulario tiene errores. Por favor, revisa los campos.')
             
-    else: # request.method == 'GET'
+    else: 
         form = ReservaForm(initial={'cliente': cliente_actual})
 
-    # Ya no necesitamos pasar la lista de mesas
     context = {
         'form': form,
         'cliente_actual': cliente_actual 
@@ -127,7 +117,7 @@ def reservation_view(request):
 
 
 # ===============================================
-# VISTAS DE SIMULACIÓN DE PAGO (¡ACTUALIZADAS!)
+# VISTAS DE SIMULACIÓN DE PAGO (¡CORREGIDAS!)
 # ===============================================
 
 @login_required(login_url='login')
@@ -152,7 +142,7 @@ def payment_waiting_view(request, reserva_id):
         'reserva': reserva,
         'qr_image': qr_image_base64,
         'check_status_url': reverse('check_reservation_status_view', args=[reserva.id]),
-        'monto_a_pagar': 30 # ¡Enviamos el monto!
+        'monto_a_pagar': 30
     }
     return render(request, 'payment_waiting.html', context)
 
@@ -161,25 +151,26 @@ def payment_confirm_view(request, reserva_id):
     
     if reserva.estado == 'PENDIENTE':
         reserva.estado = 'CONFIRMADA'
-        reserva.monto_pagado = 30.00 # ¡Confirmamos el pago!
+        reserva.monto_pagado = 30.00
         reserva.save()
         
         try:
+            # ===================================================
+            # ¡LLAMADA CORREGIDA! (Argumentos en orden)
+            # ===================================================
             enviar_email_automatico(
-                '¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
-                'emails/confirmacion_reserva.html',
-                {'reserva': reserva, 'cliente': reserva.cliente},
-                reserva.cliente.email
+                template_path='emails/confirmacion_reserva.html',
+                context_datos={'reserva': reserva, 'cliente': reserva.cliente},
+                asunto='¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
+                email_destino=reserva.cliente.email
             )
         except Exception as e:
             print(f"Error al enviar email de confirmación de pago: {e}")
 
-    # ¡MEJORA! Esta es la página que ve el usuario al escanear
-    # Hagámosla un poco más bonita que solo un H1
     html_response = """
     <html lang="es" data-bs-theme="dark">
     <head>
-        <meta charset="UTF-8">
+        <meta charset="UTF-g">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Pago Confirmado</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -213,7 +204,7 @@ def payment_tarjeta_view(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, cliente__usuario=request.user)
     context = {
         'reserva': reserva,
-        'monto_a_pagar': 30 # ¡Enviamos el monto!
+        'monto_a_pagar': 30
     }
     return render(request, 'pago_tarjeta.html', context)
 
@@ -223,15 +214,18 @@ def payment_tarjeta_confirm(request, reserva_id):
     
     if reserva.estado == 'PENDIENTE':
         reserva.estado = 'CONFIRMADA'
-        reserva.monto_pagado = 30.00 # ¡Confirmamos el pago!
+        reserva.monto_pagado = 30.00
         reserva.save()
         
         try:
+            # ===================================================
+            # ¡LLAMADA CORREGIDA! (Argumentos en orden)
+            # ===================================================
             enviar_email_automatico(
-                '¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
-                'emails/confirmacion_reserva.html',
-                {'reserva': reserva, 'cliente': reserva.cliente},
-                reserva.cliente.email
+                template_path='emails/confirmacion_reserva.html',
+                context_datos={'reserva': reserva, 'cliente': reserva.cliente},
+                asunto='¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
+                email_destino=reserva.cliente.email
             )
             messages.success(request, '¡Pago aceptado y reserva confirmada! Se ha enviado un correo.')
         except Exception as e:
