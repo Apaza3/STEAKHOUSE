@@ -154,18 +154,17 @@ def payment_confirm_view(request, reserva_id):
         reserva.monto_pagado = 30.00
         reserva.save()
         
-        try:
+        
             # ===================================================
             # ¡LLAMADA CORREGIDA! (Argumentos en orden)
             # ===================================================
-            enviar_email_automatico(
-                template_path='emails/confirmacion_reserva.html',
-                context_datos={'reserva': reserva, 'cliente': reserva.cliente},
-                asunto='¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
-                email_destino=reserva.cliente.email
-            )
-        except Exception as e:
-            print(f"Error al enviar email de confirmación de pago: {e}")
+        enviar_email_automatico(
+             template_path='emails/confirmacion_reserva.html',
+             context_datos={'reserva': reserva, 'cliente': reserva.cliente},
+              asunto='¡Pago Confirmado! Tu reserva en The Steakhouse está lista.',
+              email_destino=reserva.cliente.email
+      )
+        
 
     html_response = """
     <html lang="es" data-bs-theme="dark">
