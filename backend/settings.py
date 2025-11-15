@@ -1,8 +1,3 @@
-"""
-Django settings for backend project.
-...
-"""
-
 import os
 import dj_database_url
 from pathlib import Path
@@ -10,13 +5,22 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-SECRET_KEY = 'django-insecure-1u)i7v98&35^ynrg=hatf18=nhaq(q4-8%b=s_0+2^*kh&w)ei'
+# --- ¡CAMBIO IMPORTANTE! ---
+# Lee la SECRET_KEY desde las variables de entorno de Render
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True 
+# --- ¡CAMBIO IMPORTANTE! ---
+# DEBUG se desactiva automáticamente en Render, pero se mantiene True localmente.
+# 'RENDER' es una variable que Render añade automáticamente.
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.95', '.onrender.com']
+# --- ¡CAMBIO IMPORTANTE! ---
+# ALLOWED_HOSTS lee la URL de tu sitio en Render.
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+RENDER_EXTERNAL_URL = os.environ.get('RENDER_EXTERNAL_URL')
+if RENDER_EXTERNAL_URL:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_URL.split('//')[-1])
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Whitenoise (archivos estáticos) debe ir aquí
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,16 +72,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
-# Database
+# --- ¡CAMBIO IMPORTANTE! ---
+# Configura la base de datos para leer la URL de Render (PostgreSQL)
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        # Lee la variable 'DATABASE_URL' de Render
+        default=os.environ.get('DATABASE_URL'),
         conn_max_age=600
     )
 }
 
-# Password validation
+# --- ¡NUEVO! Seguridad para Render ---
+# Le dice a Django que confíe en la URL de Render para formularios (CSRF)
+if RENDER_EXTERNAL_URL:
+    CSRF_TRUSTED_ORIGINS = [RENDER_EXTERNAL_URL]
+
+
+# Password validation (sin cambios)
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
@@ -84,48 +96,36 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-
-# Internationalization
+# Internationalization (sin cambios)
 LANGUAGE_CODE = 'es-bo'
 TIME_ZONE = 'America/La_Paz'
 USE_I1N = True
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles_build' # Directorio para collectstatic
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# Media files (Imágenes de Productos)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # ===================================================
-# ¡CONFIGURACIÓN DE EMAIL (MODO GMAIL REAL - CUENTA NUEVA)!
+# ¡CAMBIO IMPORTANTE! Configuración de Email (Modo Producción)
 # ===================================================
-
-# Usamos el backend de SMTP (el real)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# ¡Tus nuevas credenciales!
-EMAIL_HOST_USER = 'emisistemas2@gmail.com'  # El nuevo email del restaurante
-EMAIL_HOST_PASSWORD = 'evzn cpts uxbj lbwx' # La nueva Contraseña de Aplicación
-
+# --- Lee las credenciales de las variables de entorno ---
+EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # ===================================================
-
-
-# --- CONFIGURACIÓN DE ARCHIVOS MEDIA (Imágenes de Productos) ---
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# --- CONFIGURACIÓN PARA PRODUCCIÓN (Whitenoise) ---
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Le dice a Django dónde buscar archivos estáticos en desarrollo
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-STATIC_ROOT = BASE_DIR / "staticfiles_build"
