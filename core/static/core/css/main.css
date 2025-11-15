@@ -290,7 +290,7 @@ body {
 }
 
 /* ===============================================
-   7. Estilos del Flujo de Reservas
+   7. Estilos del Flujo de Reservas (¡ACTUALIZADO!)
    =============================================== */
 
 /* Fondo de página con temática de parrilla */
@@ -301,14 +301,35 @@ body {
     background-attachment: fixed;
 }
 
-/* Contenedor principal para centrar los formularios */
+/* * ¡CAMBIO! Quitamos el centrado vertical (flex) 
+ * para que los formularios empiecen desde arriba y no fuercen el scroll.
+ */
 .reserva-flow-container {
-    /* Centra el contenido verticalmente */
-    min-height: calc(100vh - 160px); /* 100% altura menos header/footer */
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 4rem 1rem;
+}
+
+/* * ¡CAMBIO! Arregla el "cuadro feo" con efecto "glassmorphism".
+ * Esto se aplica a .card-dark-theme Y .card-payment-form
+ */
+.card-dark-theme,
+.card-payment-form {
+    background-color: rgba(30, 21, 19, 0.85) !important; /* ¡IMPORTANTE! Fondo semitransparente */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid #4d3a36 !important; /* Borde sutil */
+    color: #f3f4f6 !important; /* Texto claro */
+}
+
+/* ¡CAMBIO! Arregla las fuentes "ordinarias" */
+.card-dark-theme h1,
+.card-dark-theme h2,
+.card-dark-theme h3,
+.card-dark-theme h4,
+.card-dark-theme h5,
+.card-dark-theme .title-gold,
+.card-payment-form h1 {
+    font-family: 'Playfair Display', serif;
+    color: #c89b3f; /* Aseguramos color dorado en títulos */
 }
 
 /* Estilo del Logo para los formularios */
@@ -318,40 +339,47 @@ body {
 }
 
 /* Asegura que los formularios de pago (tarjeta) usen el tema oscuro */
-.card-dark-theme .form-control {
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #4d3a36;
-    color: #fff;
+.card-dark-theme .form-control,
+.card-payment-form .form-control {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid #4d3a36 !important;
+    color: #fff !important;
     padding: 0.75rem 1rem;
 }
-.card-dark-theme .form-control:focus {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-color: #ef4444;
-    box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
-    color: #fff;
+.card-dark-theme .form-control:focus,
+.card-payment-form .form-control:focus {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25) !important;
+    color: #fff !important;
 }
-.card-dark-theme .form-control::placeholder {
-    color: #9ca3af;
+.card-dark-theme .form-control::placeholder,
+.card-payment-form .form-control::placeholder {
+    color: #9ca3af !important;
 }
-.card-dark-theme .input-group-text {
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #4d3a36;
-    color: #fff;
+.card-dark-theme .input-group-text,
+.card-payment-form .input-group-text {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid #4d3a36 !important;
+    color: #fff !important;
 }
-.card-dark-theme #card-icon-container { 
+.card-dark-theme #card-icon-container,
+.card-payment-form #card-icon-container { 
     font-size: 2.5rem; 
     height: 40px; 
 }
-.card-dark-theme #card-icon-container .fa-brands { 
+.card-dark-theme #card-icon-container .fa-brands,
+.card-payment-form #card-icon-container .fa-brands { 
     opacity: 0; 
     transition: opacity 0.3s ease; 
     position: absolute; 
 }
-.card-dark-theme #card-icon-container .fa-brands.visible { 
+.card-dark-theme #card-icon-container .fa-brands.visible,
+.card-payment-form #card-icon-container .fa-brands.visible { 
     opacity: 1; 
 }
 
-/* --- Animación de Partículas de Fuego --- */
+/* --- Animación de Partículas de Fuego (Sin cambios) --- */
 .fire-particles-container {
     position: fixed;
     bottom: 0;
@@ -362,7 +390,6 @@ body {
     pointer-events: none;
     z-index: 1000;
 }
-
 .particle {
     position: absolute;
     bottom: -20px;
@@ -372,22 +399,11 @@ body {
     opacity: 0;
     box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffaa00, 0 0 30px #ff8800;
 }
-
 @keyframes rise {
-    0% {
-        transform: translateY(0);
-        opacity: 0.7;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-150px) scale(0.5); /* Sube 150px */
-        opacity: 0;
-    }
+    0% { transform: translateY(0); opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-150px) scale(0.5); opacity: 0; }
 }
-
-/* Generamos 20 partículas con delays y posiciones distintas */
 .particle:nth-child(1) { left: 10%; animation-duration: 8s; animation-delay: 0s; width: 5px; height: 5px; }
 .particle:nth-child(2) { left: 20%; animation-duration: 6s; animation-delay: 1s; width: 3px; height: 3px; }
 .particle:nth-child(3) { left: 30%; animation-duration: 9s; animation-delay: 2s; width: 6px; height: 6px; }

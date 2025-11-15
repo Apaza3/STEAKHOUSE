@@ -6,8 +6,9 @@
 
 {% block content %}
 <main id="main-content" class="container reserva-flow-container">
+    
     <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
+        <div class="col-lg-10">
             
             <div class="card card-dark-theme shadow-lg">
                 <div class="card-body p-5">
@@ -16,27 +17,33 @@
                         <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo">
                     </div>
 
-                    <h1 class="title-gold display-5 mb-3">Escanea para Pagar</h1>
-                    <p class="fs-5">Tu reserva (ID: {{ reserva.id|truncatechars:8 }}...) está 'PENDIENTE'.</p>
-                    <p>Escanea el siguiente código QR con la cámara de tu celular para simular la confirmación del pago.</p>
-                    
-                    <img src="data:image/png;base64,{{ qr_image }}" alt="Código QR de Pago" class="img-fluid my-4" style="border: 8px solid white; border-radius: 8px;">
+                    <div class="row align-items-center">
+                        
+                        <div class="col-lg-7 text-center text-lg-start">
+                            <h1 class="title-gold display-5 mb-3">Escanea para Pagar</h1>
+                            <p class="fs-5">Tu reserva (ID: {{ reserva.id|truncatechars:8 }}...) está 'PENDIENTE'.</p>
+                            <p>Escanea el siguiente código QR con la cámara de tu celular para simular la confirmación del pago.</p>
+                            
+                            <div id="loading-spinner" class="mt-4">
+                                <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: #c89b3f;">
+                                    <span class="visually-hidden">Esperando...</span>
+                                </div>
+                                <p class="fs-4 mt-2">Esperando confirmación de pago...</p>
+                            </div>
 
-                    <div id="loading-spinner" class="mt-4">
-                        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: #c89b3f;">
-                            <span class="visually-hidden">Esperando...</span>
+                            <div id="success-message" class="alert alert-success mt-4" style="display: none;">
+                                <h4 class="alert-heading">¡Pago Confirmado!</h4>
+                                <p>Tu reserva ha sido confirmada. Ya puedes cerrar esta ventana.</p>
+                                <a href="{% url 'home' %}" class="btn btn-success">Volver al Inicio</a>
+                            </div>
                         </div>
-                        <p class="fs-4 mt-2">Esperando confirmación de pago...</p>
-                    </div>
 
-                    <div id="success-message" class="alert alert-success mt-4" style="display: none;">
-                        <h4 class="alert-heading">¡Pago Confirmado!</h4>
-                        <p>Tu reserva ha sido confirmada. Ya puedes cerrar esta ventana.</p>
-                        <a href="{% url 'home' %}" class="btn btn-success">Volver al Inicio</a>
-                    </div>
-                </div>
+                        <div class="col-lg-5 text-center">
+                            <img src="data:image/png;base64,{{ qr_image }}" alt="Código QR de Pago" class="img-fluid my-4" style="border: 8px solid white; border-radius: 8px; max-width: 250px;">
+                        </div>
+
+                    </div> </div>
             </div>
-
         </div>
     </div>
 </main>
