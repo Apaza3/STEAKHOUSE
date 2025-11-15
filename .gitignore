@@ -16,3 +16,4 @@ build/
 venv/
 .venv/db.sqlite3
 *.py[cod]
+.env

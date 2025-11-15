@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura de Pedido</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #3d2422; /* Marrón oscuro */
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            color: #c89b3f; /* Dorado */
+            font-family: 'Playfair Display', serif;
+        }
+        .content {
+            padding: 30px;
+            color: #333;
+        }
+        .content p {
+            line-height: 1.6;
+        }
+        .order-details {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .order-details th, .order-details td {
+            border-bottom: 1px solid #eee;
+            padding: 12px;
+            text-align: left;
+        }
+        .order-details th {
+            background-color: #f9f9f9;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .total-row td {
+            border-top: 2px solid #3d2422;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            color: #777;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Steakhouse</h1>
+            <p style="color: #f4f0e8;">Confirmación de Pedido</p>
+        </div>
+        <div class="content">
+            <p>¡Hola, <strong>{{ usuario.username }}</strong>!</p>
+            <p>Gracias por tu pedido. Lo hemos recibido y ya está siendo preparado. Aquí tienes un resumen de tu "factura":</p>
+
+            <p>
+                <strong>Pedido ID:</strong> #{{ pedido.id }}<br>
+                <strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d M Y, H:i" }}<br>
+                <strong>Estado:</strong> {{ pedido.get_estado_pedido_display }}
+            </p>
+
+            <table class="order-details">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in detalles %}
+                    <tr>
+                        <td>{{ item.producto.nombre_producto }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.subtotal|floatformat:2 }} Bs.</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td colspan="2">Total a Pagar (en local)</td>
+                        <td>{{ pedido.total|floatformat:2 }} Bs.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="margin-top: 30px;">
+                ¡Te esperamos!
+                <br>
+                El equipo de The Steakhouse
+            </p>
+        </div>
+        <div class="footer">
+            &copy; {% now "Y" %} The Steakhouse. Todos los derechos reservados.
+        </div>
+    </div>
+</body>
+</html>
