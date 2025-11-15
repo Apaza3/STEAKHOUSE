@@ -6,14 +6,15 @@ from clientes.models import Cliente
 from productos.models import Producto
 from collections import defaultdict
 
-# --- ¡NUEVAS IMPORTACIONES PARA EMAIL! ---
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
+# --- ¡CAMBIO! ESTA ES LA ÚNICA IMPORTACIÓN DE EMAIL QUE NECESITAS ---
+from core.utils import enviar_email_automatico 
+# from django.core.mail import send_mail # <-- YA NO SE USA AQUÍ
+from django.template.loader import render_to_string # <-- No se usa aquí, pero está bien
 from django.conf import settings
 # ------------------------------------
 
 # ===============================================
-# VISTA DEL MENÚ (Actualizada para agrupar)
+# VISTA DEL MENÚ (Sin cambios)
 # ===============================================
 @login_required(login_url='login')
 def menu_view(request):
@@ -59,7 +60,7 @@ def menu_view(request):
 
 
 # ===============================================
-# VISTA PARA AÑADIR AL CARRITO (Corregida)
+# VISTA PARA AÑADIR AL CARRITO (Sin cambios)
 # ===============================================
 @login_required(login_url='login')
 def agregar_al_carrito_view(request, producto_id):
@@ -78,14 +79,14 @@ def agregar_al_carrito_view(request, producto_id):
     return redirect('menu_page')
 
 # ===============================================
-# VISTA PARA VER EL CARRITO (Simplificada)
+# VISTA PARA VER EL CARRITO (Sin cambios)
 # ===============================================
 @login_required(login_url='login')
 def ver_carrito_view(request):
     return redirect('menu_page')
 
 # ===============================================
-# VISTA PARA CONFIRMAR EL PEDIDO (¡CON ENVÍO DE EMAIL!)
+# VISTA PARA CONFIRMAR EL PEDIDO (¡SECCIÓN DE EMAIL CORREGIDA!)
 # ===============================================
 @login_required(login_url='login') 
 def confirmar_pedido_view(request):
@@ -104,7 +105,7 @@ def confirmar_pedido_view(request):
     nuevo_pedido = Pedido.objects.create(
         usuario=request.user,
         cliente=cliente_actual,
-        estado_pedido='PENDIENTE',
+        estado_pedido='PENDIENTE', # ¡CAMBIO IMPORTANTE! Guardar primero y LUEGO enviar email
         total = 0
     )
     
@@ -124,37 +125,42 @@ def confirmar_pedido_view(request):
         total_final += detalle.subtotal
         detalles_para_email.append(detalle)
     
-    # 3. Actualizar el total
+    # 3. Actualizar el total y estado final
     nuevo_pedido.total = total_final
+    nuevo_pedido.estado_pedido = 'COMPLETADO' # O 'CONFIRMADO'
     nuevo_pedido.save()
     
-    # --- 4. ENVIAR FACTURA POR EMAIL ---
-    try:
-        asunto = f"Confirmación de tu Pedido #{nuevo_pedido.id} en The Steakhouse"
-        contexto_email = {
-            'pedido': nuevo_pedido,
-            'detalles': detalles_para_email,
-            'cliente': cliente_actual,
-            'usuario': request.user,
-        }
-        
-        # ¡CAMBIO! Ruta corregida para que coincida con la de reservas
-        html_message = render_to_string('emails/factura_pedido.html', contexto_email)
-        
-        send_mail(
-            asunto,
-            f"Hola {request.user.username}, tu pedido #{nuevo_pedido.id} ha sido confirmado. Total: {total_final} Bs.",
-            settings.DEFAULT_FROM_EMAIL,
-            [request.user.email],
-            html_message=html_message,
-            # ¡CAMBIO! Forzamos a que falle para que el 'except' atrape el error 535
-            fail_silently=False 
-        )
-    except Exception as e:
-        # Si el email falla, no crasheamos la app.
-        print(f"ERROR AL ENVIAR EMAIL de pedido: {e}") # <-- Imprimirá el error 535
-        messages.warning(request, 'Pedido confirmado, pero hubo un error al enviar tu factura por email.')
-    # --- FIN DE SECCIÓN DE EMAIL ---
+    # --- 4. ENVIAR FACTURA POR EMAIL (¡CORREGIDO!) ---
+    
+    # Preparamos los datos
+    asunto = f"Confirmación de tu Pedido #{nuevo_pedido.id} en The Steakhouse"
+    contexto_email = {
+        'pedido': nuevo_pedido,
+        'detalles': detalles_para_email,
+        'cliente': cliente_actual,
+        'usuario': request.user,
+    }
+    template_path = 'emails/factura_pedido.html'
+    email_destino = request.user.email
+
+    # ¡ESTE ES EL CAMBIO!
+    # Llamamos a la función asíncrona de utils.py
+    # Esto se ejecuta en 1 milisegundo y no bloquea el servidor.
+    enviar_email_automatico(
+        template_path=template_path,
+        context_datos=contexto_email,
+        asunto=asunto,
+        email_destino=email_destino
+    )
+
+    # --- (INICIO DE CÓDIGO ANTIGUO ELIMINADO) ---
+    # try:
+    #     html_message = render_to_string('emails/factura_pedido.html', contexto_email)
+    #     send_mail( ... ) # <-- ESTO ES LO QUE CAUSABA EL TIMEOUT DE 30 SEGUNDOS
+    # except Exception as e:
+    #     print(f"ERROR AL ENVIAR EMAIL de pedido: {e}") 
+    #     messages.warning(request, 'Pedido confirmado, pero hubo un error al enviar tu factura por email.')
+    # --- (FIN DE CÓDIGO ANTIGUO ELIMINADO) ---
 
     # 5. Limpiar el carrito
     del request.session['carrito']
@@ -164,14 +170,14 @@ def confirmar_pedido_view(request):
     return redirect('pedido_exitoso')
 
 # ===============================================
-# VISTA DE ÉXITO (Corregida)
+# VISTA DE ÉXITO (Sin cambios)
 # ===============================================
 @login_required(login_url='login')
 def pedido_exitoso_view(request):
     return render(request, 'pedidos/pedido_exitoso.html')
 
 # ===============================================
-# ¡NUEVA! VISTA "MIS PEDIDOS"
+# VISTA "MIS PEDIDOS" (Sin cambios)
 # ===============================================
 @login_required(login_url='login')
 def mis_pedidos_view(request):
