@@ -106,29 +106,36 @@ USE_I1N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
+# Arreglado para Whitenoise (se eliminó STATICFILES_STORAGE)
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_build' # Directorio para collectstatic
-#STATICFILES_STORAGE = 'whitenoise.storage.WhiteNoiseStorage'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
 # Media files (Imágenes de Productos)
+# NOTA: Esto seguirá siendo efímero en Render.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ===================================================
-# ¡CAMBIO IMPORTANTE! Configuración de Email (Modo Producción)
+# ¡CONFIGURACIÓN DE EMAIL FINAL (USANDO BREVO SMTP)!
+# Esto soluciona el error "Network is unreachable" de Render
 # ===================================================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp-relay.brevo.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# --- Lee las credenciales de las variables de entorno ---
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# --- Lee las credenciales de Brevo de las variables de entorno ---
+# Tu "Iniciar sesión" de la captura de pantalla de Brevo
+EMAIL_HOST_USER = os.environ.get('BREVO_SMTP_USER') 
+
+# Tu clave SMTP generada en Brevo
+EMAIL_HOST_PASSWORD = os.environ.get('BREVO_SMTP_PASS')
+
+# El email "De" que ven tus clientes (TU EMAIL VERIFICADO en Brevo)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_SENDER_EMAIL')
 # ===================================================
