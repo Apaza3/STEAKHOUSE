@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pedido Confirmado{% endblock %}
+
+{% block content %}
+<div class="container section-container text-center" style="padding: 5rem 0;">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="login-container p-5"> <i class="fa fa-check-circle fa-5x" style="color: #198754;"></i>
+                <h1 class="section-title mt-4">¡Pedido Confirmado!</h1>
+                <p class="fs-5">
+                    Hemos recibido tu orden y la estamos preparando.
+                </p>
+                <p>
+                    Puedes ver el estado de tu pedido en cualquier momento desde tu perfil, en la sección "Mis Pedidos".
+                </p>
+                <hr style="border-color: #4d3a36;">
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="{% url 'mis_pedidos' %}" class="btn btn-primario">
+                        <i class="fa fa-receipt me-2"></i> Ver Mis Pedidos
+                    </a>
+                    <a href="{% url 'menu_page' %}" class="btn btn-outline-acento">
+                        <i class="fa fa-utensils me-2"></i> Volver al Menú
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

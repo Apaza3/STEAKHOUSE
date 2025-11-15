@@ -5,13 +5,13 @@
     <h1 class="fs-2">Gestión de Pedidos</h1>
 </div>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm card-dark">
     <div class="card-header card-header-gold">
         <h5 class="mb-0">Historial de Pedidos</h5>
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-dark table-striped table-hover align-middle">
                 <thead>
                     <tr>
                         <th scope="col">ID Pedido</th>
@@ -19,33 +19,79 @@
                         <th scope="col">Fecha</th>
                         <th scope="col">Estado</th>
                         <th scope="col">Total (Bs.)</th>
-                        <th scope="col">Acciones</th>
+                        <th scope="col" style="width: 20%;">Acciones Rápidas</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for p in pedidos %}
                     <tr>
                         <td><strong>#{{ p.id }}</strong></td>
-                        <td>{{ p.usuario.username }}</td>
+                        <td>
+                            {% if p.cliente %}
+                                {{ p.cliente.nombre }} {{ p.cliente.apellido }}
+                            {% else %}
+                                {{ p.usuario.username }} (Admin)
+                            {% endif %}
+                        </td>
                         <td>{{ p.fecha_pedido|date:"d/m/Y H:i" }}</td>
                         <td>
                             {% if p.estado_pedido == 'PENDIENTE' %}
-                                <span class="badge bg-warning text-dark">{{ p.get_estado_pedido_display }}</span>
+                                <span class="badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'EN_PREPARACION' %}
-                                <span class="badge bg-info text-dark">{{ p.get_estado_pedido_display }}</span>
+                                <span class="badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'LISTO' %}
-                                <span class="badge bg-primary">{{ p.get_estado_pedido_display }}</span>
+                                <span class="badge bg-primary-emphasis text-primary-emphasis border border-primary-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'ENTREGADO' %}
-                                <span class="badge bg-success">{{ p.get_estado_pedido_display }}</span>
+                                <span class="badge bg-success-emphasis text-success-emphasis border border-success-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'CANCELADO' %}
-                                <span class="badge bg-danger">{{ p.get_estado_pedido_display }}</span>
+                                <span class="badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
                             {% endif %}
                         </td>
                         <td>{{ p.total|floatformat:2 }}</td>
                         <td>
-                            <a href="{% url 'pedido_detail' p.pk %}" class="btn btn-sm btn-outline-primary">
-                                <i class="fa fa-eye"></i> Ver Detalle
+                            <a href="{% url 'pedido_detail' p.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                                <i class="fa fa-eye"></i>
                             </a>
+
+                            {% if p.estado_pedido == 'PENDIENTE' %}
+                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="estado_pedido" value="EN_PREPARACION">
+                                    <input type="hidden" name="redirect_to" value="list">
+                                    <button type="submit" class="btn btn-sm btn-info" title="Marcar como 'En Preparación'">
+                                        <i class="fa fa-cogs"></i> Preparar
+                                    </button>
+                                </form>
+                            {% elif p.estado_pedido == 'EN_PREPARACION' %}
+                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="estado_pedido" value="LISTO">
+                                    <input type="hidden" name="redirect_to" value="list">
+                                    <button type="submit" class="btn btn-sm btn-primary" title="Marcar como 'Listo para Servir'">
+                                        <i class="fa fa-bell"></i> Listo
+                                    </button>
+                                </form>
+                            {% elif p.estado_pedido == 'LISTO' %}
+                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="estado_pedido" value="ENTREGADO">
+                                    <input type="hidden" name="redirect_to" value="list">
+                                    <button type="submit" class="btn btn-sm btn-success" title="Marcar como 'Entregado'">
+                                        <i class="fa fa-check"></i> Entregar
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            {% if p.estado_pedido != 'ENTREGADO' and p.estado_pedido != 'CANCELADO' %}
+                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="estado_pedido" value="CANCELADO">
+                                    <input type="hidden" name="redirect_to" value="list">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar Pedido">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

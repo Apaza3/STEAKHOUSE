@@ -16,4 +16,8 @@ urlpatterns = [
     
     # /pedidos/exitoso/
     path('exitoso/', views.pedido_exitoso_view, name='pedido_exitoso'),
+    
+    # --- ¡NUEVA URL! ---
+    # /pedidos/mis-pedidos/
+    path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
 ]

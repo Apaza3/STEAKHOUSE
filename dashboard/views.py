@@ -210,18 +210,27 @@ def pedido_list(request):
     }
     return render(request, 'dashboard/pedido_list.html', context)
 
-@staff_requerido # <-- CAMBIO
+@staff_requerido
 def pedido_detail(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk)
     
     if request.method == 'POST':
         nuevo_estado = request.POST.get('estado_pedido')
+        
+        # ¡CAMBIO! Leemos el campo oculto para saber a dónde volver
+        redirect_to = request.POST.get('redirect_to', 'detail') 
+
         if nuevo_estado in [choice[0] for choice in Pedido.ESTADO_PEDIDO_CHOICES]:
             pedido.estado_pedido = nuevo_estado
             pedido.save()
             messages.success(request, f'Estado del Pedido #{pedido.id} actualizado a {pedido.get_estado_pedido_display()}.')
-            return redirect('pedido_detail', pk=pedido.pk)
             
+            # ¡CAMBIO! Redirigimos al lugar correcto
+            if redirect_to == 'list':
+                return redirect('dashboard_pedidos')
+            else:
+                return redirect('pedido_detail', pk=pedido.pk) # Comportamiento original
+        
     context = {
         'pedido': pedido
     }

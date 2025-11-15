@@ -1,43 +1,62 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Producto, Pedido, DetallePedido
+from .models import Pedido, DetallePedido
 from clientes.models import Cliente
+from productos.models import Producto # <-- ¡CORRECCIÓN! Importado desde 'productos'
+from collections import defaultdict # <-- ¡NUEVO! Para agrupar
 
 # ===============================================
-# VISTA DEL MENÚ (Protegida)
+# VISTA DEL MENÚ (Actualizada para agrupar)
 # ===============================================
-@login_required(login_url='login') # ¡PROTEGIDA!
+@login_required(login_url='login')
 def menu_view(request):
-    productos = Producto.objects.filter(disponible=True)
     
-    # Lógica del carrito (para el modal)
+    # Obtenemos todos los productos y los preparamos para agrupar
+    productos = Producto.objects.filter(disponible=True).order_by('categoria')
+    
+    # ¡CAMBIO! Agrupamos los productos por su categoría
+    productos_agrupados = defaultdict(list)
+    for producto in productos:
+        # Usamos get_categoria_display() para obtener el texto legible (ej. "Cortes de Carne")
+        productos_agrupados[producto.get_categoria_display()].append(producto)
+    
+    # Convertimos el defaultdict a un dict normal para el template
+    productos_agrupados = dict(productos_agrupados)
+    
+    # Lógica del carrito (para el modal) - Sin cambios
     carrito_session = request.session.get('carrito', {})
     items_del_carrito = []
     total_del_carrito = 0
 
     for producto_id, item in carrito_session.items():
-        subtotal = item['cantidad'] * item['precio']
+        # Convertimos el precio a Decimal para evitar errores de formato
+        precio = float(item['precio'])
+        cantidad = item['cantidad']
+        subtotal = cantidad * precio
         items_del_carrito.append({
             'producto_id': producto_id,
             'nombre': item['nombre'],
-            'cantidad': item['cantidad'],
-            'precio': item['precio'],
+            'cantidad': cantidad,
+            'precio': precio,
             'subtotal': subtotal
         })
         total_del_carrito += subtotal
     
     context = {
-        'productos': productos,
+        # ¡CAMBIO! Enviamos los productos agrupados
+        'productos_agrupados': productos_agrupados,
         'items_del_carrito': items_del_carrito,
         'total_del_carrito': total_del_carrito
     }
-    return render(request, 'menu.html', context)
+    # ¡CAMBIO! Usamos una plantilla namespaced
+    return render(request, 'pedidos/menu.html', context)
+
 
 # ===============================================
-# VISTA PARA AÑADIR AL CARRITO
+# VISTA PARA AÑADIR AL CARRITO (Corregida)
 # ===============================================
-@login_required(login_url='login') # ¡PROTEGIDA!
+@login_required(login_url='login')
 def agregar_al_carrito_view(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     carrito = request.session.get('carrito', {})
@@ -46,24 +65,25 @@ def agregar_al_carrito_view(request, producto_id):
     if producto_id_str in carrito:
         carrito[producto_id_str]['cantidad'] += 1
     else:
-        carrito[producto_id_str] = {'cantidad': 1, 'precio': float(producto.precio), 'nombre': producto.nombre_producto}
+        # Guardamos el precio como string para evitar problemas de serialización JSON
+        carrito[producto_id_str] = {'cantidad': 1, 'precio': str(producto.precio), 'nombre': producto.nombre_producto}
     
     request.session['carrito'] = carrito
     messages.success(request, f"'{producto.nombre_producto}' añadido al carrito.")
     
+    # Redirige de vuelta a la página del menú
     return redirect('menu_page')
 
 # ===============================================
 # VISTA PARA VER EL CARRITO (Simplificada)
 # ===============================================
-@login_required(login_url='login') # ¡PROTEGIDA!
+@login_required(login_url='login')
 def ver_carrito_view(request):
     # Esta vista ahora solo redirige al menú.
-    # El carrito se mostrará en un modal en la misma página del menú.
     return redirect('menu_page')
 
 # ===============================================
-# VISTA PARA CONFIRMAR EL PEDIDO (¡CORREGIDA!)
+# VISTA PARA CONFIRMAR EL PEDIDO (Corregida)
 # ===============================================
 @login_required(login_url='login') 
 def confirmar_pedido_view(request):
@@ -72,22 +92,19 @@ def confirmar_pedido_view(request):
         messages.error(request, 'Tu carrito está vacío.')
         return redirect('menu_page')
 
-    # --- ¡ESTE ES EL ARREGLO DEL CRASH! ---
     try:
-        # Ahora sí podemos buscar 'request.user.cliente'
-        # porque el modelo Cliente TIENE el campo 'usuario'.
         cliente_actual = request.user.cliente 
     except Cliente.DoesNotExist:
         # Si falla (ej. es 'potasio'), no enlazamos cliente.
         cliente_actual = None 
-    # --- FIN DEL ARREGLO ---
+        messages.warning(request, 'Tu cuenta de admin no está enlazada a un perfil de cliente, el pedido se creará sin él.')
 
     # 1. Crear el Pedido
     nuevo_pedido = Pedido.objects.create(
-        usuario=request.user,  # El User logueado
-        cliente=cliente_actual, # El Cliente enlazado (si existe)
-        estado_pedido='EN_PREPARACION', # Como es pago en restaurante, entra a preparación
-        total = 0 # El total se calculará ahora
+        usuario=request.user,
+        cliente=cliente_actual,
+        estado_pedido='PENDIENTE', # ¡CAMBIO! Inicia como PENDIENTE para que el cajero lo vea
+        total = 0
     )
     
     total_final = 0
@@ -116,8 +133,22 @@ def confirmar_pedido_view(request):
     return redirect('pedido_exitoso')
 
 # ===============================================
-# VISTA DE ÉXITO
+# VISTA DE ÉXITO (Corregida)
 # ===============================================
 @login_required(login_url='login')
 def pedido_exitoso_view(request):
-    return render(request, 'pedido_exitoso.html')
+    # ¡CAMBIO! Usamos una plantilla namespaced
+    return render(request, 'pedidos/pedido_exitoso.html')
+
+# ===============================================
+# ¡NUEVA! VISTA "MIS PEDIDOS"
+# ===============================================
+@login_required(login_url='login')
+def mis_pedidos_view(request):
+    # Buscamos todos los pedidos hechos por el usuario logueado
+    pedidos = Pedido.objects.filter(usuario=request.user).order_by('-fecha_pedido')
+    
+    context = {
+        'pedidos': pedidos
+    }
+    return render(request, 'pedidos/mis_pedidos.html', context)

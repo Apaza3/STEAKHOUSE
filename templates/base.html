@@ -21,22 +21,18 @@
     <style>
         .site-container { display: flex; flex-direction: column; min-height: 100vh; }
         .site-content { flex-grow: 1; }
-        
-        /* ¡CAMBIO! Foto de perfil más grande */
         .profile-pic-nav {
-            width: 40px;  /* Era 30px */
-            height: 40px; /* Era 30px */
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #c89b3f; /* Borde dorado */
-            margin-right: 10px; /* Más espacio */
+            border: 2px solid #c89b3f;
+            margin-right: 10px;
         }
-
-        /* ¡NUEVO! Estilo para agrandar la etiqueta de rol */
         .badge-rol {
-            font-size: 0.8rem; /* Un poco más grande */
-            padding: 0.4em 0.8em; /* Más padding */
-            vertical-align: middle; /* Alinea mejor con el texto */
+            font-size: 0.8rem;
+            padding: 0.4em 0.8em;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -63,17 +59,22 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'home' %}#nosotros">Nosotros</a>
                         </li>
+                        
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="{% url 'menu_page' %}" id="menuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Menú
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="menuDropdown">
-                                <li><a class="dropdown-item" href="#">Menú Meridiano</a></li>
-                                <li><a class="dropdown-item" href="#">Menú Nocturno</a></li>
-                                <li><a class="dropdown-item" href="#">Vinos y Bebidas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}">Menú General</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#CARNE">Cortes de Carne</a></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#HAMBURGUESA">Hamburguesas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#GUARNICION">Guarniciones</a></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#BEBIDA">Bebidas</a></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#POSTRE">Postres</a></li>
                             </ul>
                         </li>
-                         <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'reservas_page' %}">Reservas</a>
                         </li>
                         <li class="nav-item">
@@ -86,7 +87,8 @@
                                     {% if user.cliente.foto_perfil %}
                                         <img src="{{ user.cliente.foto_perfil.url }}" alt="Foto de perfil" class="profile-pic-nav">
                                     {% else %}
-                                        <i class="fa fa-user me-2" style="font-size: 1.2rem;"></i> {% endif %}
+                                        <i class="fa fa-user me-2" style="font-size: 1.2rem;"></i>
+                                    {% endif %}
                                     
                                     Hola, {{ user.username }}
                                     
@@ -101,7 +103,7 @@
                                             <span class="badge-rol badge bg-secondary-emphasis text-secondary-emphasis border border-secondary-subtle rounded-pill ms-2">Staff</span>
                                         {% endif %}
                                     {% endwith %}
-                                    </a>
+                                </a>
                                 <ul class="dropdown-menu dropdown-menu-dark">
                                     {% if user.is_staff %}
                                     <li><a class="dropdown-item" href="{% url 'dashboard_home' %}">Panel de Admin</a></li>
@@ -110,8 +112,8 @@
                                     
                                     <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
                                     <li><a class="dropdown-item" href="{% url 'mis_reservas' %}">Mis Reservas</a></li>
-                                    <li><a class="dropdown-item" href="#">Mis Pedidos (Pronto)</a></li>
-
+                                    
+                                    <li><a class="dropdown-item" href="{% url 'mis_pedidos' %}">Mis Pedidos</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form action="{% url 'logout' %}" method="POST" class="d-inline">
@@ -131,7 +133,7 @@
                         {% endif %}
                         
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'ver_carrito' %}" title="Ver Carrito">
+                            <a classF="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modalCarrito" title="Ver Carrito">
                                 <i class="fa fa-shopping-cart fa-lg"></i>
                                 {% if request.session.carrito %}
                                 <span class="badge rounded-pill bg-danger" style="vertical-align: top; margin-left: -5px;">
@@ -151,7 +153,7 @@
         {% for message in messages %}
         <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type-="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
     </div>
@@ -163,68 +165,10 @@
     </main>
 
     <footer id="main-footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h5>Contáctanos</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fa fa-map-marker-alt me-2"></i> Av. 6 de Agosto, La Paz</li>
-                        <li><i class="fa fa-phone me-2"></i> +591 777 55 333</li>
-                        <li><i class="fa fa-envelope me-2"></i> contacto@steakhouse.com</li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5>Horarios de Atención</h5>
-                    <p>
-                        Lunes - Jueves: 12:00 - 23:00<br>
-                        Viernes - Sábado: 12:00 - 00:00<br>
-                        Domingo: 12:00 - 22:00
-                    </p>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5>Síguenos</h5>
-                    <div class="social-icons">
-                        <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" classa="text-white"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                    <h5 class="mt-3">Pagos Seguros</h5>
-                    <i class="fab fa-cc-visa fa-2x me-2"></i>
-                    <i class="fab fa-cc-mastercard fa-2x me-2"></i>
-                    <i class="fab fa-cc-amex fa-2x"></i>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                &copy; 2025 The Steakhouse - Proyecto EMI. Todos los derechos reservados.
-            </div>
-        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script>
-    document.querySelectorAll('a[href*="#"]').forEach(anchor => {
-        let isHomeLink = anchor.href.includes("{% url 'home' %}") || window.location.pathname === "{% url 'home' %}";
-        
-        if (isHomeLink && anchor.hash) {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.hash.substring(1);
-                const targetElement = document.getElementById(targetId);
-                
-                if(targetElement) {
-                    const headerOffset = document.getElementById('main-header').offsetHeight || 70;
-                    const elementPosition = targetElement.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: "smooth"
-                    });
-                }
-            });
-        }
-    });
-    </script>
     {% block extra_js %}{% endblock %}
+
 </body>
 </html>

@@ -2,28 +2,19 @@
 {% load static %}
 {% block title %}Pago con Tarjeta{% endblock %}
 
-{% block extra_css %}
-<style>
-    .card-payment-form {
-        background-color: #fdfaf3; /* Color pergamino claro */
-        color: #3d2422; /* Texto marrón */
-        border: 2px solid #c89b3f; /* Borde dorado */
-        border-radius: 8px;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    .card-payment-form .form-control { background-color: #fff; border: 1px solid #3d2422; }
-    .card-payment-form .form-label { font-weight: bold; }
-    #card-icon-container { font-size: 2.5rem; height: 40px; }
-    #card-icon-container .fa-brands { opacity: 0; transition: opacity 0.3s ease; position: absolute; }
-    #card-icon-container .fa-brands.visible { opacity: 1; }
-</style>
-{% endblock %}
+{% block body_class %}site-container body-reservas{% endblock %}
+
+{% block extra_css %}{% endblock %}
 
 {% block content %}
-<main id="main-content" class="container my-5">
+<main id="main-content" class="container reserva-flow-container">
 
-    <div class="card-payment-form p-4 p-md-5">
+    <div class="card card-dark-theme shadow-lg p-4 p-md-5" style="max-width: 500px; width: 100%;">
+        
+        <div class="text-center">
+            <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo" style="max-width: 120px;">
+        </div>
+
         <h1 class="text-center title-gold display-6 mb-4">Simulación de Pago</h1>
         <p class="text-center">Reserva ID: {{ reserva.id|truncatechars:8 }}...</p>
         
@@ -58,7 +49,7 @@
             </div>
 
             <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-dark btn-lg" style="background-color: #3d2422;">
+                <button type="submit" class="btn btn-primario btn-lg">
                     Pagar (Simulación)
                 </button>
                 <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancelar</a>
@@ -68,6 +59,14 @@
     </div>
 
 </main>
+
+<div class="fire-particles-container">
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -78,8 +77,7 @@
         const iconMastercard = document.getElementById('icon-mastercard');
         
         cardNumberInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s+/g, ''); // Limpiar espacios
-            
+            let value = e.target.value.replace(/\s+/g, '');
             iconVisa.classList.remove('visible');
             iconMastercard.classList.remove('visible');
             

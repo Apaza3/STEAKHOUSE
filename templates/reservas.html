@@ -3,14 +3,20 @@
 
 {% block title %}Hacer Reserva{% endblock %}
 
+{% block body_class %}site-container body-reservas{% endblock %}
+
 {% block content %}
-<main id="main-content" class="container my-5">
+<main id="main-content" class="container reserva-flow-container">
     
     <div class="row justify-content-center">
         <div class="col-lg-10">
             
             <div class="card card-dark-theme shadow-lg">
                 <div class="card-body p-4 p-md-5">
+
+                    <div class="text-center">
+                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo">
+                    </div>
 
                     <h1 class="text-center title-gold display-5 mb-4">Haz tu Reserva</h1>
                     <p class="text-center fs-5 mb-4">
@@ -20,25 +26,16 @@
                     <form method="POST" action="{% url 'reservas_page' %}" id="reservationForm">
                         {% csrf_token %}
                         
-                        <!-- El campo de cliente ahora está oculto -->
                         {{ form.cliente }}
                         
-                        <!-- ¡NUEVO! Mostrar errores del formulario -->
                         {% if form.errors %}
                         <div class="alert alert-danger">
                             <i class="fa fa-exclamation-triangle me-2"></i>
                             <strong>El formulario tiene errores.</strong> Por favor, revisa los campos marcados.
-                            <!-- 
-                            {% for field, error_list in form.errors.items %}
-                                {{ field }}: {{ error_list|join:", " }}
-                            {% endfor %}
-                            -->
                         </div>
                         {% endif %}
 
-
                         <div class="row g-4">
-                            <!-- Columna 1: Detalles de la Reserva -->
                             <div class="col-lg-6">
                                 <h3 class="title-gold fs-4 mb-3">Detalles</h3>
                                 <div class="mb-3">
@@ -51,17 +48,11 @@
                                     {{ form.hora_reserva }}
                                     {% if form.hora_reserva.errors %}<div class="invalid-feedback d-block">{{ form.hora_reserva.errors.as_text }}</div>{% endif %}
                                 </div>
-                                
-                                <!-- =============================================== -->
-                                <!-- ¡CAMPO CORREGIDO!
-                                <!-- =============================================== -->
                                 <div class="mb-3">
                                     <label for="{{ form.duracion_horas.id_for_label }}" class="form-label">{{ form.duracion_horas.label }}</label>
                                     {{ form.duracion_horas }}
                                     {% if form.duracion_horas.errors %}<div class="invalid-feedback d-block">{{ form.duracion_horas.errors.as_text }}</div>{% endif %}
                                 </div>
-                                <!-- =============================================== -->
-
                                 <div class="mb-3">
                                     <label for="{{ form.numero_personas.id_for_label }}" class="form-label">Número de Personas</label>
                                     {{ form.numero_personas }}
@@ -69,11 +60,9 @@
                                 </div>
                             </div>
 
-                            <!-- Columna 2: Cliente y Pago -->
                             <div class="col-lg-6">
                                 <h3 class="title-gold fs-4 mb-3">Tus Datos y Pago</h3>
                                 
-                                <!-- === ¡DATOS DEL CLIENTE (JALADOS)! === -->
                                 <div class="mb-3">
                                     <label class="form-label">Cliente</label>
                                     <div class="card card-dark-theme" style="background-color: #3d2422;">
@@ -87,7 +76,6 @@
                                         ¿No eres tú? <a href="{% url 'logout' %}">Cierra sesión</a>.
                                     </div>
                                 </div>
-                                <!-- === FIN DE DATOS DEL CLIENTE === -->
 
                                 <div class="mb-3">
                                     <label for="{{ form.tipo_pago.id_for_label }}" class="form-label">Tipo de Reserva</label>
@@ -95,13 +83,10 @@
                                     {% if form.tipo_pago.errors %}<div class="invalid-feedback d-block">{{ form.tipo_pago.errors.as_text }}</div>{% endif %}
                                 </div>
 
-                                <!-- Políticas de "No Show" (Ocultas por defecto) -->
                                 <div id="payment-policy-qr" class="alert alert-warning mt-4" style="display: none; border-color: #c89b3f;">
                                     <h5 class="alert-heading title-gold">Política de Pago QR (30 Bs)</h5>
                                     <p>Se te redirigirá a una pantalla para simular un pago de 30 Bs.</p>
                                 </div>
-                                
-                                <!-- Info de Pago con Tarjeta (Oculta por defecto) -->
                                 <div id="payment-policy-tarjeta" class="alert alert-info mt-4" style="display: none; border-color: #c89b3f;">
                                     <h5 class="alert-heading title-gold">Política de Pago con Tarjeta (30 Bs)</h5>
                                     <p>Se te redirigirá a un formulario de pago seguro por 30 Bs.</p>
@@ -109,7 +94,6 @@
                             </div>
                         </div>
 
-                        <!-- Checkboxes de Políticas -->
                         <div class="col-12 mt-4 pt-3" style="border-top: 1px solid #c89b3f;">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="id_politicas" required>
@@ -117,7 +101,6 @@
                                     He leído y acepto las <a href="#">políticas de reserva</a>. (Requerido)
                                 </label>
                             </div>
-                            
                             <div class="form-check mt-3" id="checkbox-no-show" style="display: none;">
                                 <input class="form-check-input" type="checkbox" id="id_politicas_no_show">
                                 <label class="form-check-label" for="id_politicas_no_show">
@@ -131,53 +114,48 @@
                                 Continuar
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
-
 </main>
+
+<div class="fire-particles-container">
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+</div>
 {% endblock %}
 
 
 {% block extra_js %}
-<!-- (Tu JavaScript para 'togglePago' se queda exactamente igual) -->
 <script>
     function togglePago() {
         var tipoPagoSelect = document.getElementById('id_tipo_pago');
-        
         if (tipoPagoSelect) {
             var tipoPago = tipoPagoSelect.value;
-            
             var policyQR = document.getElementById('payment-policy-qr');
             var policyTarjeta = document.getElementById('payment-policy-tarjeta');
             var checkboxNoShowDiv = document.getElementById('checkbox-no-show');
             var checkboxNoShowInput = document.getElementById('id_politicas_no_show');
-
             policyQR.style.display = 'none';
             policyTarjeta.style.display = 'none';
             checkboxNoShowDiv.style.display = 'none';
             checkboxNoShowInput.required = false;
-
             if (tipoPago === 'PAGO_ADELANTADO') {
                 policyQR.style.display = 'block';
                 checkboxNoShowDiv.style.display = 'block';
                 checkboxNoShowInput.required = true; 
-            
             } else if (tipoPago === 'TARJETA') {
                 policyTarjeta.style.display = 'block';
                 checkboxNoShowDiv.style.display = 'block';
                 checkboxNoShowInput.required = true; 
-            
-            } else if (tipoPago === 'SOLO_MESA') {
-                // No hace falta mostrar nada extra
             }
         }
     }
-    
     document.addEventListener("DOMContentLoaded", function() {
         var tipoPagoSelect = document.getElementById('id_tipo_pago');
         if (tipoPagoSelect) {

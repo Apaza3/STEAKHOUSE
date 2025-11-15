@@ -2,22 +2,28 @@
 {% load static %}
 {% block title %}Esperando Pago QR{% endblock %}
 
+{% block body_class %}site-container body-reservas{% endblock %}
+
 {% block content %}
-<main id="main-content" class="container my-5">
+<main id="main-content" class="container reserva-flow-container">
     <div class="row justify-content-center">
         <div class="col-md-8 text-center">
             
             <div class="card card-dark-theme shadow-lg">
                 <div class="card-body p-5">
+                    
+                    <div class="text-center">
+                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo">
+                    </div>
+
                     <h1 class="title-gold display-5 mb-3">Escanea para Pagar</h1>
                     <p class="fs-5">Tu reserva (ID: {{ reserva.id|truncatechars:8 }}...) está 'PENDIENTE'.</p>
                     <p>Escanea el siguiente código QR con la cámara de tu celular para simular la confirmación del pago.</p>
                     
-                    <!-- El QR generado por la vista -->
                     <img src="data:image/png;base64,{{ qr_image }}" alt="Código QR de Pago" class="img-fluid my-4" style="border: 8px solid white; border-radius: 8px;">
 
                     <div id="loading-spinner" class="mt-4">
-                        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem;">
+                        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: #c89b3f;">
                             <span class="visually-hidden">Esperando...</span>
                         </div>
                         <p class="fs-4 mt-2">Esperando confirmación de pago...</p>
@@ -34,6 +40,14 @@
         </div>
     </div>
 </main>
+
+<div class="fire-particles-container">
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -42,25 +56,22 @@
         const checkUrl = "{{ check_status_url }}";
         const loadingSpinner = document.getElementById('loading-spinner');
         const successMessage = document.getElementById('success-message');
-
         const intervalId = setInterval(function() {
             fetch(checkUrl)
                 .then(response => response.json())
                 .then(data => {
                     console.log("Chequeando estado:", data.status);
                     if (data.status === 'CONFIRMADA') {
-                        // ¡Éxito!
-                        clearInterval(intervalId); // Detener el polling
+                        clearInterval(intervalId);
                         loadingSpinner.style.display = 'none';
                         successMessage.style.display = 'block';
                     }
-                    // Si es 'PENDIENTE', no hace nada y sigue chequeando...
                 })
                 .catch(error => {
                     console.error("Error en el polling:", error);
-                    clearInterval(intervalId); // Detener si hay error
+                    clearInterval(intervalId);
                 });
-        }, 3000); // Chequear cada 3 segundos
+        }, 3000);
     });
 </script>
 {% endblock %}

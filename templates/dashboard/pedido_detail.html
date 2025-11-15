@@ -6,15 +6,14 @@
 </a>
 
 <div class="row">
-    <!-- Columna 1: Detalles del Pedido -->
     <div class="col-lg-8">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm card-dark">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Detalle del Pedido #{{ pedido.id }}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-dark table-borderless">
                         <thead>
                             <tr>
                                 <th scope="col">Producto</th>
@@ -34,7 +33,7 @@
                             {% endfor %}
                         </tbody>
                         <tfoot>
-                            <tr>
+                            <tr style="border-top: 2px solid #c89b3f;">
                                 <td colspan="3" class="text-end fs-5 fw-bold" style="color: #c89b3f;">TOTAL</td>
                                 <td class="fs-5 fw-bold" style="color: #c89b3f;">{{ pedido.total|floatformat:2 }} Bs.</td>
                             </tr>
@@ -45,21 +44,28 @@
         </div>
     </div>
 
-    <!-- Columna 2: Información y Acciones -->
     <div class="col-lg-4">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm card-dark">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Información del Pedido</h5>
             </div>
             <div class="card-body">
-                <p><strong>Cliente:</strong> {{ pedido.usuario.username }}</p>
-                <p><strong>Email:</strong> {{ pedido.usuario.email }}</p>
+                {% if pedido.cliente %}
+                    <p><strong>Cliente:</strong> {{ pedido.cliente.nombre }} {{ pedido.cliente.apellido }}</p>
+                    <p><strong>Username:</strong> {{ pedido.usuario.username }}</p>
+                    <p><strong>Email:</strong> {{ pedido.cliente.email }}</p>
+                    <p><strong>Teléfono:</strong> {{ pedido.cliente.telefono }}</p>
+                {% else %}
+                    <p><strong>Cliente:</strong> {{ pedido.usuario.username }} (Admin)</p>
+                    <p><strong>Email:</strong> {{ pedido.usuario.email }}</p>
+                {% endif %}
                 <p><strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</p>
                 <hr>
 
-                <!-- Formulario para cambiar estado -->
                 <form method="POST">
                     {% csrf_token %}
+                    <input type="hidden" name="redirect_to" value="detail">
+                    
                     <label for="estado_pedido" class="form-label fw-bold">Actualizar Estado del Pedido:</label>
                     <select name="estado_pedido" class="form-select">
                         {% for value, name in pedido.ESTADO_PEDIDO_CHOICES %}
@@ -68,7 +74,7 @@
                             </option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-primary w-100 mt-3" style="background-color: #3d2422; border-color: #3d2422;">
+                    <button type="submit" class="btn btn-primary w-100 mt-3" style="background-color: #c89b3f; border-color: #c89b3f; color: #3d2422; font-weight: bold;">
                         Actualizar Estado
                     </button>
                 </form>

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Menú{% endblock %}
+
+{% block content %}
+<div class="container section-container" style="padding-top: 3rem;">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="section-title text-center mb-5">Nuestro Menú</h1>
+        </div>
+    </div>
+
+    {% for categoria, productos in productos_agrupados.items %}
+    
+    <div class="row mb-5">
+            {% if productos %}
+                <h2 id="{{ productos.0.categoria }}" class="section-title" style="border-color: #c89b3f; color: #c89b3f;">
+                    {{ categoria }}
+                </h2>
+            {% endif %}
+
+            {% for producto in productos %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card card-dark h-100" style="background-color: #24201f; border-color: #4d3a36;">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre_producto }}" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'core/img/logo-steakhouse.png' %}" class="card-img-top p-5" alt="Imagen no disponible" style="height: 250px; object-fit: contain; opacity: 0.3;">
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title font-serif-display" style="color: #c89b3f;">{{ producto.nombre_producto }}</h5>
+                        <p class="card-text text-muted small">{{ producto.descripcion|truncatewords:20 }}</p>
+                        <div class="mt-auto">
+                            <p class="fs-4 fw-bold mb-2">{{ producto.precio }} Bs.</p>
+                            <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn btn-primario w-100">
+                                <i class="fa fa-shopping-cart me-2"></i> Añadir al Carrito
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+</div>
+
+
+<div class="modal fade" id="modalCarrito" tabindex="-1" aria-labelledby="modalCarritoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #1e1513; border: 1px solid #4d3a36;">
+            <div class="modal-header" style="border-bottom-color: #4d3a36;">
+                <h5 class="modal-title font-serif-display" id="modalCarritoLabel" style="color: #c89b3f;">
+                    <i class="fa fa-shopping-cart me-2"></i> Tu Pedido
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if items_del_carrito %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items_del_carrito %}
+                                <tr>
+                                    <td>{{ item.nombre }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>{{ item.precio|floatformat:2 }} Bs.</td>
+                                    <td>{{ item.subtotal|floatformat:2 }} Bs.</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-danger" title="Quitar">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end fs-4 font-serif-display">Total:</td>
+                                    <td colspan="2" class="fs-4 fw-bold">{{ total_del_carrito|floatformat:2 }} Bs.</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info" style="background-color: #1a2c3a; border-color: #2a6a94; color: #9cd0f0;">
+                        Tu carrito está vacío. ¡Añade algo de nuestro menú!
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer" style="border-top-color: #4d3a36;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir Comprando</button>
+                {% if items_del_carrito %}
+                <form action="{% url 'confirmar_pedido' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primario">
+                        <i class="fa fa-check me-2"></i> Confirmar Pedido (Pagar en local)
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
