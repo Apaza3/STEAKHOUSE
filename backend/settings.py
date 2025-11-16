@@ -1,3 +1,5 @@
+# backend/settings.py
+
 import os
 import dj_database_url
 from pathlib import Path
@@ -13,8 +15,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # --- ¡CAMBIO IMPORTANTE! ---
-# DEBUG se desactiva automáticamente en Render, pero se mantiene True localmente.
-# 'RENDER' es una variable que Render añade automáticamente.
+# DEBUG se desactiva automáticamente en Render
 DEBUG = 'RENDER' not in os.environ
 
 # --- ¡CAMBIO IMPORTANTE! ---
@@ -114,28 +115,16 @@ STATICFILES_DIRS = [
 ]
 
 # Media files (Imágenes de Productos)
-# NOTA: Esto seguirá siendo efímero en Render.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ===================================================
-# ¡CONFIGURACIÓN DE EMAIL FINAL (USANDO BREVO SMTP)!
-# Esto soluciona el error "Network is unreachable" de Render
+# ¡CONFIGURACIÓN DE EMAIL FINAL (USANDO BREVO API)!
+# Esto soluciona el error "Connection timed out" de Render
+# Ya no usamos SMTP.
 # ===================================================
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-relay.brevo.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-# --- Lee las credenciales de Brevo de las variables de entorno ---
-# Tu "Iniciar sesión" de la captura de pantalla de Brevo
-EMAIL_HOST_USER = os.environ.get('BREVO_SMTP_USER') 
-
-# Tu clave SMTP generada en Brevo
-EMAIL_HOST_PASSWORD = os.environ.get('BREVO_SMTP_PASS')
-
-# El email "De" que ven tus clientes (TU EMAIL VERIFICADO en Brevo)
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_SENDER_EMAIL')
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
+DEFAULT_SENDER_EMAIL = os.environ.get('DEFAULT_SENDER_EMAIL')
 # ===================================================
