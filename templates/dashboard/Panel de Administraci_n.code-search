@@ -1,0 +1,9 @@
+# Query: Panel de Administración
+# ContextLines: 1
+
+1 result - 1 file
+
+templates/dashboard/base_dashboard.html:
+  147              <h3 class="fs-5 text-center mb-4" style="font-family: 'Playfair Display', serif; color: #c89b3f;">
+  148:                 WEBRES
+  149              </h3>

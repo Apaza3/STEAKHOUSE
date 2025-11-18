@@ -222,3 +222,19 @@
 
 </body>
 </html>
+<style>
+    /* Esto fuerza que las letras de ejemplo (placeholders) sean GRIS OSCURO */
+    input::placeholder, 
+    textarea::placeholder,
+    .form-control::placeholder {
+        color: #444 !important;  /* Gris oscuro */
+        opacity: 1 !important;   /* Que no sea transparente */
+        font-weight: bold !important;
+    }
+
+    /* Esto asegura que cuando escribas, la letra también sea oscura */
+    input, textarea, .form-control {
+        color: #000 !important; /* Negro */
+        background-color: #fff !important; /* Fondo blanco para asegurar contraste */
+    }
+</style>

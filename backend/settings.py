@@ -12,7 +12,8 @@ load_dotenv(BASE_DIR / '.env')
 
 # --- ¡CAMBIO IMPORTANTE! ---
 # Lee la SECRET_KEY desde las variables de entorno de Render
-SECRET_KEY = os.environ.get('SECRET_KEY')
+# Cambia la línea anterior por esta:
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-dev-123')
 
 # --- ¡CAMBIO IMPORTANTE! ---
 # DEBUG se desactiva automáticamente en Render
@@ -78,12 +79,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # --- ¡CAMBIO IMPORTANTE! ---
 # Configura la base de datos para leer la URL de Render (PostgreSQL)
+# Reemplázalo con esto:
 DATABASES = {
-    'default': dj_database_url.config(
-        # Lee la variable 'DATABASE_URL' de Render
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # --- ¡NUEVO! Seguridad para Render ---
