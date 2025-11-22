@@ -3,12 +3,11 @@
 
 {% block title %}Reservar Mesa{% endblock %}
 
-<!-- IMPORTANTE: Asegura que el body tenga la clase para el fondo correcto -->
 {% block body_class %}body-reservas{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Mantenemos tus estilos de modales y enlaces */
+    /* --- ESTILOS BASE --- */
     .link-gold {
         color: #c09a5b;
         text-decoration: underline;
@@ -17,6 +16,7 @@
         background: none;
         padding: 0;
         font-size: inherit;
+        transition: color 0.2s;
     }
     .link-gold:hover { color: #fff; }
     
@@ -26,9 +26,63 @@
         filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
     }
     
-    /* Ajuste para que el contenedor de mesas use el Grid de Bootstrap correctamente */
     #contenedor-mesas {
         min-height: 100px;
+    }
+
+    /* --- TARJETAS DE POLÍTICAS (CRONÓMETRO DE REEMBOLSO) --- */
+    .policy-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 16px; /* Un poco más de espacio interno */
+        margin-bottom: 12px;
+        border-left: 5px solid #555;
+        transition: background 0.2s;
+    }
+    
+    .policy-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .policy-card.green { border-left-color: #28a745; background: rgba(40, 167, 69, 0.1); }   /* 0-30 min */
+    .policy-card.yellow { border-left-color: #ffc107; background: rgba(255, 193, 7, 0.1); }  /* 30-40 min */
+    .policy-card.orange { border-left-color: #fd7e14; background: rgba(253, 126, 20, 0.1); } /* 40-60 min */
+    .policy-card.dark-orange { border-left-color: #d63384; background: rgba(214, 51, 132, 0.1); } /* 60-90 min */
+    .policy-card.red { border-left-color: #dc3545; background: rgba(220, 53, 69, 0.15); }    /* >90 min */
+
+    .policy-time {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        font-size: 1.15rem;
+        letter-spacing: -0.5px;
+    }
+
+    /* --- ANIMACIONES --- */
+    @keyframes blink-animation {
+        0% { opacity: 1; text-shadow: 0 0 5px red; }
+        50% { opacity: 0.5; text-shadow: 0 0 15px red; }
+        100% { opacity: 1; text-shadow: 0 0 5px red; }
+    }
+    
+    .blink-warning {
+        color: #dc3545;
+        animation: blink-animation 2s infinite;
+        display: inline-block;
+        margin-left: 5px;
+        vertical-align: middle;
+    }
+
+    /* --- ARREGLO CHECKBOX --- */
+    .custom-check-container {
+        display: flex;
+        align-items: flex-start; /* Alinea al inicio (top) */
+        gap: 10px;
+    }
+    
+    .custom-check-input {
+        margin-top: 0.3em; /* Empuja el checkbox un poco hacia abajo para centrarlo con la primera línea de texto */
+        min-width: 1em;
+        cursor: pointer;
     }
 </style>
 {% endblock %}
@@ -38,7 +92,6 @@
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 col-sm-12">
             
-            <!-- LOGO CENTRALIZADO (Tu ruta original) -->
             <div class="text-center mb-4">
                 <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="The Steakhouse" class="form-logo img-fluid">
                 <h2 class="text-white font-serif-display mt-2" style="text-shadow: 2px 2px 4px #000;">Haz tu Reserva</h2>
@@ -47,9 +100,7 @@
             <form method="POST" id="formReserva">
                 {% csrf_token %}
                 {{ form.cliente }}
-                <!-- El input de mesa_id se genera automáticamente con los radios, no necesitamos el hidden manual si el nombre coincide -->
 
-                <!-- SECCIÓN 1: FECHA Y HORA -->
                 <div class="card card-dark-theme mb-4">
                     <div class="card-body">
                         <h4 class="step-title">1. ¿Cuándo nos visitas?</h4>
@@ -74,7 +125,6 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 2: SELECCIÓN VISUAL DE MESA (DISEÑO PREMIUM) -->
                 <div class="card card-dark-theme mb-4">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -84,13 +134,10 @@
                         
                         <p class="small text-muted"><i class="fas fa-mouse-pointer me-1"></i> Toca una mesa disponible para seleccionarla.</p>
                         
-                        <!-- AQUÍ SE GENERAN LAS MESAS VISUALMENTE -->
-                        <!-- Usamos row de bootstrap para el grid responsive -->
                         <div id="contenedor-mesas" class="row g-3 justify-content-center">
                             <div class="text-center w-100 text-muted py-3">Cargando mapa de mesas...</div>
                         </div>
 
-                        <!-- Feedback de selección -->
                         <div id="mesa-seleccionada-info" class="alert alert-success mt-3 d-flex align-items-center" style="display:none; background: rgba(40,167,69,0.2); border: 1px solid #28a745; color: #fff;">
                             <i class="fas fa-check-circle fs-4 me-3"></i>
                             <div>
@@ -101,7 +148,6 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 3: PAGO Y POLÍTICAS -->
                 <div class="card card-dark-theme mb-4">
                     <div class="card-body">
                         <h4 class="step-title">3. Confirmación</h4>
@@ -111,25 +157,22 @@
                             {{ form.tipo_pago }}
                         </div>
 
-                        <!-- Mensaje de Pago (Oculto por defecto) -->
                         <div id="info-pago-box" class="alert alert-warning small" style="display:none; background: rgba(255,193,7,0.1); border: 1px solid #ffc107; color: #ffeeba;">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Para confirmar con este método, se requiere un <strong>adelanto de 30 Bs</strong>.
+                            <i class="fas fa-wallet me-2"></i>
+                            Para confirmar esta reserva, se requiere un <strong>adelanto de 30 Bs</strong>.
                         </div>
 
-                        <!-- Política 1: Reserva (Siempre visible) -->
-                        <div class="form-check mt-3">
-                            <input class="form-check-input" type="checkbox" required id="check_politica_reserva">
-                            <label class="form-check-label small text-light" for="check_politica_reserva">
-                                He leído y acepto las <button type="button" class="link-gold" data-bs-toggle="modal" data-bs-target="#modalPoliticaReserva">Políticas de Reserva</button>.
+                        <div class="custom-check-container mt-3">
+                            <input class="form-check-input custom-check-input" type="checkbox" required id="check_politica_reserva">
+                            <label class="form-check-label small text-light" for="check_politica_reserva" style="cursor: pointer;">
+                                He leído y acepto las <button type="button" class="link-gold fw-bold" data-bs-toggle="modal" data-bs-target="#modalPoliticaReserva">Reglas de la Casa (Horarios)</button>.
                             </label>
                         </div>
 
-                        <!-- Política 2: No Show (Solo visible si hay pago) -->
-                        <div class="form-check mt-2" id="box-policy-noshow" style="display: none;">
-                            <input class="form-check-input" type="checkbox" id="check_politica_noshow">
-                            <label class="form-check-label small text-light" for="check_politica_noshow">
-                                Entiendo y acepto la <button type="button" class="link-gold" data-bs-toggle="modal" data-bs-target="#modalPoliticaNoShow">Política de "No Show"</button>.
+                        <div class="custom-check-container mt-3" id="box-policy-noshow" style="display: none;">
+                            <input class="form-check-input custom-check-input" type="checkbox" id="check_politica_noshow">
+                            <label class="form-check-label small text-light" for="check_politica_noshow" style="cursor: pointer;">
+                                Entiendo y acepto la <button type="button" class="link-gold fw-bold text-danger" data-bs-toggle="modal" data-bs-target="#modalPoliticaNoShow">Política Estricta de Tiempo y Reembolsos</button> <i class="fas fa-exclamation-triangle blink-warning"></i>
                             </label>
                         </div>
 
@@ -144,54 +187,129 @@
     </div>
 </div>
 
-<!-- PARTICULAS DE FUEGO (FONDO) -->
 <div class="fire-particles-container">
     <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
     <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
     <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
 </div>
 
-<!-- MODALES DE POLÍTICAS -->
 <div class="modal fade" id="modalPoliticaReserva" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-light border-secondary">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content bg-dark text-light border-secondary shadow-lg">
       <div class="modal-header border-bottom border-secondary">
-        <h5 class="modal-title text-warning">Políticas de Reserva</h5>
+        <h5 class="modal-title text-warning fw-bold"><i class="fas fa-clock me-2"></i>Reglas de la Casa</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body small">
-        <ul class="ps-3 mb-0">
-            <li class="mb-2">Tu mesa se guardará por un máximo de <strong>15 minutos</strong> tras la hora reservada.</li>
-            <li class="mb-2">Puedes modificar tu reserva hasta 2 horas antes sin penalización.</li>
-            <li>Nos reservamos el derecho de asignar una mesa equivalente si la seleccionada no está disponible por fuerza mayor.</li>
-        </ul>
+      <div class="modal-body">
+        <p class="small text-white-50 mb-4 text-justify">
+            Para mantener la calidad de nuestro servicio y respetar el tiempo de todos, estas reglas son obligatorias:
+        </p>
+        
+        <div class="policy-card">
+            <div class="d-flex align-items-start">
+                <div class="fs-4 text-warning me-3"><i class="fas fa-stopwatch"></i></div>
+                <div>
+                    <h6 class="text-white fw-bold mb-1">Tolerancia: 15 Minutos</h6>
+                    <p class="small text-muted mb-0 text-justify">
+                        Tu mesa estará reservada solo por <strong>15 minutos</strong> después de la hora marcada. Si llegas tarde, el sistema libera la mesa automáticamente para otros clientes en espera.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-card">
+            <div class="d-flex align-items-start">
+                <div class="fs-4 text-info me-3"><i class="fas fa-hourglass-end"></i></div>
+                <div>
+                    <h6 class="text-white fw-bold mb-1">Duración de 2 Horas</h6>
+                    <p class="small text-muted mb-0 text-justify">
+                        La reserva garantiza el uso de la mesa por <strong>2 Horas exactas</strong>. Al finalizar este tiempo, necesitamos la mesa para la siguiente reserva programada. Nuestro personal procederá a cerrar tu cuenta para no perjudicar a los siguientes comensales.
+                    </p>
+                </div>
+            </div>
+        </div>
       </div>
-      <div class="modal-footer border-top border-secondary p-1">
-        <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Entendido</button>
+      <div class="modal-footer border-top border-secondary p-2">
+        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Entendido</button>
       </div>
     </div>
   </div>
 </div>
 
 <div class="modal fade" id="modalPoliticaNoShow" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-light border-secondary">
-      <div class="modal-header border-bottom border-secondary">
-        <h5 class="modal-title text-danger">Política de "No Show"</h5>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+      <div class="modal-header border-bottom border-secondary bg-dark">
+        <h5 class="modal-title text-danger fw-bold"><i class="fas fa-file-contract me-2"></i>Política Estricta de Reembolsos</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body small">
-        <p><strong>¿Qué significa "No Show"?</strong></p>
-        <p>Es cuando el cliente no se presenta a su reserva confirmada sin haber cancelado previamente.</p>
-        <hr class="border-secondary">
-        <p class="mb-1 text-warning">Al realizar el pago adelantado, aceptas que:</p>
-        <ul class="ps-3 mb-0">
-            <li>Si no asistes, el adelanto de <strong>30 Bs NO será reembolsado</strong>.</li>
-            <li>Este monto cubre la reserva exclusiva del espacio y la pérdida de oportunidad.</li>
-        </ul>
+      <div class="modal-body bg-dark">
+        
+        <div class="alert alert-secondary border-secondary d-flex align-items-center mb-4 bg-opacity-10">
+            <i class="fas fa-info-circle fs-2 me-3 text-white"></i>
+            <div class="small text-white-50 text-justify">
+                <strong>IMPORTANTE:</strong> Al realizar el pago, bloqueas esta mesa en nuestro sistema y deja de estar disponible para otros clientes. Por eso, la devolución depende del tiempo que haya pasado <strong>desde que realizas la reserva</strong>, no de la fecha del evento.
+            </div>
+        </div>
+
+        <h6 class="text-white fw-bold border-bottom border-secondary pb-2 mb-3">Cronómetro de Cancelación (Tiempo tras reservar):</h6>
+
+        <div class="policy-card green">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="policy-time text-success">0 - 30 Minutos</span>
+                <span class="badge bg-success fs-6 text-nowrap">Devolución 30 Bs (100%)</span>
+            </div>
+            <p class="text-white small mb-0 text-justify">
+                Si cancelas dentro de los primeros 30 minutos, se considera un arrepentimiento inmediato y se devuelve el 100% del monto (30 Bs), debido que la mesa prácticamente no generó impacto en la disponibilidad.
+            </p>
+        </div>
+
+        <div class="policy-card yellow">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="policy-time text-warning">30 - 40 Minutos</span>
+                <span class="badge bg-warning text-dark fs-6 text-nowrap">Devolución 20 Bs</span>
+            </div>
+            <p class="text-white small mb-0 text-justify">
+                Si la cancelación ocurre entre los 30 y 40 minutos, aún es posible liberar la mesa sin mayor perjuicio, por lo que se devuelve un monto reducido de 20 Bs.
+            </p>
+        </div>
+
+        <div class="policy-card orange">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="policy-time" style="color: #fd7e14;">40 - 60 Minutos</span>
+                <span class="badge fs-6 text-dark text-nowrap" style="background-color: #fd7e14;">Devolución 15 Bs</span>
+            </div>
+            <p class="text-white small mb-0 text-justify">
+                Cuando la cancelación se realiza entre los 40 y 60 minutos, la mesa ya estuvo bloqueada el tiempo suficiente para afectar potenciales reservas. En este caso, se devuelve únicamente 15 Bs.
+            </p>
+        </div>
+
+        <div class="policy-card dark-orange">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="policy-time" style="color: #d63384;">1h - 1h 30m</span>
+                <span class="badge fs-6 text-white text-nowrap" style="background-color: #d63384;">Devolución 10 Bs</span>
+            </div>
+            <p class="text-white small mb-0 text-justify">
+                Si decides cancelar entre 1 hora y 1 hora 30 minutos, el bloqueo es considerable y ya representa un impacto operativo significativo; por ello, la devolución se reduce a 10 Bs.
+            </p>
+        </div>
+
+        <div class="policy-card red">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="policy-time text-danger">Más de 1 hora y media</span>
+                <span class="badge bg-danger fs-6 text-nowrap">0 Bs (Sin Devolución)</span>
+            </div>
+            <p class="text-white-50 small mb-0 text-justify">
+                Pasados 90 minutos desde la reserva, el sistema asume el compromiso como definitivo. A esa altura, la disponibilidad del establecimiento ya fue afectada por completo, por lo que no se realizan reembolsos.
+            </p>
+        </div>
+
       </div>
-      <div class="modal-footer border-top border-secondary p-1">
-        <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Acepto las condiciones</button>
+      <div class="modal-footer border-top border-secondary p-2 bg-dark">
+        <div class="d-flex w-100 justify-content-between align-items-center">
+            <small class="text-muted fst-italic" style="font-size: 0.7rem;">* Al marcar la casilla aceptas esta estructura financiera.</small>
+            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Entendido y Aceptado</button>
+        </div>
       </div>
     </div>
   </div>
@@ -202,7 +320,7 @@
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // --- Referencias DOM ---
+    // Referencias DOM
     const dateInput = document.getElementById('{{ form.fecha_reserva.auto_id }}');
     const timeInput = document.getElementById('{{ form.hora_reserva.auto_id }}');
     const durationInput = document.getElementById('{{ form.duracion_horas.auto_id }}');
@@ -218,7 +336,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const boxPolicyNoShow = document.getElementById('box-policy-noshow');
     const checkNoShow = document.getElementById('check_politica_noshow');
 
-    // --- 1. Lógica de Carga de Mesas (AJAX) ---
+    // 1. Carga de Mesas
     window.cargarMesas = function() {
         const fecha = dateInput.value;
         const hora = timeInput.value;
@@ -230,25 +348,20 @@ document.addEventListener("DOMContentLoaded", function() {
         loading.style.display = 'block';
         containerMesas.style.opacity = '0.5';
 
-        // Llamada a tu API existente
         fetch(`/reservas/api/check-mesas/?fecha=${fecha}&hora=${hora}&duracion=${duracion}`)
             .then(response => response.json())
             .then(data => {
                 containerMesas.innerHTML = ''; 
-                
                 if(data.mesas && data.mesas.length > 0) {
                     data.mesas.forEach(mesa => {
-                        // Lógica Visual Premium/Normal (Compatible con tu JSON)
                         let isPremium = (mesa.tipo && (mesa.tipo.includes('Premium') || mesa.tipo.includes('PREMIUM')));
                         let tipoClass = isPremium ? 'premium' : 'normal';
                         let badgeHtml = isPremium ? '<span class="badge rounded-pill mesa-badge">PREMIUM</span>' : '';
                         
-                        // Lógica de Estado
                         let esAdecuada = mesa.capacidad >= personas;
                         let estaLibre = mesa.estado === 'LIBRE';
                         let esSeleccionable = estaLibre && esAdecuada;
                         
-                        // Texto de Estado
                         let textoEstado = '';
                         if(!estaLibre) textoEstado = '<div class="text-danger small fw-bold mt-2">Ocupada</div>';
                         else if(!esAdecuada) textoEstado = '<div class="text-warning small mt-2">Muy pequeña</div>';
@@ -256,7 +369,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
                         let iconClass = isPremium ? 'fa-crown' : 'fa-chair';
 
-                        // Generamos el HTML con las nuevas clases de main.css
                         let html = `
                         <div class="col-6 col-md-4 col-lg-3 mesa-selector-container">
                             <label class="mesa-card-label w-100 ${tipoClass}">
@@ -273,12 +385,11 @@ document.addEventListener("DOMContentLoaded", function() {
                                     ${textoEstado}
                                 </div>
                             </label>
-                        </div>
-                        `;
+                        </div>`;
                         containerMesas.insertAdjacentHTML('beforeend', html);
                     });
                 } else {
-                    containerMesas.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fas fa-calendar-times fa-2x mb-2"></i><p>No hay mesas disponibles para los criterios seleccionados.</p></div>';
+                    containerMesas.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fas fa-calendar-times fa-2x mb-2"></i><p>No hay mesas disponibles.</p></div>';
                 }
                 loading.style.display = 'none';
                 containerMesas.style.opacity = '1';
@@ -290,19 +401,16 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     };
 
-    // --- 2. Actualizar Info al Seleccionar ---
     window.actualizarInfoMesa = function(numero) {
         txtMesaSel.innerText = `Mesa Número ${numero}`;
         infoDiv.style.display = 'flex';
     };
 
-    // Listeners
     dateInput.addEventListener('change', cargarMesas);
     timeInput.addEventListener('change', cargarMesas);
     durationInput.addEventListener('change', cargarMesas);
     peopleInput.addEventListener('change', cargarMesas);
 
-    // --- 3. Lógica de Políticas ---
     function actualizarPoliticas() {
         const metodo = pagoSelect.value;
         if(metodo === 'PAGO_ADELANTADO' || metodo === 'TARJETA') {
@@ -319,7 +427,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     pagoSelect.addEventListener('change', actualizarPoliticas);
 
-    // Inicializar
     if(dateInput.value && timeInput.value) {
         cargarMesas();
     }
