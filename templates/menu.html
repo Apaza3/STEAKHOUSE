@@ -57,17 +57,17 @@
        ========================================= */
     .nav-pills {
         justify-content: center;
-        gap: 10px; /* Espacio entre botones */
+        gap: 10px;
     }
     
     .nav-pills .nav-link {
         color: #d1d5db;
         background-color: rgba(255,255,255,0.05);
         border: 1px solid #444;
-        border-radius: 50px; /* Botones bien redondos */
-        padding: 10px 20px;  /* Más grandes para el dedo */
-        margin: 0;           /* El gap maneja el espacio */
-        white-space: nowrap; /* Evita que el texto se parta raro */
+        border-radius: 50px;
+        padding: 10px 20px;
+        margin: 0;
+        white-space: nowrap;
         transition: all 0.3s ease;
     }
     
@@ -80,7 +80,7 @@
         background-color: #c09a5b;
         color: #fff;
         border-color: #c09a5b;
-        box-shadow: 0 4px 10px rgba(192, 154, 91, 0.3); /* Un brillo dorado sutil */
+        box-shadow: 0 4px 10px rgba(192, 154, 91, 0.3);
     }
 
     /* =========================================
@@ -123,8 +123,7 @@
 
     <h1 class="text-center title-gold display-5 mb-4">Nuestro Menú</h1>
 
-    <!-- BOTONES DE FILTRO (Categorías) -->
-    <!-- style="display: flex; flex-wrap: wrap;" asegura que bajen de línea en móvil -->
+    <!-- FILTROS (Categorías) -->
     <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist" style="display: flex; flex-wrap: wrap;">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button">Todo</button>
@@ -139,7 +138,7 @@
     <!-- CONTENIDO DE LAS PESTAÑAS -->
     <div class="tab-content" id="pills-tabContent">
         
-        <!-- Pestaña "Todo" -->
+        <!-- Pestaña Todo -->
         <div class="tab-pane fade show active" id="pills-all" role="tabpanel">
             <div class="menu-grid">
                 {% for categoria, lista_productos in productos_agrupados.items %}
@@ -184,7 +183,6 @@
                 <h5 class="modal-title title-gold">Tu Pedido</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <!-- Cuerpo del modal donde se carga cart_body.html -->
             <div class="modal-body" id="cart-modal-body">
                 {% include 'pedidos/includes/cart_body.html' %}
             </div>
@@ -200,13 +198,12 @@
 {% block extra_js %}
 <script>
     // ==========================================
-    // 1. LÓGICA DEL CARRITO (AJAX)
+    // 1. FUNCIÓN: AGREGAR AL CARRITO
     // ==========================================
     function agregarAlCarrito(productoId, nombreProducto) {
         const btn = document.getElementById(`btn-add-${productoId}`);
         const originalContent = btn.innerHTML;
         
-        // Feedback visual (cargando)
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         btn.disabled = true;
 
@@ -217,20 +214,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'ok') {
-                // Actualizar badge y botón flotante
-                const badge = document.getElementById('cart-count-badge');
-                const btnFlotante = document.getElementById('btn-carrito-flotante');
+                actualizarInterfazCarrito(data);
                 
-                badge.innerText = data.cart_count;
-                if (data.cart_count > 0) btnFlotante.style.display = 'flex';
-
-                // Actualizar el contenido del modal (tabla)
-                const modalBody = document.getElementById('cart-modal-body');
-                if(modalBody) {
-                    modalBody.innerHTML = data.cart_html;
-                }
-
-                // Feedback visual (éxito)
                 btn.innerHTML = '<i class="fas fa-check"></i>';
                 btn.classList.remove('btn-outline-light');
                 btn.classList.add('btn-success');
@@ -243,30 +228,58 @@
                 }, 1500);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            // Fallback: recargar si falla AJAX
-            window.location.href = `/pedidos/agregar/${productoId}/`;
-        });
+        .catch(error => window.location.href = `/pedidos/agregar/${productoId}/`);
     }
 
     // ==========================================
-    // 2. LÓGICA DE NAVEGACIÓN (Pestañas Automáticas)
+    // 2. FUNCIÓN: ELIMINAR DEL CARRITO
+    // ==========================================
+    function eliminarDelCarrito(productoId) {
+        fetch(`/pedidos/eliminar/${productoId}/`, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                actualizarInterfazCarrito(data);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // ==========================================
+    // 3. ACTUALIZAR INTERFAZ (Helper)
+    // ==========================================
+    function actualizarInterfazCarrito(data) {
+        const badge = document.getElementById('cart-count-badge');
+        const btnFlotante = document.getElementById('btn-carrito-flotante');
+        const modalBody = document.getElementById('cart-modal-body');
+
+        // Actualizar número rojo
+        if (badge) badge.innerText = data.cart_count;
+        
+        // Mostrar/Ocultar botón flotante
+        if (btnFlotante) {
+            btnFlotante.style.display = (data.cart_count > 0) ? 'flex' : 'none';
+        }
+
+        // Actualizar contenido del modal
+        if (modalBody) {
+            modalBody.innerHTML = data.cart_html;
+        }
+    }
+
+    // ==========================================
+    // 4. LÓGICA DE NAVEGACIÓN (Pestañas)
     // ==========================================
     function activarPestanaDesdeHash() {
-        // Obtener el hash de la URL (ej: #HAMBURGUESA) y quitar el '#'
         const hash = window.location.hash.replace('#', '');
-        
         if (hash) {
-            // Buscar el botón de la pestaña correspondiente
             const tabButton = document.getElementById(`pills-${hash}-tab`);
-            
             if (tabButton) {
-                // Usar la API de Bootstrap para activar la pestaña
                 const tab = new bootstrap.Tab(tabButton);
                 tab.show();
-                
-                // Desplazar la pantalla suavemente hacia el menú
                 setTimeout(() => {
                     tabButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 100);
@@ -274,13 +287,9 @@
         }
     }
 
-    // Ejecutar al cargar la página
     window.addEventListener('load', activarPestanaDesdeHash);
-    
-    // Ejecutar si el usuario cambia el hash manualmente
     window.addEventListener('hashchange', activarPestanaDesdeHash);
 
-    // Actualizar la URL cuando el usuario hace clic en una pestaña
     document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(btn => {
         btn.addEventListener('shown.bs.tab', function (e) {
             const id = e.target.id.replace('pills-', '').replace('-tab', '');

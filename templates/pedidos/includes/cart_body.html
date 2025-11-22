@@ -22,8 +22,7 @@
                 <td class="text-end title-gold fw-bold">{{ item.subtotal|floatformat:2 }}</td>
                 <td class="text-end">
                     <button onclick="eliminarDelCarrito({{ item.producto_id }})" 
-                            class="btn btn-sm text-danger p-0 hover-scale"
-                            title="Eliminar">
+                            class="btn btn-sm text-danger p-0 hover-scale">
                         <i class="fas fa-times-circle fs-5"></i>
                     </button>
                 </td>
@@ -41,14 +40,16 @@
 </div>
 
 <div class="d-grid gap-2 mt-3 p-3">
-    <a href="{% url 'confirmar_pedido' %}" class="btn btn-primary fw-bold" style="background-color: #c09a5b; border: none;">
-        CONFIRMAR PEDIDO
+    <!-- CAMBIO: Ahora dirige a la selección de mesa -->
+    <a href="{% url 'seleccionar_mesa' %}" class="btn btn-primary fw-bold py-2" style="background-color: #c09a5b; border: none;">
+        CONTINUAR CON LA COMPRA <i class="fas fa-arrow-right ms-2"></i>
     </a>
 </div>
 
 {% else %}
 <div class="text-center py-5">
-    <i class="fas fa-concierge-bell fa-3x text-muted mb-3 opacity-50"></i>
+    <!-- CAMBIO: Icono de bandeja de servicio -->
+    <i class="fas fa-concierge-bell fa-4x text-muted mb-3 opacity-50"></i>
     <h5 class="text-white">Tu bandeja está vacía</h5>
     <p class="text-muted small">Selecciona productos del menú para empezar.</p>
     <button type="button" class="btn btn-outline-secondary btn-sm mt-2" data-bs-dismiss="modal">Volver al Menú</button>

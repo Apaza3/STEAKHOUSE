@@ -5,10 +5,10 @@ from django.http import JsonResponse
 from .models import Pedido, DetallePedido
 from clientes.models import Cliente
 from productos.models import Producto
+from core.models import Mesa  # <--- ¡ESTA LÍNEA ERA LA QUE FALTABA!
 from collections import defaultdict
 from core.utils import enviar_email_automatico
 from django.template.loader import render_to_string
-from django.conf import settings
 
 # --- FUNCIÓN AUXILIAR PARA HTML DEL CARRITO ---
 def render_cart_html(request, carrito):
@@ -35,29 +35,21 @@ def render_cart_html(request, carrito):
     return html, cantidad_total, total
 
 # ===============================================
-# VISTA DEL MENÚ (DISEÑO POR SECCIONES)
+# VISTA DEL MENÚ
 # ===============================================
-# En pedidos/views.py
-
 @login_required(login_url='login')
 def menu_view(request):
-    # 1. Obtener productos disponibles
     productos = Producto.objects.filter(disponible=True)
     
-    # 2. Agrupar productos por categoría (Diccionario)
-    # Esto crea algo como: {'HAMBURGUESA': [prod1, prod2], 'BEBIDA': [prod3]}
     agrupados = defaultdict(list)
     for p in productos:
         agrupados[p.categoria].append(p)
     
-    # 3. Convertir las opciones del modelo a un diccionario para las pestañas
-    # Esto permite que el HTML diga "Hamburguesas" en vez de "HAMBURGUESA"
     categorias_dict = dict(Producto.CATEGORIA_CHOICES)
 
-    # 4. Datos del carrito (Mantenemos tu lógica que ya funcionaba)
     carrito = request.session.get('carrito', {})
     
-    # Reconstruimos la lista para la vista inicial del modal
+    # Reconstruimos la lista para la vista inicial
     items_lista = []
     total_calculado = 0
     cantidad_calculada = 0
@@ -75,11 +67,8 @@ def menu_view(request):
         })
     
     context = {
-        # Estas son las variables EXACTAS que tu HTML nuevo pide:
         'categorias_choices': categorias_dict, 
         'productos_agrupados': dict(agrupados),
-        
-        # Variables del carrito
         'cantidad_total': cantidad_calculada,
         'total_del_carrito': total_calculado,
         'items_del_carrito': items_lista 
@@ -87,7 +76,7 @@ def menu_view(request):
     return render(request, 'menu.html', context)
 
 # ===============================================
-# AÑADIR AL CARRITO (AJAX + HTML)
+# AÑADIR AL CARRITO
 # ===============================================
 @login_required(login_url='login')
 def agregar_al_carrito_view(request, producto_id):
@@ -105,8 +94,6 @@ def agregar_al_carrito_view(request, producto_id):
         }
     
     request.session['carrito'] = carrito
-    
-    # Generamos el HTML actualizado del carrito
     html_carrito, cantidad, total = render_cart_html(request, carrito)
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -119,7 +106,7 @@ def agregar_al_carrito_view(request, producto_id):
     return redirect('menu_page')
 
 # ===============================================
-# ELIMINAR DEL CARRITO (AJAX + HTML)
+# ELIMINAR DEL CARRITO
 # ===============================================
 @login_required(login_url='login')
 def eliminar_del_carrito_view(request, producto_id):
@@ -142,59 +129,90 @@ def eliminar_del_carrito_view(request, producto_id):
     return redirect('menu_page')
 
 # ===============================================
-# VISTAS DE CONFIRMACIÓN (Sin cambios mayores)
+# NUEVA VISTA: SELECCIÓN DE MESA
+# ===============================================
+@login_required(login_url='login')
+def seleccionar_mesa_view(request):
+    carrito = request.session.get('carrito', {})
+    if not carrito:
+        messages.error(request, "Tu carrito está vacío.")
+        return redirect('menu_page')
+
+    # Obtenemos todas las mesas disponibles
+    mesas = Mesa.objects.all().order_by('numero')
+    
+    total = sum(float(item['precio']) * item['cantidad'] for item in carrito.values())
+
+    return render(request, 'pedidos/seleccionar_mesa.html', {
+        'mesas': mesas,
+        'total': total
+    })
+
+# ===============================================
+# CONFIRMAR PEDIDO
 # ===============================================
 @login_required(login_url='login') 
 def confirmar_pedido_view(request):
-    carrito = request.session.get('carrito', {})
-    if not carrito:
-        messages.error(request, 'Tu carrito está vacío.')
-        return redirect('menu_page')
+    if request.method == 'POST':
+        carrito = request.session.get('carrito', {})
+        if not carrito:
+            return redirect('menu_page')
 
-    try:
-        cliente = request.user.cliente 
-    except Cliente.DoesNotExist:
-        cliente = None 
+        mesa_id = request.POST.get('mesa_id')
+        mesa_obj = None
+        
+        if mesa_id:
+            mesa_obj = get_object_or_404(Mesa, id=mesa_id)
 
-    pedido = Pedido.objects.create(
-        usuario=request.user,
-        cliente=cliente,
-        estado_pedido='PENDIENTE',
-        total=0
-    )
-    
-    total = 0
-    detalles = []
-    
-    for pid, item in carrito.items():
         try:
-            prod = Producto.objects.get(id=int(pid))
-            detalle = DetallePedido.objects.create(
-                pedido=pedido, producto=prod, cantidad=item['cantidad']
-            )
-            total += detalle.subtotal
-            detalles.append(detalle)
-        except Producto.DoesNotExist:
-            continue
-    
-    pedido.total = total
-    pedido.save()
-    
-    # Email (Asíncrono)
-    try:
-        enviar_email_automatico(
-            template_path='emails/factura_pedido.html',
-            context_datos={'pedido': pedido, 'detalles': detalles, 'cliente': cliente, 'usuario': request.user},
-            asunto=f"Pedido #{pedido.id} Confirmado",
-            email_destino=request.user.email
+            cliente = request.user.cliente 
+        except Cliente.DoesNotExist:
+            cliente = None 
+
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            cliente=cliente,
+            mesa=mesa_obj,
+            estado_pedido='PENDIENTE',
+            total=0
         )
-    except:
-        pass
+        
+        total = 0
+        detalles = []
+        
+        for pid, item in carrito.items():
+            try:
+                prod = Producto.objects.get(id=int(pid))
+                detalle = DetallePedido.objects.create(
+                    pedido=pedido, producto=prod, cantidad=item['cantidad']
+                )
+                total += detalle.subtotal
+                detalles.append(detalle)
+            except Producto.DoesNotExist:
+                continue
+        
+        pedido.total = total
+        pedido.save()
+        
+        try:
+            enviar_email_automatico(
+                template_path='emails/factura_pedido.html',
+                context_datos={'pedido': pedido, 'detalles': detalles, 'cliente': cliente, 'usuario': request.user},
+                asunto=f"Pedido #{pedido.id} Confirmado",
+                email_destino=request.user.email
+            )
+        except:
+            pass
 
-    del request.session['carrito']
-    messages.success(request, '¡Pedido confirmado!')
-    return redirect('pedido_exitoso')
+        del request.session['carrito']
+        messages.success(request, f'¡Pedido confirmado para la Mesa {mesa_obj.numero if mesa_obj else "?"}!')
+        return redirect('pedido_exitoso')
+    
+    return redirect('seleccionar_mesa')
 
+# ===============================================
+# VISTAS RESTANTES
+# ===============================================
 @login_required(login_url='login')
 def pedido_exitoso_view(request):
     return render(request, 'pedido_exitoso.html')
@@ -203,7 +221,3 @@ def pedido_exitoso_view(request):
 def mis_pedidos_view(request):
     pedidos = Pedido.objects.filter(usuario=request.user).order_by('-fecha_pedido')
     return render(request, 'mis_pedidos.html', {'pedidos': pedidos})
-
-@login_required(login_url='login')
-def ver_carrito_view(request):
-    return redirect('menu_page')

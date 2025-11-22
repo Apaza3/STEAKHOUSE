@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Seleccionar Mesa{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos para esta página -->
+<style>
+    /* Forzamos el fondo de imagen en el body de esta página específica */
+    body {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url("{% static 'core/img/mesas_pedidos.png' %}") !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+    }
+    
+    /* Estilo de la barra de total (ahora es una tarjeta elegante) */
+    .total-bar {
+        background: rgba(30, 25, 25, 0.95);
+        border: 1px solid #444;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    
+    <div class="text-center mb-5">
+        <!-- LOGO -->
+        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="The Steakhouse" class="mb-3" style="max-width: 150px; filter: drop-shadow(0 0 10px rgba(192, 154, 91, 0.3));">
+        
+        <h1 class="title-gold display-5">Elige tu Mesa</h1>
+        <p class="text-muted">Selecciona dónde te gustaría que sirvamos tu pedido</p>
+    </div>
+
+    <form action="{% url 'confirmar_pedido' %}" method="POST">
+        {% csrf_token %}
+        
+        <!-- GRID DE MESAS -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10">
+                <div class="row g-4 justify-content-center">
+                    
+                    {% for mesa in mesas %}
+                    <div class="col-6 col-md-4 col-lg-3 mesa-selector-container">
+                        <!-- Lógica para clase premium/normal (detecta mayúsculas o minúsculas) -->
+                        <label class="mesa-card-label w-100 {% if 'Premium' in mesa.tipo or 'PREMIUM' in mesa.tipo %}premium{% else %}normal{% endif %}">
+                            
+                            <!-- INPUT OCULTO (Usa opacity: 0 en CSS para permitir validación) -->
+                            <input type="radio" name="mesa_id" value="{{ mesa.id }}" class="mesa-card-input" required>
+                            
+                            <!-- CONTENIDO VISIBLE DE LA TARJETA -->
+                            <div class="mesa-content">
+                                <!-- Icono de silla -->
+                                <i class="fas fa-chair icon-mesa"></i>
+                                
+                                <!-- Número de mesa -->
+                                <h5 class="fw-bold mb-1">Mesa {{ mesa.numero }}</h5>
+                                
+                                <!-- Capacidad -->
+                                <small class="d-block mb-2">{{ mesa.capacidad }} Personas</small>
+                                
+                                <!-- Etiqueta Premium si corresponde -->
+                                {% if 'Premium' in mesa.tipo or 'PREMIUM' in mesa.tipo %}
+                                    <span class="badge rounded-pill mesa-badge">PREMIUM</span>
+                                {% endif %}
+                            </div>
+                        </label>
+                    </div>
+                    {% empty %}
+                    <!-- Mensaje si no hay mesas registradas -->
+                    <div class="text-center text-muted col-12 py-5">
+                        <i class="fas fa-exclamation-circle fa-3x mb-3 opacity-50"></i>
+                        <p class="fs-5">No hay mesas disponibles en este momento.</p>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE CONFIRMACIÓN Y TOTAL -->
+        <div class="row justify-content-center pb-5">
+            <div class="col-lg-8">
+                <div class="total-bar p-4 mt-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <div class="text-center text-md-start">
+                            <span class="text-muted small d-block text-uppercase" style="letter-spacing: 2px;">Total a Pagar</span>
+                            <span class="title-gold fs-1 fw-bold" style="font-family: 'Playfair Display', serif;">{{ total|floatformat:2 }} Bs.</span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold px-5 py-3 rounded-pill shadow-gold w-100 w-md-auto" style="background-color: #c09a5b; border: none; transition: transform 0.2s;">
+                            CONFIRMAR PEDIDO <i class="fas fa-check-circle ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-center mt-3 text-muted small">
+                    <i class="fas fa-info-circle me-1"></i> Al confirmar, enviaremos tu pedido a cocina inmediatamente.
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

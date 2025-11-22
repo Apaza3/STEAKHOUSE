@@ -3,81 +3,12 @@
 
 {% block title %}Reservar Mesa{% endblock %}
 
-<!-- IMPORTANTE: Asegura que el body tenga la clase para el fondo -->
+<!-- IMPORTANTE: Asegura que el body tenga la clase para el fondo correcto -->
 {% block body_class %}body-reservas{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Estilos locales adicionales para la selección de mesas */
-    .mesa-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
-    }
-
-    /* Ajuste Responsive para Móviles */
-    @media (max-width: 768px) {
-        .mesa-grid {
-            grid-template-columns: repeat(3, 1fr) !important; /* Fuerza 3 columnas */
-            gap: 8px !important;
-        }
-    }
-
-    /* Estado Base de la Tarjeta de Mesa */
-    .mesa-card {
-        background: rgba(45, 45, 45, 0.8);
-        border: 2px solid #555;
-        border-radius: 10px;
-        padding: 10px 5px; /* Padding reducido para móvil */
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-        min-height: 80px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* ESTADO: LIBRE (Verde/Dorado al hover) */
-    .mesa-card.libre {
-        border-color: #555;
-    }
-    .mesa-card.libre:hover {
-        border-color: #c09a5b;
-        background: rgba(60, 60, 60, 0.9);
-        transform: translateY(-2px);
-    }
-
-    /* ESTADO: SELECCIONADA (Dorado Brillante) */
-    .mesa-card.seleccionada {
-        border-color: #c09a5b;
-        background-color: rgba(192, 154, 91, 0.15);
-        box-shadow: 0 0 10px rgba(192, 154, 91, 0.4);
-    }
-    .mesa-card.seleccionada .icon-mesa { color: #c09a5b; }
-    .mesa-card.seleccionada .fw-bold { color: #c09a5b !important; }
-
-    /* ESTADO: OCUPADA (Rojo Apagado) */
-    .mesa-card.ocupada {
-        opacity: 0.5;
-        cursor: not-allowed;
-        border-color: #8a2a2a;
-        background: rgba(40, 20, 20, 0.6);
-    }
-    .mesa-card.ocupada .icon-mesa { color: #8a2a2a; }
-    .mesa-card.ocupada .estado-texto { 
-        color: #dc3545; 
-        font-weight: bold; font-size: 0.65rem; margin-top: 4px; 
-    }
-
-    .icon-mesa { font-size: 1.5rem; color: #888; margin-bottom: 3px; }
-    .mesa-capacidad { font-size: 0.7rem; color: #aaa; }
-    .fw-bold { font-size: 0.8rem; }
-
-    /* Enlaces dorados para los modales */
+    /* Mantenemos tus estilos de modales y enlaces */
     .link-gold {
         color: #c09a5b;
         text-decoration: underline;
@@ -94,6 +25,11 @@
         height: auto;
         filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
     }
+    
+    /* Ajuste para que el contenedor de mesas use el Grid de Bootstrap correctamente */
+    #contenedor-mesas {
+        min-height: 100px;
+    }
 </style>
 {% endblock %}
 
@@ -102,7 +38,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 col-sm-12">
             
-            <!-- LOGO CENTRALIZADO -->
+            <!-- LOGO CENTRALIZADO (Tu ruta original) -->
             <div class="text-center mb-4">
                 <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="The Steakhouse" class="form-logo img-fluid">
                 <h2 class="text-white font-serif-display mt-2" style="text-shadow: 2px 2px 4px #000;">Haz tu Reserva</h2>
@@ -111,7 +47,7 @@
             <form method="POST" id="formReserva">
                 {% csrf_token %}
                 {{ form.cliente }}
-                {{ form.mesa_id }} <!-- Input oculto para el ID de la mesa -->
+                <!-- El input de mesa_id se genera automáticamente con los radios, no necesitamos el hidden manual si el nombre coincide -->
 
                 <!-- SECCIÓN 1: FECHA Y HORA -->
                 <div class="card card-dark-theme mb-4">
@@ -138,7 +74,7 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 2: SELECCIÓN VISUAL DE MESA -->
+                <!-- SECCIÓN 2: SELECCIÓN VISUAL DE MESA (DISEÑO PREMIUM) -->
                 <div class="card card-dark-theme mb-4">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -148,8 +84,9 @@
                         
                         <p class="small text-muted"><i class="fas fa-mouse-pointer me-1"></i> Toca una mesa disponible para seleccionarla.</p>
                         
-                        <!-- AQUÍ SE GENERAN LAS MESAS -->
-                        <div id="contenedor-mesas" class="mesa-grid">
+                        <!-- AQUÍ SE GENERAN LAS MESAS VISUALMENTE -->
+                        <!-- Usamos row de bootstrap para el grid responsive -->
+                        <div id="contenedor-mesas" class="row g-3 justify-content-center">
                             <div class="text-center w-100 text-muted py-3">Cargando mapa de mesas...</div>
                         </div>
 
@@ -214,7 +151,7 @@
     <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
 </div>
 
-<!-- MODAL 1: POLÍTICA DE RESERVA -->
+<!-- MODALES DE POLÍTICAS -->
 <div class="modal fade" id="modalPoliticaReserva" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content bg-dark text-light border-secondary">
@@ -236,7 +173,6 @@
   </div>
 </div>
 
-<!-- MODAL 2: POLÍTICA NO SHOW -->
 <div class="modal fade" id="modalPoliticaNoShow" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content bg-dark text-light border-secondary">
@@ -274,7 +210,6 @@ document.addEventListener("DOMContentLoaded", function() {
     
     const containerMesas = document.getElementById('contenedor-mesas');
     const loading = document.getElementById('loadingMesas');
-    const inputMesaId = document.getElementById('{{ form.mesa_id.auto_id }}');
     const txtMesaSel = document.getElementById('txt-mesa-sel');
     const infoDiv = document.getElementById('mesa-seleccionada-info');
     
@@ -295,6 +230,7 @@ document.addEventListener("DOMContentLoaded", function() {
         loading.style.display = 'block';
         containerMesas.style.opacity = '0.5';
 
+        // Llamada a tu API existente
         fetch(`/reservas/api/check-mesas/?fecha=${fecha}&hora=${hora}&duracion=${duracion}`)
             .then(response => response.json())
             .then(data => {
@@ -302,45 +238,51 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 if(data.mesas && data.mesas.length > 0) {
                     data.mesas.forEach(mesa => {
-                        // Lógica Visual
-                        let esAdecuada = mesa.capacidad >= personas;
-                        let claseEstado = (mesa.estado === 'LIBRE' && esAdecuada) ? 'libre' : 'ocupada';
-                        let icono = mesa.tipo === 'Premium' ? 'fa-crown' : 'fa-chair';
+                        // Lógica Visual Premium/Normal (Compatible con tu JSON)
+                        let isPremium = (mesa.tipo && (mesa.tipo.includes('Premium') || mesa.tipo.includes('PREMIUM')));
+                        let tipoClass = isPremium ? 'premium' : 'normal';
+                        let badgeHtml = isPremium ? '<span class="badge rounded-pill mesa-badge">PREMIUM</span>' : '';
                         
+                        // Lógica de Estado
+                        let esAdecuada = mesa.capacidad >= personas;
+                        let estaLibre = mesa.estado === 'LIBRE';
+                        let esSeleccionable = estaLibre && esAdecuada;
+                        
+                        // Texto de Estado
                         let textoEstado = '';
-                        if(mesa.estado === 'OCUPADA') textoEstado = '<div class="estado-texto">Ocupada</div>';
-                        else if(!esAdecuada) textoEstado = '<div class="estado-texto text-warning small">Muy pequeña</div>';
-                        else textoEstado = '<div class="text-success small fw-bold">Libre</div>';
+                        if(!estaLibre) textoEstado = '<div class="text-danger small fw-bold mt-2">Ocupada</div>';
+                        else if(!esAdecuada) textoEstado = '<div class="text-warning small mt-2">Muy pequeña</div>';
+                        else textoEstado = '<div class="text-success small fw-bold mt-2">Disponible</div>';
 
-                        // OnClick solo si está libre
-                        let onclickAttr = (claseEstado === 'libre') ? `onclick="seleccionarMesa(${mesa.id}, '${mesa.numero}')"` : '';
+                        let iconClass = isPremium ? 'fa-crown' : 'fa-chair';
 
+                        // Generamos el HTML con las nuevas clases de main.css
                         let html = `
-                            <div class="mesa-card ${claseEstado}" ${onclickAttr} id="mesa-card-${mesa.id}">
-                                <div class="icon-mesa"><i class="fas ${icono}"></i></div>
-                                <div class="fw-bold text-white">Mesa ${mesa.numero}</div>
-                                <div class="mesa-capacidad"><i class="fas fa-user"></i> ${mesa.capacidad}</div>
-                                ${textoEstado}
-                            </div>
+                        <div class="col-6 col-md-4 col-lg-3 mesa-selector-container">
+                            <label class="mesa-card-label w-100 ${tipoClass}">
+                                <input type="radio" name="mesa_id" value="${mesa.id}" class="mesa-card-input" 
+                                    onchange="actualizarInfoMesa('${mesa.numero}')" 
+                                    required 
+                                    ${!esSeleccionable ? 'disabled' : ''}>
+                                
+                                <div class="mesa-content" style="${!esSeleccionable ? 'opacity:0.5; cursor:not-allowed;' : ''}">
+                                    <i class="fas ${iconClass} icon-mesa"></i>
+                                    <h5 class="fw-bold mb-1">Mesa ${mesa.numero}</h5>
+                                    <small class="d-block mb-2">${mesa.capacidad} Personas</small>
+                                    ${badgeHtml}
+                                    ${textoEstado}
+                                </div>
+                            </label>
+                        </div>
                         `;
                         containerMesas.insertAdjacentHTML('beforeend', html);
                     });
                 } else {
-                    containerMesas.innerHTML = '<p class="text-center text-muted w-100">No hay mesas configuradas.</p>';
+                    containerMesas.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fas fa-calendar-times fa-2x mb-2"></i><p>No hay mesas disponibles para los criterios seleccionados.</p></div>';
                 }
                 loading.style.display = 'none';
                 containerMesas.style.opacity = '1';
-                
-                // Re-seleccionar si sigue libre
-                if(inputMesaId.value) {
-                    const card = document.getElementById(`mesa-card-${inputMesaId.value}`);
-                    if(card && card.classList.contains('libre')) {
-                        card.classList.add('seleccionada');
-                    } else {
-                        inputMesaId.value = '';
-                        infoDiv.style.display = 'none';
-                    }
-                }
+                infoDiv.style.display = 'none';
             })
             .catch(error => {
                 console.error(error);
@@ -348,17 +290,9 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     };
 
-    // --- 2. Selección de Mesa ---
-    window.seleccionarMesa = function(id, numero) {
-        // Limpiar selecciones
-        document.querySelectorAll('.mesa-card').forEach(el => el.classList.remove('seleccionada'));
-        // Marcar nueva
-        const card = document.getElementById(`mesa-card-${id}`);
-        if(card) card.classList.add('seleccionada');
-        
-        // Guardar y mostrar
-        inputMesaId.value = id;
-        txtMesaSel.innerText = `Número ${numero}`;
+    // --- 2. Actualizar Info al Seleccionar ---
+    window.actualizarInfoMesa = function(numero) {
+        txtMesaSel.innerText = `Mesa Número ${numero}`;
         infoDiv.style.display = 'flex';
     };
 
@@ -371,14 +305,11 @@ document.addEventListener("DOMContentLoaded", function() {
     // --- 3. Lógica de Políticas ---
     function actualizarPoliticas() {
         const metodo = pagoSelect.value;
-        
         if(metodo === 'PAGO_ADELANTADO' || metodo === 'TARJETA') {
-            // Mostrar aviso y política No Show
             infoPagoBox.style.display = 'block';
             boxPolicyNoShow.style.display = 'block';
             checkNoShow.required = true; 
         } else {
-            // Ocultar todo
             infoPagoBox.style.display = 'none';
             boxPolicyNoShow.style.display = 'none';
             checkNoShow.required = false;
