@@ -1,51 +1,63 @@
 from django import forms
-from .models import Reserva, Mesa
+from .models import Reserva
+from datetime import datetime # <--- ¡ESTA LÍNEA FALTABA!
 
 class ReservaForm(forms.ModelForm):
     
-    # --- ¡NUEVO! Opciones de Duración ---
     DURACION_CHOICES = (
-        (1, '1 Hora'),
         (2, '2 Horas (Estándar)'),
-        (3, '3 Horas'),
-        (4, '4 Horas'),
+        (3, '3 Horas (+50 Bs)'),
+        (4, '4 Horas (+100 Bs)'),
     )
 
-    # --- ¡NUEVO! Campo de Duración ---
     duracion_horas = forms.ChoiceField(
         choices=DURACION_CHOICES,
-        initial=2, # Por defecto 2 horas
-        label="¿Cuánto tiempo te quedas?",
-        widget=forms.Select(attrs={'class': 'form-select form-select-lg'})
+        initial=2,
+        label="Duración",
+        widget=forms.Select(attrs={'class': 'form-select', 'onchange': 'cargarMesas()'})
     )
+
+    # Campo oculto para guardar el ID de la mesa que el usuario toque en el mapa
+    mesa_id = forms.IntegerField(widget=forms.HiddenInput(), required=True)
 
     class Meta:
         model = Reserva
         fields = [
             'fecha_reserva',
             'hora_reserva',
-            'duracion_horas', # <-- ¡Añadido!
+            'duracion_horas',
             'numero_personas',
             'tipo_pago',
-            'cliente', # ¡Lo mantenemos aquí para que el form lo valide!
+            'cliente',
         ]
-        # ¡HEMOS QUITADO EL CAMPO 'mesa'!
         widgets = {
-            'fecha_reserva': forms.DateInput(attrs={'class': 'form-control form-control-lg', 'type': 'date'}),
-            'hora_reserva': forms.TimeInput(attrs={'class': 'form-control form-control-lg', 'type': 'time'}),
-            'numero_personas': forms.NumberInput(attrs={'class': 'form-control form-control-lg', 'min': '1'}),
-            'tipo_pago': forms.Select(attrs={'class': 'form-select form-select-lg', 'id': 'id_tipo_pago'}),
-            
-            # Hacemos que el campo 'cliente' sea invisible.
+            'fecha_reserva': forms.DateInput(attrs={
+                'class': 'form-control', 
+                'type': 'date', 
+                'onchange': 'cargarMesas()',
+                'min': datetime.now().date().isoformat() # Evita fechas pasadas
+            }),
+            'hora_reserva': forms.TimeInput(attrs={
+                'class': 'form-control', 
+                'type': 'time', 
+                'onchange': 'cargarMesas()',
+                'min': '12:00', 'max': '23:00' # Restricción visual
+            }),
+            'numero_personas': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '1', 
+                'onchange': 'filtrarMesasPorCapacidad()'
+            }),
+            'tipo_pago': forms.Select(attrs={'class': 'form-select', 'id': 'id_tipo_pago'}),
             'cliente': forms.HiddenInput(),
         }
         labels = {
-            'fecha_reserva': 'Fecha de Reserva',
-            'hora_reserva': 'Hora de Reserva',
-            'numero_personas': 'Número de Personas',
-            'tipo_pago': 'Tipo de Reserva',
+            'fecha_reserva': 'Fecha',
+            'hora_reserva': 'Hora',
+            'numero_personas': 'Personas',
+            'tipo_pago': 'Método de Pago',
         }
 
-    # ¡El __init__ ya no necesita el campo 'mesa'!
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Validaciones extra si es necesario

@@ -1,167 +1,398 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Hacer Reserva{% endblock %}
+{% block title %}Reservar Mesa{% endblock %}
 
-{% block body_class %}site-container body-reservas{% endblock %}
+<!-- IMPORTANTE: Asegura que el body tenga la clase para el fondo -->
+{% block body_class %}body-reservas{% endblock %}
 
-{% block content %}
-<main id="main-content" class="container reserva-flow-container">
+{% block extra_css %}
+<style>
+    /* Estilos locales adicionales para la selección de mesas */
+    .mesa-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    /* Ajuste Responsive para Móviles */
+    @media (max-width: 768px) {
+        .mesa-grid {
+            grid-template-columns: repeat(3, 1fr) !important; /* Fuerza 3 columnas */
+            gap: 8px !important;
+        }
+    }
+
+    /* Estado Base de la Tarjeta de Mesa */
+    .mesa-card {
+        background: rgba(45, 45, 45, 0.8);
+        border: 2px solid #555;
+        border-radius: 10px;
+        padding: 10px 5px; /* Padding reducido para móvil */
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* ESTADO: LIBRE (Verde/Dorado al hover) */
+    .mesa-card.libre {
+        border-color: #555;
+    }
+    .mesa-card.libre:hover {
+        border-color: #c09a5b;
+        background: rgba(60, 60, 60, 0.9);
+        transform: translateY(-2px);
+    }
+
+    /* ESTADO: SELECCIONADA (Dorado Brillante) */
+    .mesa-card.seleccionada {
+        border-color: #c09a5b;
+        background-color: rgba(192, 154, 91, 0.15);
+        box-shadow: 0 0 10px rgba(192, 154, 91, 0.4);
+    }
+    .mesa-card.seleccionada .icon-mesa { color: #c09a5b; }
+    .mesa-card.seleccionada .fw-bold { color: #c09a5b !important; }
+
+    /* ESTADO: OCUPADA (Rojo Apagado) */
+    .mesa-card.ocupada {
+        opacity: 0.5;
+        cursor: not-allowed;
+        border-color: #8a2a2a;
+        background: rgba(40, 20, 20, 0.6);
+    }
+    .mesa-card.ocupada .icon-mesa { color: #8a2a2a; }
+    .mesa-card.ocupada .estado-texto { 
+        color: #dc3545; 
+        font-weight: bold; font-size: 0.65rem; margin-top: 4px; 
+    }
+
+    .icon-mesa { font-size: 1.5rem; color: #888; margin-bottom: 3px; }
+    .mesa-capacidad { font-size: 0.7rem; color: #aaa; }
+    .fw-bold { font-size: 0.8rem; }
+
+    /* Enlaces dorados para los modales */
+    .link-gold {
+        color: #c09a5b;
+        text-decoration: underline;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 0;
+        font-size: inherit;
+    }
+    .link-gold:hover { color: #fff; }
     
-    <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-10">
-            
-            <div class="card card-dark-theme shadow-lg">
-                <div class="card-body p-4 p-md-5">
-
-                    <div class="text-center">
-                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo">
-                    </div>
-
-                    <h1 class="text-center title-gold display-5 mb-4">Haz tu Reserva</h1>
-                    <p class="text-center fs-5 mb-4">
-                        Asegura tu lugar en nuestra mesa. Rellena el formulario para completar tu reserva.
-                    </p>
-
-                    <form method="POST" action="{% url 'reservas_page' %}" id="reservationForm">
-                        {% csrf_token %}
-                        
-                        {{ form.cliente }}
-                        
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            <i class="fa fa-exclamation-triangle me-2"></i>
-                            <strong>El formulario tiene errores.</strong> Por favor, revisa los campos marcados.
-                        </div>
-                        {% endif %}
-
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <h3 class="title-gold fs-4 mb-3">Detalles</h3>
-                                <div class="mb-3">
-                                    <label for="{{ form.fecha_reserva.id_for_label }}" class="form-label">Fecha de Reserva</label>
-                                    {{ form.fecha_reserva }}
-                                    {% if form.fecha_reserva.errors %}<div class="invalid-feedback d-block">{{ form.fecha_reserva.errors.as_text }}</div>{% endif %}
-                                </div>
-                                <div class="mb-3">
-                                    <label for="{{ form.hora_reserva.id_for_label }}" class="form-label">Hora de Reserva</label>
-                                    {{ form.hora_reserva }}
-                                    {% if form.hora_reserva.errors %}<div class="invalid-feedback d-block">{{ form.hora_reserva.errors.as_text }}</div>{% endif %}
-                                </div>
-                                <div class="mb-3">
-                                    <label for="{{ form.duracion_horas.id_for_label }}" class="form-label">{{ form.duracion_horas.label }}</label>
-                                    {{ form.duracion_horas }}
-                                    {% if form.duracion_horas.errors %}<div class="invalid-feedback d-block">{{ form.duracion_horas.errors.as_text }}</div>{% endif %}
-                                </div>
-                                <div class="mb-3">
-                                    <label for="{{ form.numero_personas.id_for_label }}" class="form-label">Número de Personas</label>
-                                    {{ form.numero_personas }}
-                                    {% if form.numero_personas.errors %}<div class="invalid-feedback d-block">{{ form.numero_personas.errors.as_text }}</div>{% endif %}
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <h3 class="title-gold fs-4 mb-3">Tus Datos y Pago</h3>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Cliente</label>
-                                    <div class="card card-dark-theme" style="background-color: #3d2422;">
-                                        <div class="card-body">
-                                            <h5 class="card-title">{{ cliente_actual.nombre }} {{ cliente_actual.apellido }}</h5>
-                                            <p class="card-text mb-0">{{ cliente_actual.email }}</p>
-                                            <p class="card-text text-muted">{{ cliente_actual.telefono|default_if_none:"Sin teléfono" }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="form-text">
-                                        ¿No eres tú? <a href="{% url 'logout' %}">Cierra sesión</a>.
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="{{ form.tipo_pago.id_for_label }}" class="form-label">Tipo de Reserva</label>
-                                    {{ form.tipo_pago }}
-                                    {% if form.tipo_pago.errors %}<div class="invalid-feedback d-block">{{ form.tipo_pago.errors.as_text }}</div>{% endif %}
-                                </div>
-
-                                <div id="payment-policy-qr" class="alert alert-warning mt-4" style="display: none; border-color: #c89b3f;">
-                                    <h5 class="alert-heading title-gold">Política de Pago QR (30 Bs)</h5>
-                                    <p>Se te redirigirá a una pantalla para simular un pago de 30 Bs.</p>
-                                </div>
-                                <div id="payment-policy-tarjeta" class="alert alert-info mt-4" style="display: none; border-color: #c89b3f;">
-                                    <h5 class="alert-heading title-gold">Política de Pago con Tarjeta (30 Bs)</h5>
-                                    <p>Se te redirigirá a un formulario de pago seguro por 30 Bs.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 mt-4 pt-3" style="border-top: 1px solid #c89b3f;">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="id_politicas" required>
-                                <label class="form-check-label" for="id_politicas">
-                                    He leído y acepto las <a href="#">políticas de reserva</a>. (Requerido)
-                                </label>
-                            </div>
-                            <div class="form-check mt-3" id="checkbox-no-show" style="display: none;">
-                                <input class="form-check-input" type="checkbox" id="id_politicas_no_show">
-                                <label class="form-check-label" for="id_politicas_no_show">
-                                    Entiendo la <a href="#">política de "No Show"</a> y acepto el cargo por pago adelantado. (Requerido al pagar)
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-5">
-                            <button type="submit" class="btn btn-outline-light btn-lg" style="border-color: #c89b3f; color: #f4f0e8; min-width: 250px;">
-                                Continuar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
-
-<div class="fire-particles-container">
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-</div>
+    .form-logo {
+        max-width: 120px;
+        height: auto;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    }
+</style>
 {% endblock %}
 
+{% block content %}
+<div class="container reserva-flow-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            
+            <!-- LOGO CENTRALIZADO -->
+            <div class="text-center mb-4">
+                <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="The Steakhouse" class="form-logo img-fluid">
+                <h2 class="text-white font-serif-display mt-2" style="text-shadow: 2px 2px 4px #000;">Haz tu Reserva</h2>
+            </div>
+
+            <form method="POST" id="formReserva">
+                {% csrf_token %}
+                {{ form.cliente }}
+                {{ form.mesa_id }} <!-- Input oculto para el ID de la mesa -->
+
+                <!-- SECCIÓN 1: FECHA Y HORA -->
+                <div class="card card-dark-theme mb-4">
+                    <div class="card-body">
+                        <h4 class="step-title">1. ¿Cuándo nos visitas?</h4>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small text-uppercase text-muted">Fecha</label>
+                                {{ form.fecha_reserva }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-uppercase text-muted">Hora</label>
+                                {{ form.hora_reserva }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-uppercase text-muted">Personas</label>
+                                {{ form.numero_personas }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small text-uppercase text-muted">Duración</label>
+                                {{ form.duracion_horas }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: SELECCIÓN VISUAL DE MESA -->
+                <div class="card card-dark-theme mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="step-title mb-0">2. Elige tu Mesa</h4>
+                            <div id="loadingMesas" class="spinner-border text-warning spinner-sm" role="status" style="display:none;"></div>
+                        </div>
+                        
+                        <p class="small text-muted"><i class="fas fa-mouse-pointer me-1"></i> Toca una mesa disponible para seleccionarla.</p>
+                        
+                        <!-- AQUÍ SE GENERAN LAS MESAS -->
+                        <div id="contenedor-mesas" class="mesa-grid">
+                            <div class="text-center w-100 text-muted py-3">Cargando mapa de mesas...</div>
+                        </div>
+
+                        <!-- Feedback de selección -->
+                        <div id="mesa-seleccionada-info" class="alert alert-success mt-3 d-flex align-items-center" style="display:none; background: rgba(40,167,69,0.2); border: 1px solid #28a745; color: #fff;">
+                            <i class="fas fa-check-circle fs-4 me-3"></i>
+                            <div>
+                                <strong>¡Mesa Seleccionada!</strong><br>
+                                <span id="txt-mesa-sel" class="small">...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: PAGO Y POLÍTICAS -->
+                <div class="card card-dark-theme mb-4">
+                    <div class="card-body">
+                        <h4 class="step-title">3. Confirmación</h4>
+                        
+                        <div class="mb-4">
+                            <label class="form-label small text-uppercase text-muted">Método de Pago</label>
+                            {{ form.tipo_pago }}
+                        </div>
+
+                        <!-- Mensaje de Pago (Oculto por defecto) -->
+                        <div id="info-pago-box" class="alert alert-warning small" style="display:none; background: rgba(255,193,7,0.1); border: 1px solid #ffc107; color: #ffeeba;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Para confirmar con este método, se requiere un <strong>adelanto de 30 Bs</strong>.
+                        </div>
+
+                        <!-- Política 1: Reserva (Siempre visible) -->
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" required id="check_politica_reserva">
+                            <label class="form-check-label small text-light" for="check_politica_reserva">
+                                He leído y acepto las <button type="button" class="link-gold" data-bs-toggle="modal" data-bs-target="#modalPoliticaReserva">Políticas de Reserva</button>.
+                            </label>
+                        </div>
+
+                        <!-- Política 2: No Show (Solo visible si hay pago) -->
+                        <div class="form-check mt-2" id="box-policy-noshow" style="display: none;">
+                            <input class="form-check-input" type="checkbox" id="check_politica_noshow">
+                            <label class="form-check-label small text-light" for="check_politica_noshow">
+                                Entiendo y acepto la <button type="button" class="link-gold" data-bs-toggle="modal" data-bs-target="#modalPoliticaNoShow">Política de "No Show"</button>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-3 fw-bold text-uppercase" style="background-color: #c09a5b; border: none; letter-spacing: 1px;">
+                            Confirmar Reserva
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- PARTICULAS DE FUEGO (FONDO) -->
+<div class="fire-particles-container">
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+</div>
+
+<!-- MODAL 1: POLÍTICA DE RESERVA -->
+<div class="modal fade" id="modalPoliticaReserva" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title text-warning">Políticas de Reserva</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <ul class="ps-3 mb-0">
+            <li class="mb-2">Tu mesa se guardará por un máximo de <strong>15 minutos</strong> tras la hora reservada.</li>
+            <li class="mb-2">Puedes modificar tu reserva hasta 2 horas antes sin penalización.</li>
+            <li>Nos reservamos el derecho de asignar una mesa equivalente si la seleccionada no está disponible por fuerza mayor.</li>
+        </ul>
+      </div>
+      <div class="modal-footer border-top border-secondary p-1">
+        <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Entendido</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: POLÍTICA NO SHOW -->
+<div class="modal fade" id="modalPoliticaNoShow" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header border-bottom border-secondary">
+        <h5 class="modal-title text-danger">Política de "No Show"</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body small">
+        <p><strong>¿Qué significa "No Show"?</strong></p>
+        <p>Es cuando el cliente no se presenta a su reserva confirmada sin haber cancelado previamente.</p>
+        <hr class="border-secondary">
+        <p class="mb-1 text-warning">Al realizar el pago adelantado, aceptas que:</p>
+        <ul class="ps-3 mb-0">
+            <li>Si no asistes, el adelanto de <strong>30 Bs NO será reembolsado</strong>.</li>
+            <li>Este monto cubre la reserva exclusiva del espacio y la pérdida de oportunidad.</li>
+        </ul>
+      </div>
+      <div class="modal-footer border-top border-secondary p-1">
+        <button type="button" class="btn btn-sm btn-secondary w-100" data-bs-dismiss="modal">Acepto las condiciones</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
 
 {% block extra_js %}
 <script>
-    function togglePago() {
-        var tipoPagoSelect = document.getElementById('id_tipo_pago');
-        if (tipoPagoSelect) {
-            var tipoPago = tipoPagoSelect.value;
-            var policyQR = document.getElementById('payment-policy-qr');
-            var policyTarjeta = document.getElementById('payment-policy-tarjeta');
-            var checkboxNoShowDiv = document.getElementById('checkbox-no-show');
-            var checkboxNoShowInput = document.getElementById('id_politicas_no_show');
-            policyQR.style.display = 'none';
-            policyTarjeta.style.display = 'none';
-            checkboxNoShowDiv.style.display = 'none';
-            checkboxNoShowInput.required = false;
-            if (tipoPago === 'PAGO_ADELANTADO') {
-                policyQR.style.display = 'block';
-                checkboxNoShowDiv.style.display = 'block';
-                checkboxNoShowInput.required = true; 
-            } else if (tipoPago === 'TARJETA') {
-                policyTarjeta.style.display = 'block';
-                checkboxNoShowDiv.style.display = 'block';
-                checkboxNoShowInput.required = true; 
-            }
+document.addEventListener("DOMContentLoaded", function() {
+    // --- Referencias DOM ---
+    const dateInput = document.getElementById('{{ form.fecha_reserva.auto_id }}');
+    const timeInput = document.getElementById('{{ form.hora_reserva.auto_id }}');
+    const durationInput = document.getElementById('{{ form.duracion_horas.auto_id }}');
+    const peopleInput = document.getElementById('{{ form.numero_personas.auto_id }}');
+    
+    const containerMesas = document.getElementById('contenedor-mesas');
+    const loading = document.getElementById('loadingMesas');
+    const inputMesaId = document.getElementById('{{ form.mesa_id.auto_id }}');
+    const txtMesaSel = document.getElementById('txt-mesa-sel');
+    const infoDiv = document.getElementById('mesa-seleccionada-info');
+    
+    const pagoSelect = document.getElementById('{{ form.tipo_pago.auto_id }}');
+    const infoPagoBox = document.getElementById('info-pago-box');
+    const boxPolicyNoShow = document.getElementById('box-policy-noshow');
+    const checkNoShow = document.getElementById('check_politica_noshow');
+
+    // --- 1. Lógica de Carga de Mesas (AJAX) ---
+    window.cargarMesas = function() {
+        const fecha = dateInput.value;
+        const hora = timeInput.value;
+        const duracion = durationInput.value;
+        const personas = parseInt(peopleInput.value) || 1;
+
+        if(!fecha || !hora) return;
+
+        loading.style.display = 'block';
+        containerMesas.style.opacity = '0.5';
+
+        fetch(`/reservas/api/check-mesas/?fecha=${fecha}&hora=${hora}&duracion=${duracion}`)
+            .then(response => response.json())
+            .then(data => {
+                containerMesas.innerHTML = ''; 
+                
+                if(data.mesas && data.mesas.length > 0) {
+                    data.mesas.forEach(mesa => {
+                        // Lógica Visual
+                        let esAdecuada = mesa.capacidad >= personas;
+                        let claseEstado = (mesa.estado === 'LIBRE' && esAdecuada) ? 'libre' : 'ocupada';
+                        let icono = mesa.tipo === 'Premium' ? 'fa-crown' : 'fa-chair';
+                        
+                        let textoEstado = '';
+                        if(mesa.estado === 'OCUPADA') textoEstado = '<div class="estado-texto">Ocupada</div>';
+                        else if(!esAdecuada) textoEstado = '<div class="estado-texto text-warning small">Muy pequeña</div>';
+                        else textoEstado = '<div class="text-success small fw-bold">Libre</div>';
+
+                        // OnClick solo si está libre
+                        let onclickAttr = (claseEstado === 'libre') ? `onclick="seleccionarMesa(${mesa.id}, '${mesa.numero}')"` : '';
+
+                        let html = `
+                            <div class="mesa-card ${claseEstado}" ${onclickAttr} id="mesa-card-${mesa.id}">
+                                <div class="icon-mesa"><i class="fas ${icono}"></i></div>
+                                <div class="fw-bold text-white">Mesa ${mesa.numero}</div>
+                                <div class="mesa-capacidad"><i class="fas fa-user"></i> ${mesa.capacidad}</div>
+                                ${textoEstado}
+                            </div>
+                        `;
+                        containerMesas.insertAdjacentHTML('beforeend', html);
+                    });
+                } else {
+                    containerMesas.innerHTML = '<p class="text-center text-muted w-100">No hay mesas configuradas.</p>';
+                }
+                loading.style.display = 'none';
+                containerMesas.style.opacity = '1';
+                
+                // Re-seleccionar si sigue libre
+                if(inputMesaId.value) {
+                    const card = document.getElementById(`mesa-card-${inputMesaId.value}`);
+                    if(card && card.classList.contains('libre')) {
+                        card.classList.add('seleccionada');
+                    } else {
+                        inputMesaId.value = '';
+                        infoDiv.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                loading.style.display = 'none';
+            });
+    };
+
+    // --- 2. Selección de Mesa ---
+    window.seleccionarMesa = function(id, numero) {
+        // Limpiar selecciones
+        document.querySelectorAll('.mesa-card').forEach(el => el.classList.remove('seleccionada'));
+        // Marcar nueva
+        const card = document.getElementById(`mesa-card-${id}`);
+        if(card) card.classList.add('seleccionada');
+        
+        // Guardar y mostrar
+        inputMesaId.value = id;
+        txtMesaSel.innerText = `Número ${numero}`;
+        infoDiv.style.display = 'flex';
+    };
+
+    // Listeners
+    dateInput.addEventListener('change', cargarMesas);
+    timeInput.addEventListener('change', cargarMesas);
+    durationInput.addEventListener('change', cargarMesas);
+    peopleInput.addEventListener('change', cargarMesas);
+
+    // --- 3. Lógica de Políticas ---
+    function actualizarPoliticas() {
+        const metodo = pagoSelect.value;
+        
+        if(metodo === 'PAGO_ADELANTADO' || metodo === 'TARJETA') {
+            // Mostrar aviso y política No Show
+            infoPagoBox.style.display = 'block';
+            boxPolicyNoShow.style.display = 'block';
+            checkNoShow.required = true; 
+        } else {
+            // Ocultar todo
+            infoPagoBox.style.display = 'none';
+            boxPolicyNoShow.style.display = 'none';
+            checkNoShow.required = false;
+            checkNoShow.checked = false;
         }
     }
-    document.addEventListener("DOMContentLoaded", function() {
-        var tipoPagoSelect = document.getElementById('id_tipo_pago');
-        if (tipoPagoSelect) {
-            tipoPagoSelect.addEventListener('change', togglePago);
-        }
-        togglePago();
-    });
+
+    pagoSelect.addEventListener('change', actualizarPoliticas);
+
+    // Inicializar
+    if(dateInput.value && timeInput.value) {
+        cargarMesas();
+    }
+    actualizarPoliticas();
+});
 </script>
 {% endblock %}

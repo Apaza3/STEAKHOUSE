@@ -1,443 +1,233 @@
 /*
- * Archivo CSS principal para el tema "Fuego y Parrilla"
- * Proyecto: The Steakhouse (Versión Bootstrap)
+ * Archivo CSS principal - The Steakhouse
  */
 
 /* ===============================================
-   1. Fuentes y Tema de Fondo
+   1. Configuración Base y Fondo
    =============================================== */
 
 body {
-    /* ¡CAMBIO! Ya no hay imagen de fondo fija. 
-       Solo un color base sólido. */
-    background-color: #1a1a1a;
-    
-    /* Fuente principal (de la corrección) */
+    background-color: #121212;
     font-family: 'Inter', sans-serif;
-    color: #f3f4f6; /* text-gray-100 */
+    color: #f3f4f6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden; /* Elimina scroll horizontal */
 }
 
-/* Fuente para títulos y logo */
+/* FONDO GLOBAL DE RESERVAS */
+body.body-reservas {
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('../img/fondo-reservas.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* Títulos y Fuentes */
 .font-serif-display, 
 .section-title,
-.navbar-brand-text {
+.navbar-brand-text,
+h1, h2, h3 {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
 }
 
 /* ===============================================
-   2. Encabezado Fijo (Header)
+   2. Encabezado (Header)
    =============================================== */
 
 #main-header .navbar {
-    /* ¡CAMBIO! Color más oscuro y marrón, y un borde sutil 
-       para diferenciarlo del contenido */
-    background-color: rgba(30, 21, 19, 0.9); /* Era rgba(10, 5, 5, 0.85) */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid #4d3a36; /* Era rgba(255, 255, 255, 0.1) */
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    background-color: rgba(20, 10, 10, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #c09a5b;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 1030;
 }
 
 #main-header .navbar-brand-text {
-    font-size: 1.5rem;
-    color: #fff;
-    margin-left: 0.75rem;
+    font-size: 1.3rem;
+    color: #f3f4f6;
     letter-spacing: 1px;
 }
 
 #main-header .nav-link {
-    color: #d1d5db; /* text-gray-300 */
+    color: #d1d5db;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 0.5rem 1rem;
     transition: color 0.3s ease;
 }
 
 #main-header .nav-link:hover,
 #main-header .nav-link.active {
-    color: #ef4444; /* text-red-500 */
-}
-
-#main-header .dropdown-menu {
-    background-color: #1f2937; /* gray-800 */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#main-header .dropdown-item {
-    color: #d1d5db;
-}
-
-#main-header .dropdown-item:hover {
-    background-color: #ef4444;
-    color: #fff;
-}
-
-/* Botones personalizados del header */
-.btn-primario {
-    background-color: #dc2626; /* red-600 */
-    border-color: #dc2626;
-    color: #fff;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-.btn-primario:hover {
-    background-color: #b91c1c; /* red-700 */
-    border-color: #b91c1c;
-    color: #fff;
-}
-
-.btn-outline-acento {
-    border-color: #ef4444;
-    color: #ef4444;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-.btn-outline-acento:hover {
-    background-color: #ef4444;
-    color: #fff;
-}
-
-.header-button {
-    margin-left: 0.5rem;
-}
-
-
-/* ===============================================
-   3. Contenido (Página de Inicio)
-   =============================================== */
-
-/* ¡NUEVO! Contenedor base para las secciones */
-.section-container {
-    padding: 5rem 0;
-    /* Cada sección tendrá su propio fondo */
-}
-
-/* ¡NUEVO! Fondo alternativo para intercalar secciones */
-.section-bg-alt {
-    background-color: #24201f; /* Un gris/marrón muy sutilmente más claro */
-}
-
-
-/* Contenedor para texto sobre el fondo */
-.text-container-overlay {
-    background-color: rgba(15, 10, 10, 0.8);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem; /* 12px */
-    padding: 2.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-    color: #d1d5db; /* text-gray-300 */
-}
-
-/* Título de sección (Nosotros, Horarios, etc.) */
-.section-title {
-    font-size: 2.5rem; /* 36px */
-    color: #ef4444; /* text-red-500 */
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #ef4444;
-    padding-bottom: 0.5rem;
-    display: inline-block;
-}
-
-/* Estilo para las imágenes intercaladas */
-.content-image {
-    border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
-    object-fit: cover;
-    width: 100%;
-    height: 400px;
-    transition: transform 0.5s ease, box-shadow 0.5s ease;
-}
-.content-image:hover {
-    transform: scale(1.05);
-    box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.4);
+    color: #c09a5b;
 }
 
 /* ===============================================
-   4. Pie de Página (Footer)
+   3. Contenedor de Reservas y Tarjetas
    =============================================== */
 
-#main-footer {
-    /* ¡CAMBIO! Color sólido y borde para que haga juego con el header */
-    background-color: #1e1513; /* Era #111827 */
-    color: #9ca3af; /* text-gray-400 */
-    padding-top: 3rem;
-    margin-top: 0; /* El padding de la sección ya da espacio */
-    border-top: 1px solid #4d3a36; /* Era rgba(255, 255, 255, 0.1) */
-}
-
-#main-footer h5 {
-    color: #fff;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-}
-
-#main-footer .social-icons a {
-    font-size: 1.5rem;
-    margin-right: 1rem;
-    transition: color 0.3s ease;
-}
-
-#main-footer .social-icons a:hover {
-    color: #ef4444;
-}
-
-#main-footer .footer-bottom {
-    text-align: center;
-    padding: 1.5rem 0;
-    margin-top: 2rem;
-    border-top: 1px solid #374151; /* gray-700 */
-    font-size: 0.9rem;
-}
-
-/* ===============================================
-   5. Pantalla de Login (Próximo paso)
-   =============================================== */
-
-.login-container {
-    padding: 2.5rem;
-    border-radius: 0.75rem;
-    background-color: rgba(30, 21, 19, 0.85); /* Mismo fondo que el header */
-    backdrop-filter: blur(10px);
-    border: 1px solid #4d3a36; /* Mismo borde que el header */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-}
-
-.login-container .form-control {
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #4d3a36;
-    color: #fff;
-    padding: 0.75rem 1rem;
-}
-
-.login-container .form-control:focus {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-color: #ef4444;
-    box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
-    color: #fff;
-}
-
-.login-container .form-control::placeholder {
-    color: #9ca3af; /* text-gray-400 */
-}
-
-.btn-clear {
-    color: #9ca3af;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-.btn-clear:hover {
-    color: #fff;
-}
-
-/* ===============================================
-   6. Estilos del Panel de Admin (Dashboard)
-   =============================================== */
-
-/* Tarjeta oscura para formularios del panel */
-.content .card-dark {
-    background-color: rgba(30, 21, 19, 0.85); /* Mismo fondo que el login */
-    backdrop-filter: blur(10px);
-    border: 1px solid #4d3a36; /* Mismo borde que el login */
-    color: #f3f4f6;
-}
-
-/* Etiquetas de formulario en el panel */
-.content .form-label {
-    color: #f3f4f6;
-    font-weight: 600;
-}
-
-/* * Inputs y Selects Oscuros
- * Expande el estilo de login-container para que aplique 
- * a .content (panel de admin)
- */
-.login-container .form-control,
-.content .form-control,
-.login-container .form-select,
-.content .form-select {
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #4d3a36;
-    color: #fff;
-    padding: 0.75rem 1rem;
-}
-
-.login-container .form-control:focus,
-.content .form-control:focus,
-.login-container .form-select:focus,
-.content .form-select:focus {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-color: #ef4444;
-    box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25);
-    color: #fff;
-}
-
-.login-container .form-control::placeholder,
-.content .form-control::placeholder {
-    color: #9ca3af; /* text-gray-400 */
-}
-
-/* Asegura que las opciones del select se vean bien en modo oscuro */
-.content .form-select option {
-    background: #3d2422;
-    color: #f3f4f6;
-}
-
-/* ===============================================
-   7. Estilos del Flujo de Reservas (¡ACTUALIZADO!)
-   =============================================== */
-
-/* Fondo de página con temática de parrilla */
-.body-reservas {
-    background-image: linear-gradient(rgba(15, 10, 10, 0.85), rgba(15, 10, 10, 0.85)), url('../img/fondo-reservas.jpg');
-    background-size: cover;
-    background-position: center center;
-    background-attachment: fixed;
-}
-
-/* * ¡CAMBIO! Quitamos el centrado vertical (flex) 
- * para que los formularios empiecen desde arriba y no fuercen el scroll.
- */
 .reserva-flow-container {
-    padding: 4rem 1rem;
+    padding-top: 2rem;
+    padding-bottom: 6rem;
+    position: relative;
+    z-index: 5;
+    max-width: 100%; /* Asegura que no se salga */
+    overflow-x: hidden; /* Seguridad extra */
 }
 
-/* * ¡CAMBIO! Arregla el "cuadro feo" con efecto "glassmorphism".
- * Esto se aplica a .card-dark-theme Y .card-payment-form
- */
-.card-dark-theme,
-.card-payment-form {
-    background-color: rgba(30, 21, 19, 0.85) !important; /* ¡IMPORTANTE! Fondo semitransparente */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid #4d3a36 !important; /* Borde sutil */
-    color: #f3f4f6 !important; /* Texto claro */
+/* Tarjetas del Formulario (Glassmorphism) */
+.card-dark-theme {
+    background-color: rgba(30, 25, 25, 0.92) !important;
+    border: 1px solid rgba(192, 154, 91, 0.4) !important;
+    border-radius: 12px !important;
+    color: #f3f4f6 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* ¡CAMBIO! Arregla las fuentes "ordinarias" */
-.card-dark-theme h1,
-.card-dark-theme h2,
-.card-dark-theme h3,
-.card-dark-theme h4,
-.card-dark-theme h5,
-.card-dark-theme .title-gold,
-.card-payment-form h1 {
-    font-family: 'Playfair Display', serif;
-    color: #c89b3f; /* Aseguramos color dorado en títulos */
+.step-title, .title-gold {
+    color: #c09a5b !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    border-bottom: 1px solid rgba(192, 154, 91, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
 }
 
-/* Estilo del Logo para los formularios */
 .form-logo {
-    max-width: 150px;
-    margin-bottom: 2rem;
+    max-width: 130px;
+    height: auto;
+    display: block;
+    margin: 0 auto 1.5rem auto;
+    filter: drop-shadow(0 0 8px rgba(192, 154, 91, 0.3));
 }
 
-/* Asegura que los formularios de pago (tarjeta) usen el tema oscuro */
+/* Inputs del Formulario */
 .card-dark-theme .form-control,
-.card-payment-form .form-control {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid #4d3a36 !important;
+.card-dark-theme .form-select {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid #555 !important;
     color: #fff !important;
-    padding: 0.75rem 1rem;
-}
-.card-dark-theme .form-control:focus,
-.card-payment-form .form-control:focus {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25) !important;
-    color: #fff !important;
-}
-.card-dark-theme .form-control::placeholder,
-.card-payment-form .form-control::placeholder {
-    color: #9ca3af !important;
-}
-.card-dark-theme .input-group-text,
-.card-payment-form .input-group-text {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid #4d3a36 !important;
-    color: #fff !important;
-}
-.card-dark-theme #card-icon-container,
-.card-payment-form #card-icon-container { 
-    font-size: 2.5rem; 
-    height: 40px; 
-}
-.card-dark-theme #card-icon-container .fa-brands,
-.card-payment-form #card-icon-container .fa-brands { 
-    opacity: 0; 
-    transition: opacity 0.3s ease; 
-    position: absolute; 
-}
-.card-dark-theme #card-icon-container .fa-brands.visible,
-.card-payment-form #card-icon-container .fa-brands.visible { 
-    opacity: 1; 
+    padding: 0.7rem 1rem;
 }
 
-/* --- Animación de Partículas de Fuego (Sin cambios) --- */
+.card-dark-theme .form-control:focus,
+.card-dark-theme .form-select:focus {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    border-color: #c09a5b !important;
+    box-shadow: 0 0 0 0.25rem rgba(192, 154, 91, 0.25) !important;
+    outline: none;
+}
+
+/* ===============================================
+   4. Animación de Fuego (Partículas)
+   =============================================== */
+
 .fire-particles-container {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100px;
+    height: 30vh;
     overflow: hidden;
     pointer-events: none;
-    z-index: 1000;
+    z-index: 1;
 }
+
 .particle {
     position: absolute;
-    bottom: -20px;
-    background-color: #ffaa00; /* Color brasa */
+    bottom: -10px;
+    background: radial-gradient(circle, rgba(255,160,60,1) 0%, rgba(255,69,0,0) 70%);
     border-radius: 50%;
-    animation: rise 10s infinite;
     opacity: 0;
-    box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffaa00, 0 0 30px #ff8800;
+    animation: rise 4s infinite ease-in;
 }
+
 @keyframes rise {
-    0% { transform: translateY(0); opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { transform: translateY(-150px) scale(0.5); opacity: 0; }
+    0% { bottom: -10px; transform: translateX(0); opacity: 0; }
+    20% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { bottom: 100%; transform: translateX(-20px); opacity: 0; }
 }
-.particle:nth-child(1) { left: 10%; animation-duration: 8s; animation-delay: 0s; width: 5px; height: 5px; }
-.particle:nth-child(2) { left: 20%; animation-duration: 6s; animation-delay: 1s; width: 3px; height: 3px; }
-.particle:nth-child(3) { left: 30%; animation-duration: 9s; animation-delay: 2s; width: 6px; height: 6px; }
-.particle:nth-child(4) { left: 40%; animation-duration: 7s; animation-delay: 0.5s; width: 4px; height: 4px; }
-.particle:nth-child(5) { left: 50%; animation-duration: 10s; animation-delay: 3s; width: 5px; height: 5px; }
-.particle:nth-child(6) { left: 60%; animation-duration: 8s; animation-delay: 1.5s; width: 3px; height: 3px; }
-.particle:nth-child(7) { left: 70%; animation-duration: 5s; animation-delay: 4s; width: 6px; height: 6px; }
-.particle:nth-child(8) { left: 80%; animation-duration: 9s; animation-delay: 2.5s; width: 4px; height: 4px; }
-.particle:nth-child(9) { left: 90%; animation-duration: 6s; animation-delay: 0.2s; width: 5px; height: 5px; }
-.particle:nth-child(10) { left: 5%; animation-duration: 7s; animation-delay: 5s; width: 3px; height: 3px; }
-.particle:nth-child(11) { left: 15%; animation-duration: 8s; animation-delay: 3s; width: 5px; height: 5px; }
-.particle:nth-child(12) { left: 25%; animation-duration: 6s; animation-delay: 4s; width: 3px; height: 3px; }
-.particle:nth-child(13) { left: 35%; animation-duration: 9s; animation-delay: 2s; width: 6px; height: 6px; }
-.particle:nth-child(14) { left: 45%; animation-duration: 7s; animation-delay: 1.5s; width: 4px; height: 4px; }
-.particle:nth-child(15) { left: 55%; animation-duration: 10s; animation-delay: 0.5s; width: 5px; height: 5px; }
-.particle:nth-child(16) { left: 65%; animation-duration: 8s; animation-delay: 3.5s; width: 3px; height: 3px; }
-.particle:nth-child(17) { left: 75%; animation-duration: 5s; animation-delay: 2s; width: 6px; height: 6px; }
-.particle:nth-child(18) { left: 85%; animation-duration: 9s; animation-delay: 1s; width: 4px; height: 4px; }
-.particle:nth-child(19) { left: 95%; animation-duration: 6s; animation-delay: 4.5s; width: 5px; height: 5px; }
-.particle:nth-child(20) { left: 0%; animation-duration: 7s; animation-delay: 2.2s; width: 3px; height: 3px; }
+
+.particle:nth-child(1) { left: 10%; width: 10px; height: 10px; animation-duration: 5s; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; width: 15px; height: 15px; animation-duration: 7s; animation-delay: 1s; }
+.particle:nth-child(3) { left: 35%; width: 8px; height: 8px; animation-duration: 4s; animation-delay: 2s; }
+.particle:nth-child(4) { left: 50%; width: 12px; height: 12px; animation-duration: 6s; animation-delay: 0.5s; }
+.particle:nth-child(5) { left: 65%; width: 10px; height: 10px; animation-duration: 5s; animation-delay: 3s; }
+.particle:nth-child(6) { left: 80%; width: 14px; height: 14px; animation-duration: 8s; animation-delay: 1.5s; }
+.particle:nth-child(7) { left: 90%; width: 9px; height: 9px; animation-duration: 4s; animation-delay: 4s; }
 
 /* ===============================================
-   8. Estilos del Footer (Complemento)
+   5. Responsividad (Móvil)
    =============================================== */
 
-#main-footer .list-unstyled li {
-    margin-bottom: 0.5rem; /* Añade espacio a la lista de contactos */
-}
+@media (max-width: 768px) {
+    body {
+        font-size: 13px; /* Texto base más pequeño para que quepa más */
+    }
 
-#main-footer .payment-icons i {
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 
-#main-footer .payment-icons i:hover {
-    opacity: 1;
+    /* Formulario más compacto */
+    .card-dark-theme {
+        padding: 0 !important;
+        border-radius: 8px !important;
+    }
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    h2.font-serif-display {
+        font-size: 1.5rem; /* Título más pequeño */
+        margin-top: 0.5rem !important;
+    }
+
+    .form-logo {
+        max-width: 80px; /* Logo más pequeño */
+        margin-bottom: 0.5rem;
+    }
+
+    /* Grilla de mesas compacta */
+    .mesa-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important; 
+        gap: 5px !important; /* Menos espacio entre mesas */
+    }
+    
+    /* Tarjetas de mesa mini */
+    .mesa-card {
+        padding: 5px 2px !important;
+        min-height: 60px !important;
+        border-radius: 6px !important;
+    }
+    
+    .icon-mesa { font-size: 1rem !important; margin-bottom: 1px !important; }
+    .mesa-card div.fw-bold { font-size: 0.65rem !important; white-space: nowrap; }
+    .mesa-capacidad { font-size: 0.55rem !important; }
+    .estado-texto { font-size: 0.55rem !important; }
+    
+    /* Botones normales (no gigantes) */
+    .btn-lg {
+        width: auto !important; /* Deja que el botón ocupe lo que necesite */
+        display: block;
+        margin: 0 auto;
+        padding: 8px 20px;
+        font-size: 1rem;
+    }
+    
+    /* Inputs más compactos */
+    .form-control, .form-select {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .step-title {
+        font-size: 1.1rem !important;
+        margin-bottom: 10px !important;
+    }
 }
