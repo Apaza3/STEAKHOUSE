@@ -1,0 +1,56 @@
+{% if items_del_carrito %}
+<div class="table-responsive">
+    <table class="table table-dark table-striped mb-0 align-middle">
+        <thead>
+            <tr class="text-muted small text-uppercase">
+                <th>Producto</th>
+                <th class="text-center">Cant.</th>
+                <th class="text-end">Subtotal</th>
+                <th class="text-end"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items_del_carrito %}
+            <tr>
+                <td>
+                    <div class="fw-bold text-white">{{ item.nombre }}</div>
+                    <div class="small text-muted">{{ item.precio }} Bs.</div>
+                </td>
+                <td class="text-center">
+                    <span class="badge bg-secondary rounded-pill">{{ item.cantidad }}</span>
+                </td>
+                <td class="text-end title-gold fw-bold">{{ item.subtotal|floatformat:2 }}</td>
+                <td class="text-end">
+                    <button onclick="eliminarDelCarrito({{ item.producto_id }})" 
+                            class="btn btn-sm text-danger p-0 hover-scale"
+                            title="Eliminar">
+                        <i class="fas fa-times-circle fs-5"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="border-top border-secondary">
+                <td colspan="2" class="text-end fs-5 fw-bold">Total:</td>
+                <td class="text-end fs-4 title-gold fw-bold">{{ total_del_carrito|floatformat:2 }} Bs.</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="d-grid gap-2 mt-3 p-3">
+    <a href="{% url 'confirmar_pedido' %}" class="btn btn-primary fw-bold" style="background-color: #c09a5b; border: none;">
+        CONFIRMAR PEDIDO
+    </a>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-concierge-bell fa-3x text-muted mb-3 opacity-50"></i>
+    <h5 class="text-white">Tu bandeja está vacía</h5>
+    <p class="text-muted small">Selecciona productos del menú para empezar.</p>
+    <button type="button" class="btn btn-outline-secondary btn-sm mt-2" data-bs-dismiss="modal">Volver al Menú</button>
+</div>
+{% endif %}

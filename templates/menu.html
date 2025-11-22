@@ -2,115 +2,294 @@
 {% load static %}
 {% block title %}Nuestro Menú{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* =========================================
+       1. GRID DE PRODUCTOS (Responsive)
+       ========================================= */
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding-bottom: 80px;
+    }
+
+    @media (max-width: 576px) {
+        .menu-grid {
+            grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+            gap: 10px;
+        }
+        .card-producto .card-body { padding: 0.8rem !important; }
+        .card-producto h5 { font-size: 1rem !important; margin-bottom: 0.3rem; }
+        .card-producto .precio { font-size: 1.1rem !important; }
+        .card-producto .btn-add { font-size: 0.8rem !important; padding: 0.4rem 0.8rem; }
+        .card-img-top { height: 140px !important; }
+    }
+
+    /* =========================================
+       2. TARJETAS DE PRODUCTO
+       ========================================= */
+    .card-producto {
+        background-color: rgba(30, 25, 25, 0.95);
+        border: 1px solid #4d3a36;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .card-producto:hover {
+        transform: translateY(-3px);
+        border-color: #c09a5b;
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .title-gold { color: #c09a5b; font-family: 'Playfair Display', serif; }
+    
+    /* =========================================
+       3. BOTONES DE CATEGORÍA (Estilo Nube/Tags)
+       ========================================= */
+    .nav-pills {
+        justify-content: center;
+        gap: 10px; /* Espacio entre botones */
+    }
+    
+    .nav-pills .nav-link {
+        color: #d1d5db;
+        background-color: rgba(255,255,255,0.05);
+        border: 1px solid #444;
+        border-radius: 50px; /* Botones bien redondos */
+        padding: 10px 20px;  /* Más grandes para el dedo */
+        margin: 0;           /* El gap maneja el espacio */
+        white-space: nowrap; /* Evita que el texto se parta raro */
+        transition: all 0.3s ease;
+    }
+    
+    .nav-pills .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        border-color: #c09a5b;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #c09a5b;
+        color: #fff;
+        border-color: #c09a5b;
+        box-shadow: 0 4px 10px rgba(192, 154, 91, 0.3); /* Un brillo dorado sutil */
+    }
+
+    /* =========================================
+       4. BOTÓN FLOTANTE DEL CARRITO
+       ========================================= */
+    .floating-cart-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+        border-radius: 50px;
+        padding: 12px 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        background-color: #c09a5b;
+        border: none;
+        color: #fff;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+    .floating-cart-btn:hover {
+        background-color: #a07d4b;
+        transform: scale(1.05);
+        color: #fff;
+    }
+    .cart-badge {
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 8px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<main id="main-content" class="container my-5">
+<main id="main-content" class="container my-4">
 
-    <h1 class="text-center title-gold display-4 mb-5">Nuestro Menú</h1>
+    <h1 class="text-center title-gold display-5 mb-4">Nuestro Menú</h1>
 
-    <!-- Mensajes (ej. "Añadido al carrito") -->
-    {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert" style="z-index: 1050; position: relative;">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+    <!-- BOTONES DE FILTRO (Categorías) -->
+    <!-- style="display: flex; flex-wrap: wrap;" asegura que bajen de línea en móvil -->
+    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist" style="display: flex; flex-wrap: wrap;">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button">Todo</button>
+        </li>
+        {% for key, value in categorias_choices.items %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-{{ key }}-tab" data-bs-toggle="pill" data-bs-target="#pills-{{ key }}" type="button">{{ value }}</button>
+        </li>
         {% endfor %}
-    {% endif %}
+    </ul>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <!-- CONTENIDO DE LAS PESTAÑAS -->
+    <div class="tab-content" id="pills-tabContent">
         
-        {% for producto in productos %}
-        <div class="col">
-            <div class="card card-dark-theme h-100">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre_producto }}" style="height: 250px; object-fit: cover;">
-                {% else %}
-                    <img src="https://via.placeholder.com/400x300?text={{ producto.nombre_producto }}" class="card-img-top" alt="{{ producto.nombre_producto }}">
-                {% endif %}
-                
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title fs-3" style="font-family: 'Rye', serif;">{{ producto.nombre_producto }}</h5>
-                    <p class="card-text">{{ producto.descripcion|truncatewords:20 }}</p>
-                    <p class="fs-4 title-gold">{{ producto.precio }} Bs.</p>
-                    
-                    <div class="mt-auto text-center">
-                        <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">
-                            Añadir al Carrito
-                        </a>
-                    </div>
-                </div>
+        <!-- Pestaña "Todo" -->
+        <div class="tab-pane fade show active" id="pills-all" role="tabpanel">
+            <div class="menu-grid">
+                {% for categoria, lista_productos in productos_agrupados.items %}
+                    {% for producto in lista_productos %}
+                        {% include 'pedidos/includes/producto_card.html' with producto=producto %}
+                    {% endfor %}
+                {% endfor %}
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <p class="text-center fs-3">No hay productos disponibles en el menú en este momento.</p>
+
+        <!-- Pestañas Individuales -->
+        {% for key, label in categorias_choices.items %}
+        <div class="tab-pane fade" id="pills-{{ key }}" role="tabpanel">
+            <div class="menu-grid">
+                {% for categoria, lista_productos in productos_agrupados.items %}
+                    {% if categoria == key %}
+                        {% for producto in lista_productos %}
+                            {% include 'pedidos/includes/producto_card.html' with producto=producto %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
         {% endfor %}
 
     </div>
+
 </main>
 
-<!-- =============================================== -->
-<!-- CARRITO FLOTANTE (CORREGIDO) -->
-<!-- =============================================== -->
-{% if items_del_carrito %}
-    <!-- 1. El Botón Flotante -->
-    <button class="btn btn-primary btn-lg" id="floating-cart-button" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
-        <i class="fa fa-shopping-cart"></i> 
-        Ver Carrito 
-        <span class="badge bg-danger">{{ items_del_carrito|length }}</span>
-    </button>
+<!-- BOTÓN FLOTANTE CARRITO -->
+<button class="floating-cart-btn" id="btn-carrito-flotante" type="button" data-bs-toggle="modal" data-bs-target="#cartModal" style="{% if cantidad_total == 0 %}display: none;{% endif %}">
+    <i class="fas fa-shopping-cart fa-lg"></i>
+    <span class="d-none d-md-inline">Ver Pedido</span>
+    <span class="cart-badge" id="cart-count-badge">{{ cantidad_total }}</span>
+</button>
 
-    <!-- 2. El Modal (popup) del Carrito -->
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content card-dark-theme">
-                <div class="modal-header" style="border-bottom: 1px solid #c89b3f;">
-                    <h5 class="modal-title title-gold fs-3" id="cartModalLabel">Tu Pedido</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive">
-                        <table class="table" style="color: #f4f0e8;">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- ¡ARREGLO! Usamos la variable pre-calculada 'items_del_carrito' -->
-                                {% for item in items_del_carrito %}
-                                <tr>
-                                    <td>{{ item.nombre }}</td>
-                                    <td>{{ item.cantidad }}</td>
-                                    <td>{{ item.precio|floatformat:2 }} Bs.</td>
-                                    <!-- ¡ARREGLO! Mostramos el subtotal calculado -->
-                                    <td>{{ item.subtotal|floatformat:2 }} Bs.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3" class="text-end fs-4 title-gold">Total:</td>
-                                    <!-- ¡ARREGLO! Mostramos el total calculado -->
-                                    <td class="fs-4 title-gold">{{ total_del_carrito|floatformat:2 }} Bs.</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer" style="border-top: 1px solid #c89b3f;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir comprando</button>
-                    <a href="{% url 'confirmar_pedido' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">
-                        Confirmar Pedido
-                    </a>
-                </div>
+<!-- MODAL CARRITO -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content card-dark-theme" style="background-color: #1f1f1f; color: #fff;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title title-gold">Tu Pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Cuerpo del modal donde se carga cart_body.html -->
+            <div class="modal-body" id="cart-modal-body">
+                {% include 'pedidos/includes/cart_body.html' %}
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Seguir pidiendo</button>
             </div>
         </div>
     </div>
-{% endif %}
-<!-- === FIN DEL CARRITO === -->
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ==========================================
+    // 1. LÓGICA DEL CARRITO (AJAX)
+    // ==========================================
+    function agregarAlCarrito(productoId, nombreProducto) {
+        const btn = document.getElementById(`btn-add-${productoId}`);
+        const originalContent = btn.innerHTML;
+        
+        // Feedback visual (cargando)
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        fetch(`/pedidos/agregar/${productoId}/`, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                // Actualizar badge y botón flotante
+                const badge = document.getElementById('cart-count-badge');
+                const btnFlotante = document.getElementById('btn-carrito-flotante');
+                
+                badge.innerText = data.cart_count;
+                if (data.cart_count > 0) btnFlotante.style.display = 'flex';
+
+                // Actualizar el contenido del modal (tabla)
+                const modalBody = document.getElementById('cart-modal-body');
+                if(modalBody) {
+                    modalBody.innerHTML = data.cart_html;
+                }
+
+                // Feedback visual (éxito)
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.classList.remove('btn-outline-light');
+                btn.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-light');
+                }, 1500);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Fallback: recargar si falla AJAX
+            window.location.href = `/pedidos/agregar/${productoId}/`;
+        });
+    }
+
+    // ==========================================
+    // 2. LÓGICA DE NAVEGACIÓN (Pestañas Automáticas)
+    // ==========================================
+    function activarPestanaDesdeHash() {
+        // Obtener el hash de la URL (ej: #HAMBURGUESA) y quitar el '#'
+        const hash = window.location.hash.replace('#', '');
+        
+        if (hash) {
+            // Buscar el botón de la pestaña correspondiente
+            const tabButton = document.getElementById(`pills-${hash}-tab`);
+            
+            if (tabButton) {
+                // Usar la API de Bootstrap para activar la pestaña
+                const tab = new bootstrap.Tab(tabButton);
+                tab.show();
+                
+                // Desplazar la pantalla suavemente hacia el menú
+                setTimeout(() => {
+                    tabButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+    }
+
+    // Ejecutar al cargar la página
+    window.addEventListener('load', activarPestanaDesdeHash);
+    
+    // Ejecutar si el usuario cambia el hash manualmente
+    window.addEventListener('hashchange', activarPestanaDesdeHash);
+
+    // Actualizar la URL cuando el usuario hace clic en una pestaña
+    document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(btn => {
+        btn.addEventListener('shown.bs.tab', function (e) {
+            const id = e.target.id.replace('pills-', '').replace('-tab', '');
+            if(id !== 'all') {
+                history.replaceState(null, null, `#${id}`);
+            } else {
+                history.replaceState(null, null, ' ');
+            }
+        });
+    });
+</script>
 {% endblock %}
