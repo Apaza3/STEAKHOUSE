@@ -12,7 +12,7 @@ load_dotenv(BASE_DIR / '.env')
 
 # --- ¡CAMBIO IMPORTANTE! ---
 # Lee la SECRET_KEY desde las variables de entorno de Render
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-temporal-local-jose')
 
 # --- ¡CAMBIO IMPORTANTE! ---
 # DEBUG se desactiva automáticamente en Render
@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Lee la variable 'DATABASE_URL' de Render
-        default=os.environ.get('DATABASE_URL'),
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR}/db.sqlite3'),
         conn_max_age=600
     )
 }
