@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo_reporte }}</title>
+    <style>
+        /* CONFIGURACIÓN DE PÁGINA */
+        @page {
+            size: A4;
+            margin: 2cm;
+            /* Hemos quitado el contador de páginas para evitar el error de Python 3.12 */
+        }
+
+        body {
+            font-family: Helvetica, sans-serif;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* ENCABEZADO */
+        .header {
+            width: 100%;
+            border-bottom: 2px solid #8B0000; /* Rojo Steakhouse */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            float: left;
+            font-size: 24px;
+            font-weight: bold;
+            color: #8B0000;
+            text-transform: uppercase;
+        }
+
+        .info {
+            text-align: right;
+            font-size: 10px;
+            color: #555;
+            float: right;
+        }
+
+        /* Limpiar flotantes */
+        .clearfix {
+            clear: both;
+        }
+
+        /* TÍTULOS Y METADATOS */
+        h1 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .meta-info {
+            margin-bottom: 20px;
+            font-size: 11px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        /* TABLA DE DATOS */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #8B0000;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 2px solid #660000;
+        }
+
+        td {
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+            font-size: 11px;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* TOTALES */
+        .total-section {
+            margin-top: 30px;
+            text-align: right;
+            width: 100%;
+        }
+
+        .gran-total {
+            font-size: 16px;
+            font-weight: bold;
+            color: #8B0000;
+            border-top: 2px solid #333;
+            padding-top: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">THE STEAKHOUSE</div>
+        <div class="info">
+            <strong>Generado por:</strong> {{ usuario.username|upper }}<br>
+            <strong>Fecha:</strong> {{ fecha_emision|date:"d/m/Y H:i" }}
+        </div>
+        <div class="clearfix"></div> </div>
+
+    <h1>{{ titulo_reporte }}</h1>
+    
+    <div class="meta-info">
+        Este documento es un reporte oficial de las ventas registradas en el sistema.
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">ID Pedido</th>
+                <th style="width: 35%;">Cliente</th>
+                <th style="width: 20%;">Fecha</th>
+                <th style="width: 15%;">Estado</th>
+                <th style="width: 15%; text-align: right;">Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in ventas %}
+            <tr>
+                <td>#{{ pedido.id }}</td>
+                <td>
+                    {{ pedido.cliente.nombre|default:pedido.usuario.username|default:"Cliente Anónimo" }}
+                </td>
+                <td>{{ pedido.fecha_pedido|date:"d/m/Y" }}</td>
+                <td>{{ pedido.estado_pedido }}</td>
+                <td style="text-align: right;">{{ pedido.total }} Bs.</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 20px; font-style: italic; color: #666;">
+                    No se encontraron ventas para esta categoría.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div class="gran-total">
+            TOTAL GENERADO: {{ total_dinero }} Bs.
+        </div>
+    </div>
+
+</body>
+</html>

@@ -4,9 +4,37 @@
 {% block content %}
 <h1 class="fs-2 mb-4">Reportes Generales</h1>
 
-<!-- Fila de Resumen (KPls) -->
+<div class="card shadow-sm mb-4 border-left-danger">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">Opciones de Reporte</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{% url 'dashboard_reportes' %}" class="row align-items-end">
+            
+            <div class="col-md-5">
+                <label for="categoria" class="form-label fw-bold">Filtrar por Categoría:</label>
+                <select name="categoria" class="form-select" onchange="this.form.submit()">
+    <option value="">-- Ver Todas las Ventas --</option>
+    
+    {% for clave, nombre in lista_categorias %}
+        <option value="{{ clave }}" {% if categoria_seleccionada == clave %}selected{% endif %}>
+            {{ nombre }}
+        </option>
+    {% endfor %}
+    
+</select>
+            </div>
+
+            <div class="col-md-7 text-end">
+                <a href="{% url 'reporte_pdf' %}?categoria={{ categoria_seleccionada|default:'' }}" target="_blank" class="btn btn-danger btn-lg">
+                    <i class="fas fa-file-pdf"></i> Descargar Reporte PDF
+                </a>
+            </div>
+            
+        </form>
+    </div>
+</div>
 <div class="row">
-    <!-- (Tu fila de KPIs no cambia) -->
     <div class="col-md-4">
         <div class="card text-bg-success shadow-sm mb-3">
             <div class="card-body">
@@ -36,16 +64,13 @@
     </div>
 </div>
 
-<!-- FILA DE GRÁFICOS -->
 <div class="row mt-4">
-    <!-- Gráfico 1: Platos más vendidos -->
     <div class="col-lg-5 mb-4">
         <div class="card shadow-sm h-100">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Top 5 Platos Más Vendidos</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #3d2422;">
-                <!-- ¡CAMBIO! Mostramos un mensaje si no hay datos -->
                 {% if platos_data == '[]' %}
                     <p class="text-muted">No hay datos de ventas para mostrar.</p>
                 {% else %}
@@ -55,14 +80,12 @@
         </div>
     </div>
     
-    <!-- Gráfico 2: Tipos de Mesa -->
     <div class="col-lg-3 mb-4">
         <div class="card shadow-sm h-100">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Popularidad de Mesas</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #3d2422;">
-                <!-- ¡CAMBIO! Mostramos un mensaje si no hay datos -->
                 {% if tipos_data == '[]' %}
                     <p class="text-muted">No hay reservas para mostrar.</p>
                 {% else %}
@@ -72,14 +95,12 @@
         </div>
     </div>
 
-    <!-- Gráfico 3: Tamaño de Grupos -->
     <div class="col-lg-4 mb-4">
         <div class="card shadow-sm h-100">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Tamaño de Grupos (Reservas)</h5>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #3d2422;">
-                <!-- ¡CAMBIO! Mostramos un mensaje si no hay datos -->
                 {% if tamanos_data == '[]' %}
                     <p class="text-muted">No hay reservas para mostrar.</p>
                 {% else %}
@@ -91,9 +112,7 @@
 </div>
 
 
-<!-- Fila de Tablas Detalladas (Como antes) -->
 <div class="row mt-4">
-    <!-- (Tus tablas de ventas y reservas no cambian) -->
     <div class="col-lg-6">
         <div class="card shadow-sm">
             <div class="card-header card-header-gold">
@@ -120,7 +139,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No hay ventas completadas.</td>
+                                <td colspan="4" class="text-center">No hay ventas registradas con este criterio.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -129,6 +148,7 @@
             </div>
         </div>
     </div>
+
     <div class="col-lg-6">
         <div class="card shadow-sm">
             <div class="card-header card-header-gold">
@@ -175,7 +195,7 @@
     Chart.defaults.color = '#e0e0e0';
     Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
-    // --- Gráfico 1: Platos Más Vendidos (Barra Horizontal) ---
+    // --- Gráfico 1: Platos Más Vendidos ---
     const platosData = {{ platos_data|safe }};
     if (platosData.length > 0) {
         const ctxPlatos = document.getElementById('platosChart');
@@ -207,21 +227,13 @@
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
             }
         });
     }
 
-    // --- Gráfico 2: Tipos de Mesa (Doughnut) ---
+    // --- Gráfico 2: Tipos de Mesa ---
     const tiposData = {{ tipos_data|safe }};
     if (tiposData.length > 0) {
         const ctxTipos = document.getElementById('tiposChart');
@@ -232,20 +244,14 @@
                 datasets: [{
                     label: 'Reservas',
                     data: tiposData,
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.7)', // Azul
-                        'rgba(255, 206, 86, 0.7)'  // Amarillo
-                    ],
+                    backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)'],
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
-    // --- Gráfico 3: Tamaño de Grupos (Pie) ---
+    // --- Gráfico 3: Tamaño de Grupos ---
     const tamanosData = {{ tamanos_data|safe }};
     if (tamanosData.length > 0) {
         const ctxTamanos = document.getElementById('tamanosChart');
@@ -257,18 +263,13 @@
                     label: 'Nº de Reservas',
                     data: tamanosData,
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)', 'rgba(75, 192, 192, 0.7)',
                         'rgba(153, 102, 255, 0.7)',
                     ],
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            }
+            options: { responsive: true, maintainAspectRatio: false }
         });
     }
 </script>

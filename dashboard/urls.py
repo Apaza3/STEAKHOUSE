@@ -35,4 +35,7 @@ urlpatterns = [
     
     # URLs de Reportes
     path('reportes/', views.reportes_view, name='dashboard_reportes'),
+
+    # --- ¡FALTA ESTA LÍNEA PARA EL PDF! ---
+    path('reportes/pdf/', views.generar_pdf_view, name='reporte_pdf'),
 ]
