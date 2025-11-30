@@ -1,146 +1,392 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Bienvenidos a The Steakhouse{% endblock %}
+{% block title %}Excelencia en Carnes{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* --- PARALLAX & FONDOS --- */
+    .parallax-section {
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-attachment: fixed; /* Parallax en PC */
+    }
+    
+    .parallax-overlay {
+        background: rgba(0, 0, 0, 0.7); 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+    }
+    
+    /* Degradados de suavizado */
+    .gradient-mask-bottom {
+        position: absolute; bottom: 0; left: 0; width: 100%; height: 150px;
+        background: linear-gradient(to top, #050505 0%, transparent 100%);
+        z-index: 2; pointer-events: none;
+    }
+    .gradient-mask-top {
+        position: absolute; top: 0; left: 0; width: 100%; height: 150px;
+        background: linear-gradient(to bottom, #050505 0%, transparent 100%);
+        z-index: 2; pointer-events: none;
+    }
+    
+    /* Contenido del Hero */
+    .parallax-content { 
+        position: relative; 
+        z-index: 3; 
+        width: 100%; 
+        padding: 80px 0; 
+    }
+
+    /* --- CORRECCIÓN LOGO PRINCIPAL --- */
+    #inicio { 
+        background-image: url("{% static 'core/img/fondo1.png' %}"); 
+        height: 100vh;
+        padding-top: 80px; 
+    }
+
+    .hero-logo { 
+        width: auto;            
+        max-width: 350px;       
+        height: auto;           
+        max-height: 220px;      
+        object-fit: contain;    
+        margin-bottom: 2rem; 
+        filter: drop-shadow(0 15px 30px rgba(0,0,0,0.9)); 
+        animation: fadeInDown 1.5s ease-out;
+    }
+
+    /* Otros Fondos */
+    #nosotros { background-color: #050505; }
+    #estadisticas { background-image: url("{% static 'core/img/fondo2.png' %}"); }
+    #favoritos { background-color: #0a0a0a; }
+    #cava { background-image: url("{% static 'core/img/fondo3.png' %}"); }
+    #cocteleria { background-color: #050505; }
+    #social { background-image: url("{% static 'core/img/fondo5.png' %}"); }
+    #ubicacion { background-color: #080808; }
+
+    /* --- TIPOGRAFÍA Y TAMAÑOS GENERALES --- */
+    .section-title { font-size: 2.2rem; color: #c09a5b; margin-bottom: 1rem; font-weight: 700; line-height: 1.1; }
+    .text-justify { text-align: justify; }
+    
+    /* CARDS MENÚ */
+    .menu-card {
+        background: #121212; border: 1px solid #222; padding: 30px; transition: 0.3s;
+        display: flex; flex-direction: column; align-items: center; text-align: center;
+        border-radius: 8px; height: 100%;
+    }
+    .menu-card:hover { transform: translateY(-10px); border-color: #c09a5b; box-shadow: 0 10px 30px rgba(192,154,91,0.2); }
+    .price-tag { color: #c09a5b; font-weight: bold; font-size: 1.2rem; margin-top: auto; padding-top: 15px; }
+
+    /* MAPA */
+    .map-frame iframe { width: 100%; height: 450px; border-radius: 10px; border: 1px solid #333; filter: grayscale(100%) invert(90%); }
+    .scroll-down { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; color: #fff; z-index: 5; opacity: 0.6; }
+
+    /* =============================================
+       AJUSTES ESPECÍFICOS PARA PC (PANTALLAS GRANDES)
+       ============================================= */
+    @media (min-width: 992px) {
+        .section-title { font-size: 3.5rem; margin-bottom: 2rem; }
+        .fs-4 { font-size: 1.5rem !important; }
+        .fs-5 { font-size: 1.25rem !important; }
+        h1.display-3 { font-size: 5rem !important; font-weight: 800; } 
+        .hero-logo { max-width: 400px; max-height: 280px; margin-bottom: 3rem; }
+        .btn-lg { padding: 15px 40px; font-size: 1.1rem; }
+        .stat-num { font-size: 5rem !important; }
+        .menu-card h4 { font-size: 1.5rem; }
+    }
+
+    /* =============================================
+       AJUSTES ESPECÍFICOS PARA MÓVIL (PANTALLAS PEQUEÑAS)
+       ============================================= */
+    @media (max-width: 768px) {
+        /* Reset de Parallax y alturas */
+        .parallax-section { background-attachment: scroll; min-height: auto; padding: 40px 0; }
+        .parallax-content { padding: 20px 0; } /* Menos padding interno */
+        
+        /* Hero más compacto */
+        #inicio { height: auto; min-height: 85vh; padding-top: 70px; display: flex; align-items: center; }
+        .hero-logo { max-width: 180px; max-height: 120px; margin-bottom: 1rem; }
+        
+        /* Tipografía Reducida */
+        h1.display-3 { font-size: 2.2rem !important; margin-bottom: 0.5rem !important; }
+        .section-title { font-size: 1.8rem; margin-bottom: 1rem; }
+        .fs-4 { font-size: 1.1rem !important; margin-bottom: 1.5rem !important; }
+        .fs-5 { font-size: 1rem !important; line-height: 1.4; }
+        .display-4 { font-size: 2.5rem !important; } /* Estadísticas y Títulos grandes */
+        
+        /* Botones más pequeños */
+        .btn-lg { padding: 10px 20px; font-size: 0.9rem; margin: 5px !important; }
+        
+        /* Estadísticas */
+        .stat-num { font-size: 2.5rem !important; }
+        #estadisticas .col-md-4 { margin-bottom: 30px; border: none !important; } /* Quitar bordes laterales en móvil */
+
+        /* Tarjetas de Menú más compactas */
+        .menu-card { padding: 20px; margin-bottom: 15px; }
+        .menu-card i { font-size: 2rem !important; margin-bottom: 10px !important; } /* Iconos más chicos */
+        .menu-card h4 { font-size: 1.2rem; }
+
+        /* Coctelería */
+        #cocteleria .p-4 { padding: 15px !important; } /* Cajas más chicas */
+        #cocteleria h4 { font-size: 1rem; margin-bottom: 0.2rem; }
+        #cocteleria span { font-size: 1.1rem !important; }
+
+        /* Reducción de Iconos Generales */
+        .fa-4x { font-size: 2.5em !important; }
+        .fa-3x { font-size: 2em !important; }
+        .fa-2x { font-size: 1.5em !important; }
+
+        /* Mapa más bajo */
+        .map-frame iframe { height: 280px; }
+
+        /* Ajustes de espaciado general */
+        .py-5 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+        .mb-5 { margin-bottom: 2rem !important; }
+        .g-5 { --bs-gutter-y: 2rem; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<!-- 
-  ================================================================
-  SECCIÓN 1: BIENVENIDA (HERO) - (Versión Bootstrap)
-  ================================================================
--->
-<!-- El 'id' es para el ancla del smooth scroll -->
-<div id="inicio" class="position-relative d-flex align-items-center justify-content-center" style="min-height: 75vh; padding-top: 4rem; padding-bottom: 8rem;">
-    <!-- Este div crea el overlay oscuro sobre la imagen de fondo del body -->
-    <div class="position-absolute top-0 start-0 w-100 h-100 bg-black opacity-25"></div>
+<div id="inicio" class="parallax-section"> 
+    <div class="parallax-overlay"></div>
+    <div class="gradient-mask-bottom"></div>
     
-    <div class="container position-relative" style="z-index: 2;">
-        <div class="row justify-content-center">
-            <div class="col-lg-10 text-center">
-                <h1 class="font-serif-display text-white" style="font-size: 4.5rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.7);">
-                    Pasión por la <span class="text-danger">Parrilla</span>
-                </h1>
-                <p class="mt-4 text-light fs-4" style="font-weight: 300;">
-                    Descubre una experiencia gastronómica inolvidable. Los mejores cortes, el ambiente perfecto.
+    <div class="parallax-content container text-center">
+        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" class="hero-logo">
+        
+        <h1 class="display-3 text-white font-serif mb-3">Donde la Carne es Arte</h1>
+        <p class="fs-4 text-white-50 mb-5">Cortes Premium • Vinos • Experiencia</p>
+        <div>
+            <a href="{% url 'reservas_page' %}" class="btn btn-outline-warning btn-lg rounded-0 px-5 mx-2">RESERVAR</a>
+            <a href="{% url 'menu_page' %}" class="btn btn-warning btn-lg rounded-0 px-5 mx-2 text-dark fw-bold">CARTA</a>
+        </div>
+    </div>
+    <a href="#nosotros" class="scroll-down d-none d-md-block"><i class="fas fa-chevron-down fa-2x"></i></a>
+</div>
+
+<section id="nosotros" class="section-padding py-5">
+    <div class="container py-lg-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 order-2 order-lg-1">
+                <div style="border: 1px solid #c09a5b; padding: 10px;">
+                    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1000" class="img-fluid w-100" alt="Chef" style="filter: brightness(0.8);">
+                </div>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 text-white ps-lg-5">
+                <h5 class="text-warning text-uppercase letter-spacing-2 mb-3 fs-6">Nuestra Esencia</h5>
+                <h2 class="section-title">Pasión por la Calidad</h2>
+                <p class="fs-5 text-secondary text-justify mb-4" style="line-height: 1.8;">
+                    En <strong>The Steakhouse</strong>, nuestra misión es brindar una experiencia única. Desde nuestra fundación, nos hemos consolidado como un referente en La Paz, ofreciendo un ambiente acogedor que resalta la tradición culinaria.
                 </p>
-                <a href="{% url 'reservas_page' %}" class="btn btn-danger btn-lg mt-4 py-3 px-5 fs-5 fw-bold shadow-lg">
-                    Hacer una Reserva
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 
-  ================================================================
-  SECCIÓN 2: CUERPO (BODY) CON CONTENIDO INTERCALADO - (Versión Bootstrap)
-  ================================================================
--->
-
-<!-- ============================================= -->
-<!-- Fila 1: "Quiénes Somos" (Texto / Imagen)      -->
-<!-- Fondo: Base (#1a1a1a)                       -->
-<!-- ============================================= -->
-<div id="nosotros" class="section-container">
-    <div class="container">
-        <div class="row g-5 align-items-center">
-            <!-- Columna de Texto -->
-            <div class="col-lg-6">
-                <div class="text-container-overlay">
-                    <h2 class="section-title">Quiénes Somos</h2>
-                    <p class="fs-5 mb-3">
-                        The Steakhouse nació de un sueño: traer los mejores cortes de carne del mundo y prepararlos con la pasión del fuego boliviano. Somos más que un restaurante; somos un punto de encuentro para los amantes del buen comer.
-                    </p>
-                    <p class="fs-5">
-                        Nuestro compromiso es con la calidad, desde el origen de nuestros ingredientes hasta el servicio experto en tu mesa. Cada plato cuenta una historia.
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Columna de Imagen -->
-            <div class="col-lg-6">
-                <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
-                     alt="Corte de carne jugoso a la parrilla"
-                     class="img-fluid content-image">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- Fila 2: "Nuestros Horarios" (Imagen / Texto)   -->
-<!-- Fondo: Alternativo (#24201f)                -->
-<!-- ============================================= -->
-<div id="horarios" class="section-container section-bg-alt">
-    <div class="container">
-        <div class="row g-5 align-items-center">
-            <!-- Columna de Imagen (Orden: 1) -->
-            <div class="col-lg-6">
-                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" 
-                     alt="Ambiente interior del restaurante The Steakhouse"
-                     class="img-fluid content-image">
-            </div>
-
-            <!-- Columna de Texto (Orden: 2) -->
-            <div class="col-lg-6">
-                <div class="text-container-overlay">
-                    <h2 class="section-title">Nuestros Horarios</h2>
-                    <p class="fs-5 mb-4">
-                        Te esperamos para compartir momentos inolvidables. Encuéntranos en el corazón de Megacenter.
-                    </p>
-                    <ul class="list-unstyled fs-5">
-                        <li class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-3">
-                            <span class="fw-bold text-danger-emphasis">Lunes a Jueves:</span>
-                            <span>12:00 PM - 10:00 PM</span>
-                        </li>
-                        <li class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-3">
-                            <span class="fw-bold text-danger-emphasis">Viernes y Sábado:</span>
-                            <span>12:00 PM - 11:30 PM</span>
-                        </li>
-                        <li class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-3">
-                            <span class="fw-bold text-danger-emphasis">Domingos:</span>
-                            <span>11:00 AM - 9:00 PM</span>
-                        </li>
-                    </ul>
+                <p class="fs-5 text-secondary text-justify">
+                    Trabajamos con un stock de 100 kilos de carne seleccionada para garantizar frescura diaria. Nuestros cortes, como el cuadril y el lomito, son preparados con maestría sobre leña de roble.
+                </p>
+                <div class="d-flex gap-4 mt-4 fs-5 flex-wrap">
+                    <span><i class="fas fa-check-circle text-warning me-2"></i>Calidad Prime</span>
+                    <span><i class="fas fa-check-circle text-warning me-2"></i>Leña de Roble</span>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- ============================================= -->
-<!-- Fila 3: "Novedades" (Texto / Imagen)          -->
-<!-- Fondo: Base (#1a1a1a)                       -->
-<!-- ============================================= -->
-<div id="novedades" class="section-container">
-    <div class="container">
-        <div class="row g-5 align-items-center">
-            <!-- Columna de Texto (Orden: 1) -->
-            <div class="col-lg-6">
-                <div class="text-container-overlay">
-                    <h2 class="section-title">Novedades</h2>
-                    <h3 class="font-serif-display text-white fs-2 mb-3">El Corte del Mes: Tomahawk</h3>
-                    <p class="fs-5 mb-3">
-                        Este mes, te retamos a probar nuestra estrella: un imponente Tomahawk de 1.2kg, madurado a la perfección y sellado en nuestras brasas.
-                    </p>
-                    <p class="fs-5">
-                        Ideal para compartir (o no), viene acompañado de dos guarniciones a elección y nuestra salsa chimichurri de la casa.
-                    </p>
-                    <a href="{% url 'menu_page' %}" class="btn btn-link text-danger-emphasis fs-5 p-0 mt-3 fw-bold">
-                        Ver el menú completo <i class="fa fa-arrow-right ms-1"></i>
-                    </a>
-                </div>
+<section id="estadisticas" class="parallax-section">
+    <div class="gradient-mask-top"></div>
+    <div class="parallax-overlay"></div>
+    <div class="gradient-mask-bottom"></div>
+    
+    <div class="parallax-content container text-center">
+        <h5 class="text-white-50 text-uppercase mb-5 fs-5">La Preferencia de La Paz</h5>
+        <div class="row g-5">
+            <div class="col-md-4">
+                <div class="stat-num text-white fw-bold display-4">+1500</div>
+                <div class="text-warning text-uppercase letter-spacing-2 fs-5">Clientes Semanales</div>
             </div>
-            
-            <!-- Columna de Imagen (Orden: 2) -->
-            <div class="col-lg-6">
-                <img src="https://images.unsplash.com/photo-1626082896462-a2c2629c4bbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" 
-                     alt="Impresionante corte Tomahawk servido"
-                     class="img-fluid content-image">
+            <div class="col-md-4 border-stat-pc">
+                <div class="stat-num text-white fw-bold display-4">400+</div>
+                <div class="text-warning text-uppercase letter-spacing-2 fs-5">Visitas Fin de Semana</div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-num text-white fw-bold display-4">4.8</div>
+                <div class="text-warning text-uppercase letter-spacing-2 fs-5">Estrellas Calidad</div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<section id="favoritos" class="py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Favoritos de la Casa</h2>
+            <p class="text-muted fs-5">Los platos más solicitados por nuestros clientes.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="menu-card">
+                    <i class="fas fa-fire fa-3x text-warning mb-3"></i>
+                    <h4 class="text-white font-serif mb-3">Jack Daniel's Steak</h4>
+                    <p class="text-muted small">El plato estrella. Filete jugoso flambeado con whisky Jack Daniel's en su mesa.</p>
+                    <div class="price-tag">Corte Premium</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="menu-card">
+                    <i class="fas fa-drumstick-bite fa-3x text-warning mb-3"></i>
+                    <h4 class="text-white font-serif mb-3">Irish Pique Macho</h4>
+                    <p class="text-muted small">Una versión exclusiva del clásico boliviano con langostinos frescos.</p>
+                    <div class="price-tag">149 Bs</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="menu-card">
+                    <i class="fas fa-utensils fa-3x text-warning mb-3"></i>
+                    <h4 class="text-white font-serif mb-3">Chicken Wings</h4>
+                    <p class="text-muted small">24 alitas de pollo a la barbacoa, chimichurri y salsa de maní.</p>
+                    <div class="price-tag">169 Bs</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'menu_page' %}" class="btn btn-outline-light px-5 py-3 rounded-0 fs-5 btn-lg">VER MENÚ COMPLETO</a>
+        </div>
+    </div>
+</section>
+
+<section id="cava" class="parallax-section">
+    <div class="gradient-mask-top"></div>
+    <div class="parallax-overlay"></div>
+    <div class="gradient-mask-bottom"></div>
+    
+    <div class="parallax-content container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h2 class="section-title text-white">Cava Selecta</h2>
+                <p class="fs-4 text-white-50">Vinos de altura de Bolivia.</p>
+            </div>
+        </div>
+        
+        <div class="row g-5 justify-content-center fs-5">
+            <div class="col-md-5">
+                <h4 class="text-warning border-bottom border-secondary pb-3 mb-4">Campos de Solana</h4>
+                <ul class="list-unstyled text-white-50 wine-list">
+                    <li><span>Esther Ortiz</span> <span class="text-white">510 Bs</span></li>
+                    <li><span>Gran Reserva</span> <span class="text-white">290 Bs</span></li>
+                    <li><span>Tannat Único</span> <span class="text-white">210 Bs</span></li>
+                </ul>
+            </div>
+            <div class="col-md-5">
+                <h4 class="text-warning border-bottom border-secondary pb-3 mb-4">Aranjuez</h4>
+                <ul class="list-unstyled text-white-50 wine-list">
+                    <li><span>Don Milton</span> <span class="text-white">150 Bs</span></li>
+                    <li><span>Tannat Origen</span> <span class="text-white">150 Bs</span></li>
+                    <li><span>Dúo Tannat</span> <span class="text-white">150 Bs</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="cocteleria" class="py-5" style="background: #050505;">
+    <div class="container py-5 text-center">
+        <h2 class="section-title text-white">Bar & Coctelería</h2>
+        <div class="row justify-content-center g-4 mt-3">
+            <div class="col-6 col-md-3">
+                <div class="p-4 border border-secondary rounded h-100">
+                    <h4 class="text-white mb-2">Mojito</h4>
+                    <span class="text-warning fw-bold fs-4">50 Bs</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-4 border border-secondary rounded h-100">
+                    <h4 class="text-white mb-2">Gin Tonic</h4>
+                    <span class="text-warning fw-bold fs-4">45 Bs</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-4 border border-secondary rounded h-100">
+                    <h4 class="text-white mb-2">Aperol</h4>
+                    <span class="text-warning fw-bold fs-4">70 Bs</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-4 border border-secondary rounded h-100">
+                    <h4 class="text-white mb-2">Moscow Mule</h4>
+                    <span class="text-warning fw-bold fs-4">55 Bs</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="social" class="parallax-section">
+    <div class="gradient-mask-top"></div>
+    <div class="parallax-overlay"></div>
+    <div class="gradient-mask-bottom"></div>
+    
+    <div class="parallax-content container text-center">
+        <i class="fas fa-users fa-4x text-warning mb-4"></i>
+        <h2 class="text-white mb-4 display-4 font-serif">El Lugar de Encuentro</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <p class="fs-3 text-white-50 mb-5 fw-light small-mobile">
+                    "Ya sea para un almuerzo de negocios o una cena familiar, ofrecemos el ambiente perfecto."
+                </p>
+                <div class="card bg-black border-warning p-4 mx-auto shadow-lg" style="max-width: 600px; border-left: 5px solid #c09a5b;">
+                    <h5 class="text-warning text-uppercase letter-spacing-2 mb-2"><i class="fas fa-info-circle me-2"></i>Política de Reservas</h5>
+                    <p class="text-secondary m-0 fs-5">
+                        Tolerancia máxima de <strong>30 minutos</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="ubicacion" class="py-5" style="background-color: #080808;">
+    <div class="container py-5">
+        <div class="text-center mb-5 text-white">
+            <h5 class="text-warning text-uppercase letter-spacing-2">Visítanos</h5>
+            <h2 class="display-4 font-serif">Megacenter Irpavi</h2>
+            <p class="text-secondary fs-5">Av. Rafael Pabón, Zona Sur, La Paz</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="shadow-lg map-frame">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1912.4383527074149!2d-68.08825781987326!3d-16.532321006470934!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915f21a03dcf4113%3A0x197096f33f1b9419!2sThe%20Steakhouse%20Zona%20Sur!5e0!3m2!1ses!2sbo!4v1764522661087!5m2!1ses!2sbo" 
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row text-center mt-5 text-white g-4">
+            <div class="col-4 col-md-4">
+                <i class="fas fa-clock fa-2x text-warning mb-3"></i>
+                <h4 class="fs-6">Horario</h4>
+                <p class="text-secondary small">12:00 - 23:00</p>
+            </div>
+            <div class="col-4 col-md-4">
+                <i class="fas fa-parking fa-2x text-warning mb-3"></i>
+                <h4 class="fs-6">Parking</h4>
+                <p class="text-secondary small">Seguro 24h</p>
+            </div>
+            <div class="col-4 col-md-4">
+                <i class="fas fa-wifi fa-2x text-warning mb-3"></i>
+                <h4 class="fs-6">Wi-Fi</h4>
+                <p class="text-secondary small">Gratis</p>
+            </div>
+        </div>
+    </div>
+</section>
 
 {% endblock %}

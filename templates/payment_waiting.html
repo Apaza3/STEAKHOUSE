@@ -1,59 +1,233 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Esperando Pago QR{% endblock %}
+
+{% block title %}Pago QR - The Steakhouse{% endblock %}
 
 {% block body_class %}site-container body-reservas{% endblock %}
 
-{% block content %}
-<main id="main-content" class="container reserva-flow-container">
+{% block extra_css %}
+<style>
+    /* =========================================
+       ESTILOS PAGO QR - VERSIÓN CORREGIDA
+       ========================================= */
     
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
+    .payment-wrapper {
+        min-height: calc(100vh - 100px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .qr-card {
+        background-color: #0f0f0f; /* Negro profundo uniforme */
+        border: 1px solid rgba(192, 154, 91, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+        overflow: hidden;
+        max-width: 950px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap; /* Para móvil */
+    }
+
+    /* --- COLUMNA IZQUIERDA (Instrucciones) --- */
+    .qr-info-col {
+        flex: 1 1 55%; /* Ocupa el 55% */
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-right: 1px solid rgba(255,255,255,0.05); /* Línea divisoria sutil */
+    }
+
+    /* --- COLUMNA DERECHA (QR) --- */
+    .qr-display-col {
+        flex: 1 1 45%; /* Ocupa el 45% */
+        background-color: #141414; /* Casi el mismo negro, sutilmente distinto */
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    /* LOGO CORREGIDO */
+    .logo-payment {
+        width: 140px;       /* Ancho fijo base */
+        height: auto;       /* Altura automática */
+        max-height: 80px;   /* Límite de altura */
+        object-fit: contain; /* CRÍTICO: Evita que se estire */
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 10px rgba(192,154,91,0.3));
+    }
+
+    /* Tipografía */
+    .text-gold { color: #c09a5b; }
+    .title-payment {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 5px;
+    }
+
+    /* Pasos */
+    .steps-container {
+        margin: 30px 0;
+    }
+    .step-item {
+        display: flex;
+        align-items: flex-start; /* Alinear arriba si hay mucho texto */
+        margin-bottom: 20px;
+        color: #ccc;
+    }
+    .step-icon {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        background: rgba(192, 154, 91, 0.1);
+        border: 1px solid #c09a5b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: #c09a5b;
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-top: -2px; /* Ajuste visual */
+    }
+
+    /* Marco del QR */
+    .qr-frame {
+        position: relative;
+        padding: 15px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 0 40px rgba(192, 154, 91, 0.15); /* Resplandor dorado sutil */
+        margin-bottom: 20px;
+    }
+    .qr-image {
+        display: block;
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+    }
+
+    /* Láser de Escaneo */
+    .scan-line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: #eb001b; 
+        box-shadow: 0 0 5px #eb001b;
+        top: 0; left: 0;
+        animation: scanning 3s infinite ease-in-out;
+        opacity: 0.8;
+    }
+    @keyframes scanning {
+        0% { top: 5%; opacity: 0; }
+        15% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { top: 95%; opacity: 0; }
+    }
+
+    /* Caja de "Sincronizando" */
+    .sync-box {
+        background: rgba(255,255,255,0.03);
+        border: 1px dashed rgba(255,255,255,0.2);
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* Responsividad */
+    @media (max-width: 991px) {
+        .qr-card { flex-direction: column; max-width: 500px; }
+        .qr-info-col { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 30px; text-align: center; }
+        .qr-display-col { padding: 30px; }
+        .step-item { justify-content: start; text-align: left; }
+        .sync-box { justify-content: center; }
+        .logo-payment { margin: 0 auto 20px auto; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main id="main-content" class="container">
+    
+    <div class="payment-wrapper">
+        <div class="qr-card">
             
-            <div class="card card-dark-theme shadow-lg">
-                <div class="card-body p-5">
-                    
-                    <div class="text-center">
-                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo">
+            <div class="qr-info-col">
+                <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" class="logo-payment">
+                
+                <h2 class="title-payment">Pago Vía QR</h2>
+                <p class="text-gold font-monospace small mb-0">RESERVA #{{ reserva.id|truncatechars:8 }}</p>
+
+                <div class="steps-container">
+                    <div class="step-item">
+                        <div class="step-icon">1</div>
+                        <div>Abre la app de tu banco favorito.</div>
                     </div>
+                    <div class="step-item">
+                        <div class="step-icon">2</div>
+                        <div>Selecciona la opción <strong>"Pagar con QR"</strong>.</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">3</div>
+                        <div>Escanea y confirma el monto: <strong class="text-white">30.00 Bs</strong>.</div>
+                    </div>
+                </div>
 
-                    <div class="row align-items-center">
-                        
-                        <div class="col-lg-7 text-center text-lg-start">
-                            <h1 class="title-gold display-5 mb-3">Escanea para Pagar</h1>
-                            <p class="fs-5">Tu reserva (ID: {{ reserva.id|truncatechars:8 }}...) está 'PENDIENTE'.</p>
-                            <p>Escanea el siguiente código QR con la cámara de tu celular para simular la confirmación del pago.</p>
-                            
-                            <div id="loading-spinner" class="mt-4">
-                                <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: #c89b3f;">
-                                    <span class="visually-hidden">Esperando...</span>
-                                </div>
-                                <p class="fs-4 mt-2">Esperando confirmación de pago...</p>
-                            </div>
+                <div id="loading-spinner" class="sync-box">
+                    <div class="spinner-border text-warning me-3" role="status" style="width: 1.5rem; height: 1.5rem; border-width: 2px;"></div>
+                    <div class="text-start">
+                        <div class="text-white small fw-bold">Sincronizando pago...</div>
+                        <div class="text-muted" style="font-size: 0.7rem;">Mantén esta ventana abierta</div>
+                    </div>
+                </div>
 
-                            <div id="success-message" class="alert alert-success mt-4" style="display: none;">
-                                <h4 class="alert-heading">¡Pago Confirmado!</h4>
-                                <p>Tu reserva ha sido confirmada. Ya puedes cerrar esta ventana.</p>
-                                <a href="{% url 'home' %}" class="btn btn-success">Volver al Inicio</a>
-                            </div>
+                <div id="success-message" class="alert alert-success border-0 shadow-lg mb-0" style="display: none; background: #198754; color: white;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-0 fw-bold fs-6">¡Pago Exitoso!</h5>
+                            <small>Redirigiendo...</small>
                         </div>
-
-                        <div class="col-lg-5 text-center">
-                            <img src="data:image/png;base64,{{ qr_image }}" alt="Código QR de Pago" class="img-fluid my-4" style="border: 8px solid white; border-radius: 8px; max-width: 250px;">
-                        </div>
-
-                    </div> </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="qr-display-col">
+                <div class="qr-frame">
+                    <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code" class="qr-image">
+                    <div class="scan-line"></div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted d-block text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 2px;">Tiempo Restante</small>
+                    <span class="text-white fs-4 font-monospace fw-bold" id="timer">05:00</span>
+                </div>
+                
+                <div class="mt-4 d-flex gap-4 opacity-50">
+                    <i class="fas fa-university fa-lg text-white" title="Banco"></i>
+                    <i class="fas fa-mobile-alt fa-lg text-white" title="Móvil"></i>
+                    <i class="fas fa-shield-alt fa-lg text-white" title="Seguro"></i>
+                </div>
+            </div>
+
         </div>
     </div>
+
 </main>
 
 <div class="fire-particles-container">
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    <div class="particle"></div><div class="particle"></div><div class="particle"></div>
 </div>
 {% endblock %}
 
@@ -63,21 +237,44 @@
         const checkUrl = "{{ check_status_url }}";
         const loadingSpinner = document.getElementById('loading-spinner');
         const successMessage = document.getElementById('success-message');
+        
+        // Timer visual
+        let timeLeft = 300; // 5 minutos
+        const timerDisplay = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            if(timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.innerText = "00:00";
+                timerDisplay.classList.add('text-danger');
+                return;
+            }
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            // Formato MM:SS
+            timerDisplay.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            timeLeft--;
+        }, 1000);
+
+        // --- POLLING DE ESTADO ---
         const intervalId = setInterval(function() {
             fetch(checkUrl)
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Chequeando estado:", data.status);
                     if (data.status === 'CONFIRMADA') {
                         clearInterval(intervalId);
+                        clearInterval(countdown);
+                        
                         loadingSpinner.style.display = 'none';
                         successMessage.style.display = 'block';
+                        
+                        // Redirigir después de 2 segundos
+                        setTimeout(() => {
+                            window.location.href = "{% url 'home' %}";
+                        }, 2000);
                     }
                 })
-                .catch(error => {
-                    console.error("Error en el polling:", error);
-                    clearInterval(intervalId);
-                });
+                .catch(error => console.error("Esperando pago...", error));
         }, 3000);
     });
 </script>

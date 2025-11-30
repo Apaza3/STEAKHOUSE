@@ -129,3 +129,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
 DEFAULT_SENDER_EMAIL = os.environ.get('DEFAULT_SENDER_EMAIL')
 # ===================================================
+
+# settings.py
+
+# Redirigir aquí si el usuario intenta entrar a una zona protegida sin loguearse
+LOGIN_URL = 'login' 
+
+# Redirigir aquí después de loguearse exitosamente
+LOGIN_REDIRECT_URL = 'home'
+
+# Redirigir aquí después de cerrar sesión
+LOGOUT_REDIRECT_URL = 'login'

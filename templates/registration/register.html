@@ -5,235 +5,284 @@
 
 {% block extra_css %}
 <style>
-    /* Estilo específico para la página de registro (igual que login) */
-    .register-page-background {
-        background-image: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+    /* =========================================
+       ESTILOS ESPECÍFICOS DEL REGISTRO
+       (Basado en Login pero adaptado)
+       ========================================= */
+    
+    /* 1. CONTENEDOR PRINCIPAL (FONDO) */
+    .register-wrapper {
+        min-height: 100vh; /* Pantalla completa */
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        position: relative;
+        /* Imagen de fondo solicitada */
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url("{% static 'core/img/fondo_registrar.png' %}");
         background-size: cover;
-        background-position: center center;
+        background-position: center;
         background-attachment: fixed;
     }
-</style>{% endblock %}
+
+    /* 2. LA TARJETA (CARD) */
+    .register-card {
+        background-color: #1a1a1a;
+        width: 100%;
+        max-width: 1100px; /* Más ancha que el login porque tiene más campos */
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        border: 1px solid rgba(192, 154, 91, 0.3);
+        display: flex;
+        flex-direction: row; /* Lado a lado */
+        position: relative;
+        z-index: 10;
+    }
+
+    /* 3. COLUMNA IZQUIERDA (FORMULARIO) */
+    /* Nota: En login el form estaba a la derecha, aquí lo ponemos a la izquierda para variar */
+    .register-form-side {
+        width: 60%;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #121212;
+    }
+
+    /* 4. COLUMNA DERECHA (IMAGEN LATERAL) */
+    .register-side-img {
+        width: 40%;
+        position: relative;
+        /* Imagen lateral solicitada */
+        background-image: url("{% static 'core/img/imagen_lateral_registrar.png' %}");
+        background-size: cover;
+        background-position: center;
+        min-height: 600px;
+    }
+    
+    .register-side-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(192, 154, 91, 0.15));
+    }
+
+    /* 5. INPUTS PERSONALIZADOS */
+    .custom-input-group {
+        position: relative;
+        margin-bottom: 1.2rem;
+    }
+
+    .custom-label {
+        color: #aaa;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .custom-input {
+        background-color: #1f1f1f;
+        border: 1px solid #333;
+        color: #fff;
+        width: 100%;
+        height: 45px;
+        padding-left: 15px;
+        padding-right: 40px; /* Espacio para icono */
+        border-radius: 6px;
+        transition: 0.3s;
+        font-size: 0.95rem;
+    }
+
+    .custom-input:focus {
+        background-color: #252525;
+        border-color: #c09a5b;
+        outline: none;
+        box-shadow: 0 0 10px rgba(192, 154, 91, 0.15);
+    }
+
+    /* Iconos de acción (X y Ojo) */
+    .input-action-icon {
+        position: absolute;
+        right: 15px;
+        top: 38px; /* Ajustado para alinearse con el input, considerando el label */
+        color: #666;
+        cursor: pointer;
+        z-index: 5;
+    }
+    .input-action-icon:hover { color: #c09a5b; }
+
+    /* 6. RESPONSIVIDAD (MÓVIL) */
+    @media (max-width: 992px) {
+        .register-card {
+            flex-direction: column-reverse; /* Imagen arriba, form abajo en móvil */
+            max-width: 500px;
+        }
+        .register-side-img {
+            width: 100%;
+            height: 150px;
+            min-height: auto;
+        }
+        .register-form-side {
+            width: 100%;
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- 
-  ================================================================
-  SECCIÓN DE REGISTRO (FASE 2) - CORREGIDO
-  ================================================================
--->
-<div class="register-page-background d-flex align-items-center flex-grow-1 py-3 py-lg-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-5 col-md-8">
-                
-                <div class="login-container">
-                    
-                    <!-- Logo -->
-                    <div class="text-center mb-4">
-                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="width: 100px;">
-                    </div>
-                    
-                    <!-- Mensaje de Bienvenida -->
-                    <h3 class="text-center text-white font-serif-display mb-1">
-                        Crear una Cuenta
-                    </h3>
-                    <p class="text-center text-secondary mb-4">
-                        Regístrate para hacer reservas y pedidos.
-                    </p>
-
-                    <!-- Formulario de Registro -->
-                    <form method="POST">
-                        {% csrf_token %}
-
-                        <!-- ============================================= -->
-                        <!-- MOSTRAR ERRORES GENERALES (ej. Passwords no coinciden) -->
-                        <!-- ============================================= -->
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <!-- ============================================= -->
-                        <!-- ¡IMPORTANTE! MOSTRAR CAMPOS DEL MODELO CLIENTE -->
-                        <!-- (nombre, apellido, telefono)                 -->
-                        <!-- ============================================= -->
-                        <div class.row>
-                            <div class="col-md-6">
-                                <!-- Campo Nombre (de Cliente) -->
-                                <div class="mb-3">
-                                    <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">Nombre:</label>
-                                    <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}" 
-                                           class="form-control form-control-lg {% if form.nombre.errors %}is-invalid{% endif %}" 
-                                           placeholder="Tu nombre" 
-                                           value="{{ form.nombre.value|default:'' }}" required>
-                                    {% if form.nombre.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.nombre.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <!-- Campo Apellido (de Cliente) -->
-                                <div class="mb-3">
-                                    <label for="{{ form.apellido.id_for_label }}" class="form-label fw-bold">Apellido:</label>
-                                    <input type="text" name="{{ form.apellido.name }}" id="{{ form.apellido.id_for_label }}" 
-                                           class="form-control form-control-lg {% if form.apellido.errors %}is-invalid{% endif %}" 
-                                           placeholder="Tu apellido" 
-                                           value="{{ form.apellido.value|default:'' }}" required>
-                                    {% if form.apellido.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {% for error in form.apellido.errors %}{{ error }}{% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Campo de Usuario (de User) -->
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label fw-bold">Usuario:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-dark border-secondary {% if form.username.errors %}border-danger{% endif %}">
-                                    <i class="fa fa-user text-danger-emphasis"></i>
-                                </span>
-                                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
-                                       class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}" 
-                                       placeholder="Elige un nombre de usuario" 
-                                       value="{{ form.username.value|default:'' }}" required>
-                                <span class="btn-clear" id="clear-username" title="Limpiar">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                            </div>
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Campo de Email (de Cliente Y User) -->
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Email:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-dark border-secondary {% if form.email.errors %}border-danger{% endif %}">
-                                    <i class="fa fa.envelope text-danger-emphasis"></i>
-                                </span>
-                                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" 
-                                       class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" 
-                                       placeholder="Tu correo electrónico" 
-                                       value="{{ form.email.value|default:'' }}" required>
-                                <span class="btn-clear" id="clear-email" title="Limpiar">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                            </div>
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Campo de Teléfono (de Cliente) -->
-                        <div class="mb-3">
-                            <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">Teléfono (Opcional):</label>
-                            <input type="text" name="{{ form.telefono.name }}" id="{{ form.telefono.id_for_label }}" 
-                                   class="form-control form-control-lg {% if form.telefono.errors %}is-invalid{% endif %}" 
-                                   placeholder="Ej. 77712345" 
-                                   value="{{ form.telefono.value|default:'' }}">
-                            {% if form.telefono.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.telefono.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Campo de Contraseña 1 -->
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label fw-bold">Contraseña:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-dark border-secondary {% if form.password.errors %}border-danger{% endif %}">
-                                    <i class="fa fa-lock text-danger-emphasis"></i>
-                                </span>
-                                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" 
-                                       class="form-control form-control-lg {% if form.password.errors %}is-invalid{% endif %}" 
-                                       placeholder="Crea una contraseña" required>
-                                <span class="btn-clear" id="clear-password" title="Limpiar">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                            </div>
-                             {% if form.password.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.password.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- ============================================= -->
-                        <!-- ¡CORREGIDO! usa "password_confirm" -->
-                        <!-- ============================================= -->
-                        <div class="mb-3">
-                            <label for="{{ form.password_confirm.id_for_label }}" class="form-label fw-bold">Confirmar Contraseña:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-dark border-secondary {% if form.password_confirm.errors %}border-danger{% endif %}">
-                                    <i class="fa fa-lock text-danger-emphasis"></i>
-                                </span>
-                                <input type="password" name="{{ form.password_confirm.name }}" id="{{ form.password_confirm.id_for_label }}" 
-                                       class="form-control form-control-lg {% if form.password_confirm.errors %}is-invalid{% endif %}" 
-                                       placeholder="Repite la contraseña" required>
-                                <span class="btn-clear" id="clear-password-confirm" title="Limpiar">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                            </div>
-                             {% if form.password_confirm.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.password_confirm.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Botón de Envío -->
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primario btn-lg fw-bold">
-                                Registrarme
-                            </button>
-                        </div>
-                        
-                        <!-- Enlaces -->
-                        <div class="text-center mt-4">
-                            <a href="{% url 'login' %}" class="text-decoration-none text-white">¿Ya tienes cuenta? Inicia sesión</a>
-                        </div>
-                    </form>
-
+<div class="register-wrapper">
+    
+    <div class="register-card animate__animated animate__fadeIn">
+        
+        <div class="register-form-side">
+            
+            <div class="d-flex align-items-center mb-4">
+                <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" style="width: 50px; margin-right: 15px;">
+                <div>
+                    <h2 class="text-white font-serif-display mb-0" style="font-size: 1.8rem;">Crear Cuenta</h2>
+                    <p class="text-secondary small mb-0">Únete al club exclusivo.</p>
                 </div>
             </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 small">
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="custom-input-group">
+                            <label class="custom-label">Nombre</label>
+                            <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}" 
+                                   class="custom-input" value="{{ form.nombre.value|default:'' }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="custom-input-group">
+                            <label class="custom-label">Apellido</label>
+                            <input type="text" name="{{ form.apellido.name }}" id="{{ form.apellido.id_for_label }}" 
+                                   class="custom-input" value="{{ form.apellido.value|default:'' }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-input-group">
+                    <label class="custom-label">Usuario</label>
+                    <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
+                           class="custom-input" value="{{ form.username.value|default:'' }}" required>
+                    <i class="fa fa-times-circle input-action-icon btn-clear" data-target="{{ form.username.id_for_label }}" style="display: none;"></i>
+                    {% if form.username.errors %}
+                        <small class="text-danger d-block mt-1">{{ form.username.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="custom-input-group">
+                    <label class="custom-label">Correo Electrónico</label>
+                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" 
+                           class="custom-input" value="{{ form.email.value|default:'' }}" required>
+                    {% if form.email.errors %}
+                        <small class="text-danger d-block mt-1">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="custom-input-group">
+                    <label class="custom-label">Teléfono (Opcional)</label>
+                    <input type="text" name="{{ form.telefono.name }}" id="{{ form.telefono.id_for_label }}" 
+                           class="custom-input" value="{{ form.telefono.value|default:'' }}">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="custom-input-group">
+                            <label class="custom-label">Contraseña</label>
+                            <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" 
+                                   class="custom-input" required>
+                            <i class="fa fa-eye input-action-icon btn-toggle-pass" data-target="{{ form.password.id_for_label }}"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="custom-input-group">
+                            <label class="custom-label">Confirmar</label>
+                            <input type="password" name="{{ form.password_confirm.name }}" id="{{ form.password_confirm.id_for_label }}" 
+                                   class="custom-input" required>
+                            <i class="fa fa-eye input-action-icon btn-toggle-pass" data-target="{{ form.password_confirm.id_for_label }}"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if form.password.errors or form.password_confirm.errors %}
+                    <small class="text-danger d-block mb-3">Las contraseñas no coinciden o son muy débiles.</small>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary-gold w-100 py-3 fw-bold shadow-sm mt-2">
+                    COMPLETAR REGISTRO
+                </button>
+
+                <div class="text-center mt-4">
+                    <span class="text-secondary small">¿Ya tienes cuenta? </span>
+                    <a href="{% url 'login' %}" class="text-warning small fw-bold text-decoration-none">Inicia Sesión</a>
+                </div>
+            </form>
         </div>
+
+        <div class="register-side-img">
+            <div class="register-side-overlay"></div>
+            <div class="d-flex flex-column justify-content-end h-100 p-5 position-relative text-end" style="z-index: 2;">
+                <h1 class="font-serif-display text-white display-5">Experiencia<br>Premium</h1>
+                <p class="text-white-50">Reserva las mejores mesas y accede a eventos exclusivos solo para miembros.</p>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Script para los botones de limpiar -->
 <script>
-    function setupClearButton(buttonId, inputId) {
-        const clearButton = document.getElementById(buttonId);
-        const inputField = document.getElementById(inputId);
-        
-        if (clearButton && inputField) {
-            clearButton.addEventListener('click', function() {
-                inputField.value = '';
-                inputField.focus();
-            });
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        setupClearButton('clear-username', '{{ form.username.id_for_label }}');
-        setupClearButton('clear-email', '{{ form.email.id_for_label }}');
-        setupClearButton('clear-password', '{{ form.password.id_for_label }}');
-        setupClearButton('clear-password-confirm', '{{ form.password_confirm.id_for_label }}');
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. Botón BORRAR (X)
+    document.querySelectorAll('.custom-input').forEach(input => {
+        input.addEventListener('input', function() {
+            // Buscamos el icono hermano dentro del mismo grupo
+            const wrapper = this.closest('.custom-input-group');
+            const clearBtn = wrapper.querySelector('.btn-clear');
+            if(clearBtn) clearBtn.style.display = this.value ? 'block' : 'none';
+        });
     });
+
+    document.querySelectorAll('.btn-clear').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            target.value = '';
+            target.focus();
+            this.style.display = 'none';
+        });
+    });
+
+    // 2. Botón VER PASSWORD (Ojo)
+    document.querySelectorAll('.btn-toggle-pass').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            if(target.type === 'password'){
+                target.type = 'text';
+                this.classList.replace('fa-eye', 'fa-eye-slash');
+                this.style.color = '#c09a5b';
+            } else {
+                target.type = 'password';
+                this.classList.replace('fa-eye-slash', 'fa-eye');
+                this.style.color = '';
+            }
+        });
+    });
+});
 </script>
 {% endblock %}

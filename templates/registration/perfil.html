@@ -1,152 +1,235 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Mi Perfil{% endblock %}
+{% block title %}Editar Mi Perfil{% endblock %}
 
 {% block extra_css %}
 <style>
-    .perfil-page-background {
-        background-image: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+    /* =========================================
+       ESTILOS DE EDICIÓN DE PERFIL VIP
+       ========================================= */
+
+    /* 1. CONTENEDOR PRINCIPAL */
+    .profile-edit-wrapper {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        position: relative;
+        /* Fondo solicitado */
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url("{% static 'core/img/fondo_perfil.png' %}");
         background-size: cover;
-        background-position: center center;
+        background-position: center;
         background-attachment: fixed;
     }
-    
-    /* ¡NUEVO! Estilo para la foto de perfil en la página */
-    .profile-pic-page {
-        width: 150px;
-        height: 150px;
+
+    /* 2. TARJETA (CARD) */
+    .profile-card {
+        background-color: #1a1a1a;
+        width: 100%;
+        max-width: 1100px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        border: 1px solid rgba(192, 154, 91, 0.3);
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* 3. COLUMNA IZQUIERDA (IMAGEN LATERAL) */
+    .profile-side-img {
+        width: 35%;
+        position: relative;
+        /* Imagen lateral solicitada */
+        background-image: url("{% static 'core/img/imagen_lateral_perfil.png' %}");
+        background-size: cover;
+        background-position: center;
+        min-height: 600px;
+    }
+
+    .profile-side-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(to right, rgba(0,0,0,0.4), rgba(26, 26, 26, 1));
+    }
+
+    /* 4. COLUMNA DERECHA (FORMULARIO) */
+    .profile-form-side {
+        width: 65%;
+        padding: 3rem;
+        background-color: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* 5. ESTILOS DE FOTO DE PERFIL */
+    .profile-pic-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 20px auto;
+    }
+
+    .profile-pic-preview {
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid #c89b3f;
-        margin-bottom: 1rem;
+        border: 4px solid #c09a5b; /* Borde dorado */
+        box-shadow: 0 0 20px rgba(192, 154, 91, 0.4);
+    }
+
+    /* 6. INPUTS PERSONALIZADOS */
+    .custom-label {
+        color: #aaa;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .custom-input {
+        background-color: #252525;
+        border: 1px solid #444;
+        color: #fff;
+        width: 100%;
+        height: 45px;
+        padding: 0 15px;
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+    .custom-input:focus {
+        border-color: #c09a5b;
+        outline: none;
+        box-shadow: 0 0 10px rgba(192, 154, 91, 0.2);
+    }
+    
+    /* Input de archivo (file) */
+    .form-control[type="file"] {
+        background-color: #252525;
+        border: 1px dashed #666;
+        color: #ccc;
+    }
+
+    /* 7. RESPONSIVIDAD */
+    @media (max-width: 992px) {
+        .profile-card {
+            flex-direction: column;
+        }
+        .profile-side-img {
+            width: 100%;
+            height: 150px;
+            min-height: auto;
+            background-position: top center;
+        }
+        .profile-form-side {
+            width: 100%;
+            padding: 2rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="perfil-page-background d-flex align-items-center flex-grow-1 py-3 py-lg-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                
-                <div class="login-container">
-                    
-                    <div class="text-center mb-4">
-                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="width: 100px;">
+<div class="profile-edit-wrapper">
+    
+    <div class="profile-card animate__animated animate__fadeIn">
+        
+        <div class="profile-side-img">
+            <div class="profile-side-overlay"></div>
+            <div class="d-flex flex-column justify-content-end h-100 p-4 position-relative text-white" style="z-index: 2;">
+                <h3 class="font-serif-display">Tu Espacio</h3>
+                <p class="text-white-50 small">Mantén tus datos actualizados para una mejor experiencia.</p>
+            </div>
+        </div>
+
+        <div class="profile-form-side">
+            
+            <div class="text-center mb-4">
+                <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" style="width: 120px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));">
+            </div>
+
+            <h2 class="text-center text-white font-serif-display mb-1">Editar Perfil</h2>
+            <p class="text-center text-secondary small mb-4">Actualiza tu información personal</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 small">
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
                     </div>
+                {% endif %}
 
-                    <h3 class="text-center text-white font-serif-display mb-1">
-                        Mi Perfil
-                    </h3>
-                    <p class="text-center text-secondary mb-4">
-                        Actualiza tu información personal.
-                    </p>
-
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
+                <div class="text-center">
+                    <div class="profile-pic-container">
+                        {% if user.cliente.foto_perfil %}
+                            <img src="{{ user.cliente.foto_perfil.url }}" alt="Tu foto" class="profile-pic-preview">
+                        {% else %}
+                            <div class="profile-pic-preview d-flex align-items-center justify-content-center bg-dark text-secondary">
+                                <i class="fa fa-user fa-4x"></i>
                             </div>
                         {% endif %}
-
-                        <div class="text-center mb-3">
-                            {% if user.cliente.foto_perfil %}
-                                <img src="{{ user.cliente.foto_perfil.url }}" alt="Foto de perfil" class="profile-pic-page">
-                            {% else %}
-                                <i class="fa fa-user-circle text-secondary" style="font-size: 150px;"></i>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <label for="{{ form.foto_perfil.id_for_label }}" class="form-label fw-bold">{{ form.foto_perfil.label }}</label>
-                            {{ form.foto_perfil }}
-                            {% if form.foto_perfil.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.foto_perfil.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">Nombre:</label>
-                                <input type="text" name="{{ form.nombre.name }}" id="{{ form.nombre.id_for_label }}" 
-                                       class="form-control form-control-lg {% if form.nombre.errors %}is-invalid{% endif %}" 
-                                       value="{{ form.nombre.value|default:'' }}" required>
-                                {% if form.nombre.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.nombre.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.apellido.id_for_label }}" class="form-label fw-bold">Apellido:</label>
-                                <input type="text" name="{{ form.apellido.name }}" id="{{ form.apellido.id_for_label }}" 
-                                       class="form-control form-control-lg {% if form.apellido.errors %}is-invalid{% endif %}" 
-                                       value="{{ form.apellido.value|default:'' }}" required>
-                                {% if form.apellido.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.apellido.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label fw-bold">Usuario:</label>
-                            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
-                                   class="form-control form-control-lg {% if form.username.errors %}is-invalid{% endif %}" 
-                                   value="{{ form.username.value|default:'' }}" required>
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Email:</label>
-                            <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" 
-                                   class="form-control form-control-lg {% if form.email.errors %}is-invalid{% endif %}" 
-                                   value="{{ form.email.value|default:'' }}" required>
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="{{ form.telefono.id_for_label }}" class="form-label fw-bold">Teléfono (Opcional):</label>
-                            <input type="text" name="{{ form.telefono.name }}" id="{{ form.telefono.id_for_label }}" 
-                                   class="form-control form-control-lg {% if form.telefono.errors %}is-invalid{% endif %}" 
-                                   value="{{ form.telefono.value|default:'' }}">
-                            {% if form.telefono.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.telefono.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primario btn-lg fw-bold">
-                                Guardar Cambios
-                            </button>
-                        </div>
-                        
-                        <div class="text-center mt-4">
-                            <a href="{% url 'password_change' %}" class="text-decoration-none text-white">¿Quieres cambiar tu contraseña?</a>
-                        </div>
-                        
-                    </form>
-
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="custom-label mb-2">Cambiar Foto</label>
+                        <input type="file" name="{{ form.foto_perfil.name }}" id="{{ form.foto_perfil.id_for_label }}" class="form-control form-control-sm w-75 mx-auto">
+                        {% if form.foto_perfil.errors %}
+                            <small class="text-danger">{{ form.foto_perfil.errors.0 }}</small>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="custom-label">Nombre</label>
+                        <input type="text" name="{{ form.nombre.name }}" value="{{ form.nombre.value|default:'' }}" class="custom-input" required>
+                        {% if form.nombre.errors %}<small class="text-danger">{{ form.nombre.errors.0 }}</small>{% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="custom-label">Apellido</label>
+                        <input type="text" name="{{ form.apellido.name }}" value="{{ form.apellido.value|default:'' }}" class="custom-input" required>
+                        {% if form.apellido.errors %}<small class="text-danger">{{ form.apellido.errors.0 }}</small>{% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="custom-label">Usuario</label>
+                    <input type="text" name="{{ form.username.name }}" value="{{ form.username.value|default:'' }}" class="custom-input" required>
+                    {% if form.username.errors %}<small class="text-danger">{{ form.username.errors.0 }}</small>{% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="custom-label">Correo Electrónico</label>
+                    <input type="email" name="{{ form.email.name }}" value="{{ form.email.value|default:'' }}" class="custom-input" required>
+                    {% if form.email.errors %}<small class="text-danger">{{ form.email.errors.0 }}</small>{% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="custom-label">Teléfono</label>
+                    <input type="text" name="{{ form.telefono.name }}" value="{{ form.telefono.value|default:'' }}" class="custom-input">
+                    {% if form.telefono.errors %}<small class="text-danger">{{ form.telefono.errors.0 }}</small>{% endif %}
+                </div>
+
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn btn-primary-gold py-3 fw-bold shadow-sm">
+                        GUARDAR CAMBIOS
+                    </button>
+                    
+                    <a href="{% url 'password_change' %}" class="btn btn-outline-light py-2" style="border-color: #444; color: #aaa;">
+                        <i class="fa fa-key me-2"></i> Cambiar Contraseña
+                    </a>
+                </div>
+
+            </form>
+
         </div>
     </div>
 </div>

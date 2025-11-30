@@ -1,76 +1,266 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Pago con Tarjeta{% endblock %}
+
+{% block title %}Pago Seguro - The Steakhouse{% endblock %}
 
 {% block body_class %}site-container body-reservas{% endblock %}
 
-{% block extra_css %}{% endblock %}
+{% block extra_css %}
+<style>
+    /* =========================================
+       ESTILOS DE LA PASARELA DE PAGO
+       ========================================= */
+    
+    /* Centrado vertical perfecto */
+    .payment-wrapper {
+        min-height: calc(100vh - 100px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Tarjeta Principal */
+    .card-payment {
+        background-color: #121212;
+        border: 1px solid rgba(192, 154, 91, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+        overflow: hidden;
+    }
+
+    /* Columna Izquierda (Resumen) */
+    .payment-summary-col {
+        background: linear-gradient(135deg, rgba(30,30,30,1) 0%, rgba(10,10,10,1) 100%);
+        border-right: 1px solid rgba(255,255,255,0.05);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Columna Derecha (Formulario) */
+    .payment-form-col {
+        padding: 40px;
+        background-color: #121212;
+    }
+
+    /* Tipografía y Textos */
+    .title-gold {
+        font-family: 'Playfair Display', serif;
+        color: #c09a5b;
+        font-weight: 700;
+    }
+    .text-transaction {
+        font-family: 'Courier New', monospace;
+        color: #888;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    /* Inputs Personalizados */
+    .form-label {
+        color: #c09a5b;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .form-control-payment {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid #333 !important;
+        color: #fff !important;
+        font-size: 1rem;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-payment:focus {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: #c09a5b !important;
+        box-shadow: 0 0 15px rgba(192, 154, 91, 0.15) !important;
+    }
+
+    .form-control-payment::placeholder {
+        color: #555;
+    }
+
+    /* Iconos de Tarjeta */
+    .input-group-text-custom {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid #333;
+        border-left: none;
+        color: #444; /* Color apagado por defecto */
+        font-size: 1.5rem;
+        padding: 0 15px;
+    }
+    
+    .cc-icon {
+        transition: all 0.3s ease;
+        margin: 0 5px;
+        opacity: 0.3; /* Apagado */
+    }
+    
+    .cc-icon.visible {
+        opacity: 1;
+        color: #fff;
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    }
+    /* Colores específicos cuando están activos */
+    .fa-cc-visa.visible { color: #1a1f71; background: white; border-radius: 4px; } 
+    .fa-cc-mastercard.visible { color: #eb001b; background: white; border-radius: 4px; }
+
+    /* Botones */
+    .btn-pay-gold {
+        background-color: #c09a5b;
+        color: #000;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 15px;
+        border: none;
+        border-radius: 50px;
+        box-shadow: 0 5px 20px rgba(192, 154, 91, 0.3);
+        transition: all 0.3s;
+    }
+    .btn-pay-gold:hover {
+        background-color: #fff;
+        color: #c09a5b;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-cancel {
+        color: #777;
+        border: 1px solid #333;
+        border-radius: 50px;
+        padding: 10px;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+    .btn-outline-cancel:hover {
+        color: #fff;
+        border-color: #fff;
+        background: transparent;
+    }
+
+    /* Responsividad */
+    @media (max-width: 768px) {
+        .payment-summary-col { padding: 30px 20px; border-right: none; border-bottom: 1px solid #333; }
+        .payment-form-col { padding: 30px 20px; }
+        .title-gold { font-size: 1.8rem; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<main id="main-content" class="container reserva-flow-container">
-
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card card-dark-theme shadow-lg p-4 p-md-5">
-
-                <div class="row align-items-center">
+<main id="main-content" class="container">
+    
+    <div class="payment-wrapper">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card card-payment">
+                <div class="row g-0">
                     
-                    <div class="col-md-5 text-center">
-                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" class="form-logo" style="max-width: 120px;">
-                        <h1 class="title-gold display-6 mb-3">Simulación de Pago</h1>
-                        <p>Reserva ID: {{ reserva.id|truncatechars:8 }}...</p>
-                        <p class="text-muted small">Por favor, rellena los campos para simular el pago seguro de 30 Bs.</p>
+                    <div class="col-md-5 payment-summary-col">
+                        <div class="text-center">
+                            <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="The Steakhouse" class="img-fluid mb-4" style="max-height: 100px; filter: drop-shadow(0 0 10px rgba(192,154,91,0.2));">
+                            
+                            <h2 class="title-gold mb-2">Pago Seguro</h2>
+                            <div class="mb-4">
+                                <span class="badge bg-warning text-dark"><i class="fas fa-lock me-1"></i> SSL Encriptado</span>
+                            </div>
+
+                            <div class="card bg-black bg-opacity-50 border border-secondary border-opacity-25 p-3 w-100 text-start">
+                                <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Transacción ID</small>
+                                <span class="text-transaction d-block mb-3">#RES-{{ reserva.id }}</span>
+                                
+                                <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Concepto</small>
+                                <span class="text-white d-block mb-3">Adelanto Reserva de Mesa</span>
+                                
+                                <div class="d-flex justify-content-between align-items-end border-top border-secondary border-opacity-25 pt-2">
+                                    <span class="text-muted">Total a Pagar</span>
+                                    <span class="h4 text-white mb-0">30.00 Bs</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-7">
+                    <div class="col-md-7 payment-form-col">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="text-white mb-0" style="font-family: 'Playfair Display', serif;">Detalles de Tarjeta</h4>
+                            <div class="text-muted">
+                                <i class="fab fa-cc-visa fa-lg mx-1"></i>
+                                <i class="fab fa-cc-mastercard fa-lg mx-1"></i>
+                                <i class="fab fa-cc-amex fa-lg mx-1"></i>
+                            </div>
+                        </div>
+
                         <form method="POST" action="{% url 'payment_tarjeta_confirm' reserva.id %}">
                             {% csrf_token %}
                             
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label for="card-number" class="form-label">Número de Tarjeta</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control form-control-lg" id="card-number" placeholder="4922 0000 0000 0000" maxlength="19" required>
-                                    <span class="input-group-text" id="card-icon-container">
-                                        <i class="fa-brands fa-cc-visa" id="icon-visa"></i>
-                                        <i class="fa-brands fa-cc-mastercard" id="icon-mastercard"></i>
+                                    <input type="text" class="form-control form-control-payment" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                                    <span class="input-group-text input-group-text-custom" id="card-icon-container">
+                                        <i class="fab fa-cc-visa cc-icon" id="icon-visa"></i>
+                                        <i class="fab fa-cc-mastercard cc-icon" id="icon-mastercard"></i>
                                     </span>
                                 </div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label for="card-name" class="form-label">Nombre en la Tarjeta</label>
-                                <input type="text" class="form-control form-control-lg" id="card-name" placeholder="John M. Doe" required>
+                            <div class="mb-4">
+                                <label for="card-name" class="form-label">Nombre del Titular</label>
+                                <input type="text" class="form-control form-control-payment" id="card-name" placeholder="Como aparece en la tarjeta" required>
                             </div>
                             
                             <div class="row">
-                                <div class="col-7 mb-3">
-                                    <label for="card-expiry" class="form-label">Expira (MM/YY)</label>
-                                    <input type="text" class="form-control form-control-lg" id="card-expiry" placeholder="12/29" maxlength="5" required>
+                                <div class="col-6 mb-4">
+                                    <label for="card-expiry" class="form-label">Expiración</label>
+                                    <input type="text" class="form-control form-control-payment text-center" id="card-expiry" placeholder="MM/YY" maxlength="5" required>
                                 </div>
-                                <div class="col-5 mb-3">
-                                    <label for="card-cvc" class="form-label">CVC</label>
-                                    <input type="text" class="form-control form-control-lg" id="card-cvc" placeholder="123" maxlength="4" required>
+                                <div class="col-6 mb-4">
+                                    <label for="card-cvc" class="form-label">CVC / CVV</label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control form-control-payment text-center" id="card-cvc" placeholder="123" maxlength="4" required>
+                                        <i class="fas fa-question-circle position-absolute text-muted" style="right: 10px; top: 12px; cursor: help;" title="Código de 3 dígitos al reverso"></i>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-primario btn-lg">
-                                    Pagar (Simulación)
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-pay-gold w-100 mb-3">
+                                    <i class="fas fa-lock me-2"></i> Pagar y Confirmar
                                 </button>
-                                <a href="{% url 'home' %}" class="btn btn-outline-secondary">Cancelar</a>
+                                <div class="text-center">
+                                    <a href="{% url 'home' %}" class="btn btn-outline-cancel w-50">Cancelar</a>
+                                </div>
                             </div>
                             
                         </form>
                     </div>
-                </div> </div>
+
+                </div> 
+            </div>
+            
+            <div class="text-center mt-3">
+                <small class="text-muted"><i class="fas fa-shield-alt me-1"></i> Tus datos están protegidos por encriptación de extremo a extremo.</small>
+            </div>
         </div>
     </div>
+
 </main>
 
 <div class="fire-particles-container">
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
-    <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
     <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
     <div class="particle"></div> <div class="particle"></div> <div class="particle"></div> <div class="particle"></div>
 </div>
@@ -83,14 +273,32 @@
         const iconVisa = document.getElementById('icon-visa');
         const iconMastercard = document.getElementById('icon-mastercard');
         
+        // Formato simple para fecha (añade slash automáticamente)
+        const expiryInput = document.getElementById('card-expiry');
+        expiryInput.addEventListener('input', function(e) {
+            let input = e.target.value.replace(/\D/g, '');
+            if (input.length > 2) {
+                input = input.substring(0, 2) + '/' + input.substring(2, 4);
+            }
+            e.target.value = input;
+        });
+
+        // Lógica Original de Iconos (Mantenida)
         cardNumberInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s+/g, '');
+            // Añadir espacios cada 4 dígitos visualmente
+            let value = e.target.value.replace(/\s+/g, '').replace(/\D/g, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+
+            // Detección de tarjeta
+            let rawValue = value; // Valor sin espacios para el regex
+            
             iconVisa.classList.remove('visible');
             iconMastercard.classList.remove('visible');
             
-            if (/^4/.test(value)) {
+            if (/^4/.test(rawValue)) {
                 iconVisa.classList.add('visible');
-            } else if (/^5[1-5]/.test(value)) {
+            } else if (/^5[1-5]/.test(rawValue)) {
                 iconMastercard.classList.add('visible');
             }
         });

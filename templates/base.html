@@ -5,220 +5,300 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Steakhouse | {% block title %}Inicio{% endblock %}</title>
-    <!-- (Tus links de favicon, fonts, etc. no cambian) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/favicon/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicon/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicon/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'core/favicon/site.webmanifest' %}">
-    <link rel="icon" href="{% static 'core/favicon/favicon.ico' %}" type="image/x-icon">
-    <meta name="theme-color" content="#3d2422">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <link rel="icon" href="{% static 'core/favicon/favicon.ico' %}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{% static 'core/css/main.css' %}" />
     {% block extra_css %}{% endblock %}
+    
     <style>
-        .site-container { display: flex; flex-direction: column; min-height: 100vh; }
-        .site-content { flex-grow: 1; }
-        .profile-pic-nav {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #c89b3f;
-            margin-right: 10px;
+        /* --- RESET Y VARIABLES --- */
+        :root { --gold-primary: #c09a5b; --dark-bg: #050505; }
+        html { scroll-behavior: smooth; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--dark-bg); 
+            color: #e0e0e0; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            
+            /* --- CORRECCIÓN IMPORTANTE: ESPACIO PARA LA BARRA FIJA --- */
+            /* Esto empuja el contenido hacia abajo para que no se esconda detrás del menú */
+            padding-top: 75px; 
         }
-        .badge-rol {
-            font-size: 0.8rem;
-            padding: 0.4em 0.8em;
-            vertical-align: middle;
+        
+        h1, h2, h3, h4, h5, .navbar-brand, .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* --- NAVBAR FIJO Y AJUSTADO --- */
+        #main-header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 1030;
+            background-color: rgba(5, 5, 5, 0.95); 
+            border-bottom: 1px solid rgba(192, 154, 91, 0.2); 
+            backdrop-filter: blur(10px); 
+            padding: 0; 
+            transition: 0.3s;
+        }
+        
+        /* LOGO CORREGIDO */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+        }
+        .navbar-brand img { 
+            height: auto; 
+            max-height: 55px; 
+            width: auto;
+            object-fit: contain; 
+            transition: transform 0.3s; 
+        }
+        .navbar-brand:hover img { transform: scale(1.05); }
+
+        /* ENLACES */
+        .nav-link { 
+            font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; 
+            font-weight: 600; color: #ccc !important; padding: 0.5rem 1rem !important;
+            transition: 0.3s;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--gold-primary) !important; }
+
+        /* PC ESPECÍFICO */
+        @media (min-width: 992px) {
+            /* Aumentamos el padding del body en PC porque la barra es más alta */
+            body {
+                padding-top: 100px; 
+            }
+
+            .nav-link { font-size: 0.9rem; letter-spacing: 1.5px; }
+            .navbar-brand img { max-height: 65px; } 
+            #main-header { padding: 10px 0; }
+            
+            .nav-link::after {
+                content: ''; position: absolute; width: 0; height: 2px;
+                bottom: 0; left: 50%; background-color: var(--gold-primary);
+                transition: all 0.3s ease; transform: translateX(-50%);
+            }
+            .nav-link:hover::after { width: 60%; }
+        }
+
+        /* --- ROLES --- */
+        .role-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; border: 1px solid; margin-left: 5px; font-weight: bold; white-space: nowrap; }
+        .role-admin { color: #ff6b6b; border-color: #ff6b6b; }
+        .role-staff { color: #4dabf7; border-color: #4dabf7; }
+
+        /* FOOTER */
+        #main-footer { background-color: #080808; border-top: 1px solid rgba(192, 154, 91, 0.2); padding-top: 4rem; margin-top: auto; position: relative; z-index: 2; }
+        .social-btn { width: 35px; height: 35px; border: 1px solid #333; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #888; transition: 0.3s; margin-right: 5px; text-decoration: none; }
+        .social-btn:hover { background: var(--gold-primary); color: #000; border-color: var(--gold-primary); }
+        .footer-link { color: #888; text-decoration: none; transition: 0.2s; display: inline-block; }
+        .footer-link:hover { color: var(--gold-primary); padding-left: 5px; }
+
+        .cart-icon-wrapper { position: relative; }
+        .global-cart-badge { font-size: 0.65rem; padding: 0.25em 0.5em; top: -5px !important; }
+
+        /* --- MÓVIL OPTIMIZADO --- */
+        @media (max-width: 991px) {
+            .user-name-mobile { 
+                display: block !important; 
+                font-size: 0.75rem; 
+                margin-right: 8px;
+            }
+            .navbar-collapse { background: #080808; padding: 15px; border-top: 1px solid #333; text-align: center; }
+            .navbar-brand img { max-height: 45px; } 
         }
     </style>
 </head>
 <body class="{% block body_class %}site-container{% endblock %}">
     
-    <header id="main-header" class="sticky-top">
-        <!-- (Tu <header> no cambia en absoluto) -->
+    <header id="main-header">
         <nav class="navbar navbar-expand-lg">
-            <div class="container">
+            <div class="container-fluid px-3 px-xl-5">
                 
-                <a class="navbar-brand" href="{% url 'home' %}">
-                    <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="height: 50px;">
-                    <span class="navbar-brand-text">THE STEAKHOUSE</span>
+                <a class="navbar-brand me-lg-5" href="{% url 'home' %}">
+                    <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo">
                 </a>
                 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                    <span class="fas fa-bars text-white fs-4"></span>
                 </button>
                 
                 <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home' %}#inicio">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home' %}#nosotros">Nosotros</a>
-                        </li>
+                    
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 align-items-center">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#inicio">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#nosotros">Nosotros</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#estadisticas">Data</a></li>
                         
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="{% url 'menu_page' %}" id="menuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Menú
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="menuDropdown">
-                                <li><a class="dropdown-item" href="{% url 'menu_page' %}">Menú General</a></li>
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Carta</a>
+                            <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-secondary text-center text-lg-start">
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}">Ver Todo</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#CARNE">Cortes de Carne</a></li>
+                                <li><a class="dropdown-item" href="{% url 'menu_page' %}#CARNE">Cortes Premium</a></li>
                                 <li><a class="dropdown-item" href="{% url 'menu_page' %}#HAMBURGUESA">Hamburguesas</a></li>
                                 <li><a class="dropdown-item" href="{% url 'menu_page' %}#GUARNICION">Guarniciones</a></li>
                                 <li><a class="dropdown-item" href="{% url 'menu_page' %}#BEBIDA">Bebidas</a></li>
                                 <li><a class="dropdown-item" href="{% url 'menu_page' %}#POSTRE">Postres</a></li>
                             </ul>
                         </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'reservas_page' %}">Reservas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home' %}#novedades">Novedades</a>
-                        </li>
+
+                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#cava">Cava</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#ubicacion">Ubicación</a></li>
                         
+                        <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                            <a class="nav-link text-warning border border-warning rounded px-4 py-2" href="{% url 'reservas_page' %}">RESERVAR</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav align-items-center gap-3 mt-3 mt-lg-0 justify-content-center">
+                        <li class="nav-item cart-icon-wrapper">
+                            <a class="nav-link p-0" href="#" data-bs-toggle="modal" data-bs-target="#cartModal" title="Bandeja">
+                                <i class="fas fa-concierge-bell fa-lg"></i>
+                                {% if request.session.carrito %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger global-cart-badge">{{ request.session.carrito|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+
                         {% if user.is_authenticated %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <li class="nav-item dropdown border-start border-secondary ps-3 ms-2">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" data-bs-toggle="dropdown">
+                                    <div class="text-end me-2 lh-1 user-name-mobile">
+                                        <div class="text-white small fw-bold">{{ user.first_name|default:user.username|upper }}</div>
+                                        <div class="mt-1">{% if user.is_superuser %}<span class="role-badge role-admin">ADMIN</span>{% endif %}</div>
+                                    </div>
+
                                     {% if user.cliente.foto_perfil %}
-                                        <img src="{{ user.cliente.foto_perfil.url }}" alt="Foto de perfil" class="profile-pic-nav">
+                                        <img src="{{ user.cliente.foto_perfil.url }}" class="rounded-circle border border-warning" style="width: 38px; height: 38px; object-fit: cover;">
                                     {% else %}
-                                        <i class="fa fa-user me-2" style="font-size: 1.2rem;"></i>
+                                        <div class="rounded-circle bg-dark border border-secondary d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;"><i class="fas fa-user text-warning"></i></div>
                                     {% endif %}
-                                    
-                                    Hola, {{ user.username }}
-                                    
-                                    {% with user.groups.first as group %}
-                                        {% if user.is_superuser %}
-                                            <span class="badge-rol badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill ms-2">Admin</span>
-                                        {% elif group.name == 'Cajero' %}
-                                            <span class="badge-rol badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill ms-2">Cajero</span>
-                                        {% elif group.name == 'Mesero' %}
-                                            <span class="badge-rol badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill ms-2">Mesero</span>
-                                        {% elif user.is_staff %}
-                                            <span class="badge-rol badge bg-secondary-emphasis text-secondary-emphasis border border-secondary-subtle rounded-pill ms-2">Staff</span>
-                                        {% endif %}
-                                    {% endwith %}
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-dark">
+                                
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" style="border-top: 2px solid var(--gold-primary);">
                                     {% if user.is_staff %}
-                                    <li><a class="dropdown-item" href="{% url 'dashboard_home' %}">Panel de Admin</a></li>
-                                    <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-warning" href="{% url 'dashboard_home' %}">Dashboard WEBRES</a></li>
+                                        <li><hr class="dropdown-divider"></li>
                                     {% endif %}
                                     
                                     <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
                                     <li><a class="dropdown-item" href="{% url 'mis_reservas' %}">Mis Reservas</a></li>
-                                    
                                     <li><a class="dropdown-item" href="{% url 'mis_pedidos' %}">Mis Pedidos</a></li>
+                                    
                                     <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form action="{% url 'logout' %}" method="POST" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="dropdown-item">Salir</button>
-                                        </form>
-                                    </li>
+                                    <li><form action="{% url 'logout' %}" method="POST"><button class="dropdown-item text-danger">Cerrar Sesión</button>{% csrf_token %}</form></li>
                                 </ul>
                             </li>
                         {% else %}
-                            <li class="nav-item">
-                                <a href="{% url 'login' %}" class="btn btn-outline-acento header-button">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{% url 'register' %}" class="btn btn-primario header-button">Registrarse</a>
+                            <li class="nav-item d-flex gap-2 ms-3">
+                                <a href="{% url 'login' %}" class="btn btn-sm btn-outline-light px-4">Login</a>
+                                <a href="{% url 'register' %}" class="btn btn-sm btn-light px-4 text-dark fw-bold">Registro</a>
                             </li>
                         {% endif %}
-                        
-                        <li class="nav-item">
-                            <a classF="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modalCarrito" title="Ver Carrito">
-                                <i class="fa fa-shopping-cart fa-lg"></i>
-                                {% if request.session.carrito %}
-                                <span class="badge rounded-pill bg-danger" style="vertical-align: top; margin-left: -5px;">
-                                    {{ request.session.carrito|length }}
-                                </span>
-                                {% endif %}
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
 
-    {% if messages %}
-    <div class="container" style="z-index: 1050; position: fixed; top: 90px; right: 20px; width: auto;">
-        {% for message in messages %}
-        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type-="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <main class="site-content">
-        {% block content %}
-        {% endblock %}
+        {% if messages %}
+            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 80px;">
+                {% for message in messages %}
+                <div class="toast show text-white bg-dark border-start border-4 border-{{ message.tags|default:'info' }}" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body small">{{ message }}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
     </main>
 
-    <!-- ¡CAMBIO! Footer actualizado -->
     <footer id="main-footer">
         <div class="container">
-            <div class="row gy-4">
-                
-                <!-- Columna 1: Contacto -->
+            <div class="row gy-5 justify-content-between">
                 <div class="col-lg-4 col-md-6">
-                    <h5>Contáctanos</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fa fa-map-marker-alt me-2"></i> Av. 6 de Agosto, La Paz, Bolivia</li>
-                        <li><i class="fa fa-phone me-2"></i> +591 777 55 333</li>
-                        <li><i class="fa fa-envelope me-2"></i> contacto@steakhouse.com</li>
-                    </ul>
+                    <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" style="max-height: 50px; opacity: 0.8;">
+                    <p class="text-secondary small mt-3">Especialistas en parrilla americana y cortes premium. Calidad y tradición boliviana.</p>
+                    <div class="d-flex gap-2">
+                        <a href="https://www.facebook.com/TheSteakhouse" target="_blank" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/thesteakhousebolivia/" target="_blank" class="social-btn"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@thesteakhousebolivia" target="_blank" class="social-btn"><i class="fab fa-tiktok"></i></a>
+                    </div>
                 </div>
                 
-                <!-- Columna 2: Horarios -->
                 <div class="col-lg-3 col-md-6">
-                    <h5>Horarios de Atención</h5>
-                    <ul class="list-unstyled">
-                        <li>Lunes - Jueves: 12:00 - 23:00</li>
-                        <li>Viernes - Sábado: 12:00 - 00:00</li>
-                        <li>Domingo: 12:00 - 22:00</li>
+                    <h5 class="text-warning mb-3">Sucursales</h5>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-3">
+                            <strong class="d-block text-white">Zona Sur</strong>
+                            <i class="fas fa-map-marker-alt me-2 text-warning"></i>Megacenter, Av. Rafael Pabón
+                        </li>
+                        <li>
+                            <strong class="d-block text-white">Centro</strong>
+                            <i class="fas fa-map-marker-alt me-2 text-warning"></i>Calle Murillo
+                        </li>
                     </ul>
                 </div>
-                
-                <!-- Columna 3: Pagos y Redes -->
-                <div class="col-lg-5 col-md-12">
-                    <h5>Pagos Aceptados</h5>
-                    <div class="payment-icons mb-3">
-                        <i class="fab fa-cc-visa fa-2x me-2"></i>
-                        <i class="fab fa-cc-mastercard fa-2x me-2"></i>
-                        <i class="fab fa-cc-amex fa-2x me-2"></i>
-                        <i class="fa fa-qrcode fa-2x"></i> <!-- ¡Icono QR añadido! -->
-                    </div>
-                    
-                    <h5>Síguenos</h5>
-                    <div class="social-icons">
-                        <a href="#" class="text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" classa="text-white"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-whatsapp"></i></a>
-                    </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h5 class="text-warning mb-3">Explora</h5>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-2"><a href="{% url 'reservas_page' %}" class="footer-link">Reservar Mesa</a></li>
+                        <li class="mb-2"><a href="{% url 'menu_page' %}" class="footer-link">Nuestra Carta</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">Políticas</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-warning mb-3">Atención</h5>
+                    <ul class="list-unstyled text-secondary small">
+                        <li class="mb-3"><i class="fas fa-phone me-2 text-warning"></i> +591 777 55 333</li>
+                        <li class="d-flex justify-content-between mb-1"><span>Lun-Vie</span> <span>12:00 - 22:00</span></li>
+                        <li class="d-flex justify-content-between"><span>Sáb-Dom</span> <span>12:00 - 23:00</span></li>
+                    </ul>
                 </div>
             </div>
             
-            <div class="footer-bottom">
-                &copy; 2025 The Steakhouse - Proyecto EMI. Todos los derechos reservados.
+            <div class="text-center mt-5 pt-3 border-top border-secondary border-opacity-25 small text-muted">
+                © {% now "Y" %} The Steakhouse. Powered by <span class="text-warning fw-bold">WEBRES</span>.
             </div>
         </div>
     </footer>
-    <!-- FIN DEL CAMBIO -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: #1a1a1a; border: 1px solid #c09a5b; color: #fff;">
+                <div class="modal-header border-secondary py-2">
+                    <h6 class="modal-title font-serif text-white"><i class="fas fa-concierge-bell me-2 text-warning"></i>Tu Bandeja</h6>
+                    <button type="button" class="btn-close btn-close-white small" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" id="cart-modal-body">{% include 'pedidos/includes/cart_body.html' %}</div>
+                <div class="modal-footer border-secondary py-1">
+                    <a href="{% url 'menu_page' %}" class="btn btn-outline-light btn-sm w-100">Seguir Pidiendo</a>
+                    <a href="#" class="btn btn-primary btn-sm fw-bold w-100 mt-2" style="background-color: #c09a5b; border:none; color:#000;">Confirmar Pedido</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
-
 </body>
 </html>

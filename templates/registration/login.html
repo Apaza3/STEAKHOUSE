@@ -5,129 +5,213 @@
 
 {% block extra_css %}
 <style>
-    /* Estilo específico para la página de login */
-    .login-page-background {
-        /* Usamos una imagen de fondo "Fuego/Parrilla" */
-        background-image: linear-gradient(rgba(26, 26, 26, 0.85), rgba(26, 26, 26, 0.85)), url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+    /* =========================================
+       ESTILOS ESPECÍFICOS DEL LOGIN (FIX)
+       ========================================= */
+    
+    /* 1. CONTENEDOR PRINCIPAL (FONDO) */
+    .login-wrapper-fix {
+        min-height: 85vh; /* Altura para centrar */
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        /* Imagen de fondo forzada */
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url("{% static 'core/img/fondo_login.png' %}");
         background-size: cover;
-        background-position: center center;
+        background-position: center;
         background-attachment: fixed;
+    }
+
+    /* 2. LA TARJETA (CARD) */
+    .login-card-fix {
+        background-color: #1a1a1a;
+        width: 100%;
+        max-width: 900px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        border: 1px solid rgba(192, 154, 91, 0.3);
+        display: flex;
+        flex-direction: row; /* Lado a lado */
+        position: relative;
+        z-index: 10;
+    }
+
+    /* 3. IMAGEN LATERAL (IZQUIERDA) */
+    .login-side-img {
+        width: 45%;
+        position: relative;
+        background-image: url("{% static 'core/img/imagen_lateral_login.png' %}");
+        background-size: cover;
+        background-position: center;
+        min-height: 500px;
+    }
+    
+    .login-side-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+    }
+
+    /* 4. FORMULARIO (DERECHA) */
+    .login-form-side {
+        width: 55%;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #121212;
+    }
+
+    /* 5. INPUTS PERSONALIZADOS */
+    .custom-input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .custom-input {
+        background-color: #1f1f1f;
+        border: 1px solid #333;
+        color: #fff;
+        width: 100%;
+        height: 50px;
+        padding-left: 15px;
+        padding-right: 45px; /* Espacio para icono */
+        border-radius: 6px;
+        transition: 0.3s;
+    }
+
+    .custom-input:focus {
+        background-color: #252525;
+        border-color: #c09a5b;
+        outline: none;
+        box-shadow: 0 0 10px rgba(192, 154, 91, 0.15);
+    }
+
+    /* Botones dentro del input (Ojo / X) */
+    .input-action-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        cursor: pointer;
+        z-index: 5;
+    }
+    .input-action-icon:hover { color: #c09a5b; }
+
+    /* 6. RESPONSIVIDAD (MÓVIL) */
+    @media (max-width: 768px) {
+        .login-card-fix {
+            flex-direction: column; /* Apilar verticalmente */
+            max-width: 400px;
+        }
+        .login-side-img {
+            width: 100%;
+            height: 150px; /* Banner arriba */
+            min-height: auto;
+        }
+        .login-form-side {
+            width: 100%;
+            padding: 2rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- 
-  ================================================================
-  SECCIÓN DE LOGIN (FASE 2)
-  ================================================================
--->
-<div class="login-page-background d-flex align-items-center py-5" style="min-height: calc(100vh - 140px);"> <!-- 140px = alto aprox de header+footer -->
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-5 col-md-8">
-                
-                <!-- 
-                  Usamos la clase .login-container de main.css 
-                  para el efecto de vidrio oscuro (backdrop-filter) 
-                -->
-                <div class="login-container">
-                    
-                    <!-- 1. Logo -->
-                    <div class="text-center mb-4">
-                        <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo The Steakhouse" style="width: 100px;">
-                    </div>
-                    
-                    <!-- 2. Mensaje de Bienvenida -->
-                    <h3 class="text-center text-white font-serif-display mb-1">
-                        Bienvenido de Vuelta
-                    </h3>
-                    <p class="text-center text-secondary mb-4">
-                        Ingresa tus credenciales para continuar.
-                    </p>
-
-                    <!-- Formulario de Login -->
-                    <form method="POST">
-                        {% csrf_token %}
-                        
-                        <!-- Campo de Usuario con botón de Limpiar -->
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label fw-bold">Usuario:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-dark border-secondary">
-                                    <i class="fa fa-user text-danger-emphasis"></i>
-                                </span>
-                                <input type="text" name="username" id="id_username" class="form-control form-control-lg" placeholder="Tu nombre de usuario" required>
-                                <!-- 3. Botón de Limpiar -->
-                                <span class="btn-clear" id="clear-username" title="Limpiar">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <!-- Campo de Contraseña con botón de Limpiar -->
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label fw-bold">Contraseña:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-dark border-secondary">
-                                    <i class="fa fa-lock text-danger-emphasis"></i>
-                                </span>
-                                <input type="password" name="password" id="id_password" class="form-control form-control-lg" placeholder="Tu contraseña" required>
-                                <!-- 3. Botón de Limpiar -->
-                                <span class="btn-clear" id="clear-password" title="Limpiar">
-                                    <i class="fa fa-times"></i>
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Botón de Envío -->
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primario btn-lg fw-bold">
-                                Iniciar Sesión
-                            </button>
-                        </div>
-                        
-                        <!-- Enlaces -->
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="#" class="text-decoration-none text-danger-emphasis">¿Olvidaste tu contraseña?</a>
-                            <a href="{% url 'register' %}" class="text-decoration-none text-white">¿No tienes cuenta? Regístrate</a>
-                        </div>
-                    </form>
-
-                </div>
+<div class="login-wrapper-fix">
+    
+    <div class="login-card-fix animate__animated animate__fadeInUp">
+        
+        <div class="login-side-img">
+            <div class="login-side-overlay"></div>
+            <div style="position: absolute; top: 20px; left: 20px;">
+                <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" style="width: 70px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));">
             </div>
+        </div>
+
+        <div class="login-form-side">
+            
+            <h2 class="text-white font-serif-display mb-1">Bienvenido</h2>
+            <p class="text-secondary small mb-4">Ingresa tus credenciales para acceder.</p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <label class="text-secondary small mb-1">Usuario</label>
+                <div class="custom-input-group">
+                    <input type="text" name="username" id="id_username" class="custom-input" placeholder="Ej. admin" required autocomplete="off">
+                    <i class="fa fa-times-circle input-action-icon btn-clear" data-target="id_username" style="display: none;"></i>
+                </div>
+
+                <label class="text-secondary small mb-1">Contraseña</label>
+                <div class="custom-input-group">
+                    <input type="password" name="password" id="id_password" class="custom-input" placeholder="••••••••" required>
+                    <i class="fa fa-eye input-action-icon btn-toggle-pass" data-target="id_password"></i>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+                    <div class="form-check">
+                        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="rememberMe">
+                        <label class="form-check-label text-secondary small" for="rememberMe">Recordarme</label>
+                    </div>
+                    <a href="{% url 'password_change' %}" class="text-secondary small text-decoration-none hover-gold">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary-gold w-100 py-2 fw-bold shadow-sm mb-3">
+                    INICIAR SESIÓN
+                </button>
+
+                <div class="text-center">
+                    <span class="text-secondary small">¿No tienes cuenta? </span>
+                    <a href="{% url 'register' %}" class="text-warning small fw-bold text-decoration-none">Regístrate aquí</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- 
-  ================================================================
-  JAVASCRIPT PARA BOTONES DE LIMPIAR
-  ================================================================
--->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Limpiar campo de usuario
-        const clearUser = document.getElementById('clear-username');
-        const userInput = document.getElementById('id_username');
-        if (clearUser && userInput) {
-            clearUser.addEventListener('click', function() {
-                userInput.value = '';
-                userInput.focus();
-            });
-        }
-        
-        // Limpiar campo de contraseña
-        const clearPass = document.getElementById('clear-password');
-        const passInput = document.getElementById('id_password');
-        if (clearPass && passInput) {
-            clearPass.addEventListener('click', function() {
-                passInput.value = '';
-                passInput.focus();
-            });
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Lógica para borrar campo (X)
+    document.querySelectorAll('.custom-input').forEach(input => {
+        input.addEventListener('input', function() {
+            const wrapper = this.closest('.custom-input-group');
+            const clearBtn = wrapper.querySelector('.btn-clear');
+            if(clearBtn) clearBtn.style.display = this.value ? 'block' : 'none';
+        });
     });
+
+    document.querySelectorAll('.btn-clear').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            target.value = '';
+            target.focus();
+            this.style.display = 'none';
+        });
+    });
+
+    // Lógica para ver contraseña (Ojo)
+    document.querySelectorAll('.btn-toggle-pass').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            if(target.type === 'password'){
+                target.type = 'text';
+                this.classList.replace('fa-eye', 'fa-eye-slash');
+                this.style.color = '#c09a5b';
+            } else {
+                target.type = 'password';
+                this.classList.replace('fa-eye-slash', 'fa-eye');
+                this.style.color = '';
+            }
+        });
+    });
+});
 </script>
 {% endblock %}

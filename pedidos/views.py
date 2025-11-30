@@ -221,3 +221,4 @@ def pedido_exitoso_view(request):
 def mis_pedidos_view(request):
     pedidos = Pedido.objects.filter(usuario=request.user).order_by('-fecha_pedido')
     return render(request, 'mis_pedidos.html', {'pedidos': pedidos})
+

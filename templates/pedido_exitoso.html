@@ -1,20 +1,142 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Pedido Exitoso{% endblock %}
+
+{% block title %}¡Pedido Confirmado!{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =========================================
+       ESTILOS DE PÁGINA DE ÉXITO
+       ========================================= */
+    
+    .success-wrapper {
+        min-height: 85vh;
+        background: radial-gradient(circle at center, #2a2a2a 0%, #111 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden; /* Para que el confeti no estire la página */
+    }
+
+    .success-card {
+        background-color: rgba(20, 20, 20, 0.9);
+        border: 2px solid #c09a5b;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 0 50px rgba(192, 154, 91, 0.2);
+        max-width: 600px;
+        width: 90%;
+    }
+
+    /* La Mascota */
+    .mascot-img {
+        width: 200px;
+        height: auto;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+        /* Animación de entrada */
+        animation: bounceIn 1s cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    }
+
+    .success-title {
+        font-family: 'Playfair Display', serif;
+        color: #c09a5b;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .success-text {
+        color: #ccc;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    /* Efecto Confeti (CSS Puro) */
+    .confetti {
+        position: absolute;
+        width: 10px; height: 10px;
+        background-color: #c09a5b;
+        animation: fall linear forwards;
+        opacity: 0;
+    }
+
+    /* Animación de la Mascota (Rebote) */
+    @keyframes bounceIn {
+        0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+        20% { transform: scale3d(1.1, 1.1, 1.1); }
+        40% { transform: scale3d(0.9, 0.9, 0.9); }
+        60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+        80% { transform: scale3d(0.97, 0.97, 0.97); }
+        100% { opacity: 1; transform: scale3d(1, 1, 1); }
+    }
+
+    @keyframes fall {
+        to { transform: translateY(100vh) rotate(720deg); }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<main id="main-content" class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card card-dark-theme shadow-lg text-center p-5">
-                <h1 class="title-gold display-4">¡Gracias por tu pedido!</h1>
-                <p class="fs-4 mt-3">Tu pedido ha sido recibido y está en preparación.</p>
-                <p>Recibirás una notificación cuando esté listo.</p>
-                <div class="mt-4">
-                    <a href="{% url 'home' %}" class="btn btn-outline-light" style="border-color: #c89b3f; color: #f4f0e8;">Volver al Inicio</a>
-                </div>
-            </div>
+<div class="success-wrapper">
+    
+    <div id="confetti-container"></div>
+
+    <div class="success-card">
+        
+        <img src="{% static 'core/img/mascota_exito.png' %}" alt="Mascota Feliz" class="mascot-img">
+
+        <h1 class="success-title">¡Excelente Elección!</h1>
+        
+        <p class="success-text">
+            Tu pedido ha sido recibido correctamente.<br>
+            Nuestro equipo ya está preparando todo con la mejor calidad.
+        </p>
+
+        <div class="d-grid gap-3 d-sm-flex justify-content-center">
+            <a href="{% url 'mis_pedidos' %}" class="btn btn-primary-gold px-4 py-2 fw-bold text-uppercase shadow">
+                <i class="fas fa-receipt me-2"></i> Ver Estado
+            </a>
+            
+            <a href="{% url 'home' %}" class="btn btn-outline-light px-4 py-2" style="border-color: #444; color: #aaa;">
+                Volver al Inicio
+            </a>
         </div>
+
     </div>
-</main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // SCRIPT SENCILLO PARA EL EFECTO CONFETI
+    document.addEventListener("DOMContentLoaded", function() {
+        const colors = ['#c09a5b', '#ffffff', '#ffd700', '#8a6d3b'];
+        const container = document.getElementById('confetti-container');
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            
+            // Aleatoriedad
+            const bg = colors[Math.floor(Math.random() * colors.length)];
+            const left = Math.random() * 100 + 'vw';
+            const animDuration = Math.random() * 3 + 2 + 's'; // Entre 2 y 5s
+            const animDelay = Math.random() * 2 + 's';
+            
+            confetti.style.background = bg;
+            confetti.style.left = left;
+            confetti.style.top = '-10px';
+            confetti.style.animationDuration = animDuration;
+            confetti.style.animationDelay = animDelay;
+            confetti.style.opacity = Math.random();
+            
+            container.appendChild(confetti);
+        }
+    });
+</script>
 {% endblock %}

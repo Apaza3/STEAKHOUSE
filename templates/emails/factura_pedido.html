@@ -2,119 +2,102 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Factura de Pedido</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .header {
-            background-color: #3d2422; /* Marrón oscuro */
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            color: #c89b3f; /* Dorado */
-            font-family: 'Playfair Display', serif;
-        }
-        .content {
-            padding: 30px;
-            color: #333;
-        }
-        .content p {
-            line-height: 1.6;
-        }
-        .order-details {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-        .order-details th, .order-details td {
-            border-bottom: 1px solid #eee;
-            padding: 12px;
-            text-align: left;
-        }
-        .order-details th {
-            background-color: #f9f9f9;
-        }
-        .total-row {
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        .total-row td {
-            border-top: 2px solid #3d2422;
-        }
-        .footer {
-            background-color: #f9f9f9;
-            color: #777;
-            padding: 20px;
-            text-align: center;
-            font-size: 0.9em;
-            border-top: 1px solid #eee;
-        }
-    </style>
+    <title>Recibo de Pedido</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>The Steakhouse</h1>
-            <p style="color: #f4f0e8;">Confirmación de Pedido</p>
-        </div>
-        <div class="content">
-            <p>¡Hola, <strong>{{ usuario.username }}</strong>!</p>
-            <p>Gracias por tu pedido. Lo hemos recibido y ya está siendo preparado. Aquí tienes un resumen de tu "factura":</p>
+<body style="margin: 0; padding: 0; background-color: #f2f2f2; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
 
-            <p>
-                <strong>Pedido ID:</strong> #{{ pedido.id }}<br>
-                <strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d M Y, H:i" }}<br>
-                <strong>Estado:</strong> {{ pedido.get_estado_pedido_display }}
-            </p>
-
-            <table class="order-details">
-                <thead>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 0; border-top: 5px solid #c09a5b; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    
                     <tr>
-                        <th>Producto</th>
-                        <th>Cant.</th>
-                        <th>Subtotal</th>
+                        <td style="padding: 40px 40px 20px 40px; border-bottom: 1px solid #eeeeee;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td valign="top">
+                                        <h1 style="color: #000; font-family: 'Georgia', serif; font-size: 28px; margin: 0;">WEBRES</h1>
+                                        <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">CONFIRMACIÓN DE PEDIDO</p>
+                                    </td>
+                                    <td valign="top" align="right" style="text-align: right;">
+                                        <p style="font-size: 14px; color: #333; margin: 0;"><strong>Pedido #{{ pedido.id }}</strong></p>
+                                        <p style="font-size: 12px; color: #888; margin: 5px 0 0 0;">{{ pedido.fecha_pedido|date:"d M Y, H:i" }}</p>
+                                        <p style="font-size: 12px; color: #28a745; margin: 5px 0 0 0; font-weight: bold; text-transform: uppercase;">{{ pedido.get_estado_pedido_display }}</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for item in detalles %}
-                    <tr>
-                        <td>{{ item.producto.nombre_producto }}</td>
-                        <td>{{ item.cantidad }}</td>
-                        <td>{{ item.subtotal|floatformat:2 }} Bs.</td>
-                    </tr>
-                    {% endfor %}
-                    <tr class="total-row">
-                        <td colspan="2">Total a Pagar (en local)</td>
-                        <td>{{ pedido.total|floatformat:2 }} Bs.</td>
-                    </tr>
-                </tbody>
-            </table>
 
-            <p style="margin-top: 30px;">
-                ¡Te esperamos!
-                <br>
-                El equipo de The Steakhouse
-            </p>
-        </div>
-        <div class="footer">
-            &copy; {% now "Y" %} The Steakhouse. Todos los derechos reservados.
-        </div>
-    </div>
+                    <tr>
+                        <td style="padding: 30px 40px 10px 40px;">
+                            <p style="color: #333; font-size: 16px; line-height: 1.5; margin: 0;">
+                                Hola, <strong>{{ usuario.username }}</strong>.<br><br>
+                                Hemos recibido tu orden correctamente y nuestro equipo de cocina ya está trabajando en ella. Aquí tienes el detalle de tu consumo:
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <table border="0" cellpadding="10" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: #f8f8f8; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">
+                                        <th align="left" style="color: #555; border-bottom: 2px solid #ddd;">Producto</th>
+                                        <th align="center" style="color: #555; border-bottom: 2px solid #ddd;">Cant.</th>
+                                        <th align="right" style="color: #555; border-bottom: 2px solid #ddd;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in detalles %}
+                                    <tr>
+                                        <td style="border-bottom: 1px solid #eee; color: #333; font-size: 14px;">
+                                            <strong>{{ item.producto.nombre_producto }}</strong>
+                                        </td>
+                                        <td align="center" style="border-bottom: 1px solid #eee; color: #555; font-size: 14px;">
+                                            {{ item.cantidad }}
+                                        </td>
+                                        <td align="right" style="border-bottom: 1px solid #eee; color: #333; font-size: 14px;">
+                                            {{ item.subtotal|floatformat:2 }} Bs.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                    <tr>
+                                        <td colspan="2" align="right" style="padding-top: 20px; font-size: 14px; color: #888;">Total a Pagar:</td>
+                                        <td align="right" style="padding-top: 20px; font-size: 24px; color: #c09a5b; font-weight: bold;">
+                                            {{ pedido.total|floatformat:2 }} Bs.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 40px 40px 40px; text-align: center;">
+                            <div style="background-color: #fff9e6; border: 1px solid #faeacc; border-radius: 4px; padding: 15px;">
+                                <p style="margin: 0; color: #8a6d3b; font-size: 13px;">
+                                    Recuerda que el pago se realiza en el local al momento de recibir tu pedido.
+                                </p>
+                            </div>
+                            <p style="margin-top: 30px; font-size: 14px; color: #555;">
+                                ¡Gracias por tu preferencia!<br>
+                                <strong>Equipo de WEBRES</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td align="center" style="background-color: #222; padding: 20px; color: #666; font-size: 11px;">
+                            &copy; {% now "Y" %} WEBRES. Este es un correo automático, por favor no responder.
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>

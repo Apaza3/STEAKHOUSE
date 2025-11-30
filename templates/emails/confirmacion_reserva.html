@@ -3,51 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <title>Confirmación de Reserva</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-        .container { width: 90%; max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #ddd; }
-        .header { background-color: #3d2422; padding: 20px; text-align: center; }
-        .header h1 { color: #c89b3f; font-family: 'Rye', serif; margin: 0; }
-        .content { padding: 30px; }
-        .content p { font-size: 16px; line-height: 1.5; }
-        .details { background-color: #fdfaf3; border: 1px solid #c89b3f; padding: 20px; }
-        .footer { padding: 20px; text-align: center; font-size: 12px; color: #777; }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1 style="color: #c89b3f;">The Steakhouse</h1>
-        </div>
-        <div class="content">
-            <p>Hola, <strong>{{ cliente.nombre }}</strong>,</p>
-            
-            <p>¡Tu reserva en The Steakhouse está confirmada! Muchas gracias por elegirnos.</p>
-            
-            <p>Aquí están los detalles de tu reserva:</p>
+<body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #1a1a1a; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                    
+                    <tr>
+                        <td align="center" style="background-color: #000000; padding: 30px; border-bottom: 4px solid #c09a5b;">
+                            <h1 style="color: #c09a5b; margin: 0; font-family: 'Georgia', serif; letter-spacing: 2px; text-transform: uppercase; font-size: 24px;">WEBRES</h1>
+                            <p style="color: #888888; margin: 5px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Experiencia Premium</p>
+                        </td>
+                    </tr>
 
-            <div class="details">
-                <p><strong>Reserva ID:</strong> {{ reserva.id|truncatechars:8 }}...</p>
-                <p><strong>Fecha:</strong> {{ reserva.fecha_reserva }}</p>
-                <p><strong>Hora:</strong> {{ reserva.hora_reserva }}</p>
-                <p><strong>Personas:</strong> {{ reserva.numero_personas }}</p>
-                {% if reserva.mesa %}
-                <p><strong>Mesa:</strong> {{ reserva.mesa.numero }}</p>
-                {% endif %}
-                <p><strong>Estado:</strong> {{ reserva.get_estado_display }}</p>
-                <p><strong>Tipo de Pago:</strong> {{ reserva.get_tipo_pago_display }}</p>
-            </div>
+                    <tr>
+                        <td style="padding: 40px 40px 20px 40px;">
+                            <h2 style="color: #333333; margin-top: 0; font-size: 20px;">¡Reserva Confirmada!</h2>
+                            <p style="color: #555555; font-size: 16px; line-height: 1.6;">
+                                Hola, <strong>{{ cliente.nombre }}</strong>.
+                                <br><br>
+                                Es un placer confirmarte que tu mesa está lista. Gracias por elegirnos para vivir una experiencia gastronómica inolvidable.
+                            </p>
+                        </td>
+                    </tr>
 
-            <p style="margin-top: 20px;">
-                <strong>Política de No-Show:</strong> Te recordamos que tienes una tolerancia de 30 minutos.
-            </p>
-            
-            <p>¡Te esperamos!</p>
-            <p>El equipo de The Steakhouse</p>
-        </div>
-        <div class="footer">
-            <p>&copy; 2025 The Steakhouse. Todos los derechos reservados.</p>
-        </div>
-    </div>
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fdfaf3; border: 1px dashed #c09a5b; border-radius: 4px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;" width="120">ID Reserva:</td>
+                                                <td style="color: #333; font-weight: bold; font-family: monospace;">{{ reserva.id|truncatechars:8 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;">Fecha:</td>
+                                                <td style="color: #333; font-weight: bold;">{{ reserva.fecha_reserva }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;">Hora:</td>
+                                                <td style="color: #333; font-weight: bold;">{{ reserva.hora_reserva }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;">Personas:</td>
+                                                <td style="color: #333; font-weight: bold;">{{ reserva.numero_personas }} pax</td>
+                                            </tr>
+                                            {% if reserva.mesa %}
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;">Mesa:</td>
+                                                <td style="color: #c09a5b; font-weight: bold;">{{ reserva.mesa.numero }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;">Estado:</td>
+                                                <td style="color: #28a745; font-weight: bold;">{{ reserva.get_estado_display }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="color: #888; font-size: 14px;">Pago:</td>
+                                                <td style="color: #333;">{{ reserva.get_tipo_pago_display }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 30px 40px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fff0f0; border-left: 4px solid #dc3545; border-radius: 2px;">
+                                <tr>
+                                    <td style="padding: 15px;">
+                                        <p style="margin: 0; font-size: 13px; color: #a00000;">
+                                            <strong>Importante:</strong> Tienes una tolerancia de espera de <strong>30 minutos</strong>. Pasado ese tiempo, el sistema liberará la mesa automáticamente.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="text-align: center; margin-top: 30px; font-size: 16px; color: #333;">¡Te esperamos!</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td align="center" style="background-color: #f4f4f4; padding: 20px; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee;">
+                            &copy; 2025 WEBRES. Todos los derechos reservados.<br>
+                            Av. 6 de Agosto, La Paz, Bolivia
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

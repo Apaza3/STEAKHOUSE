@@ -1,110 +1,272 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %} <!-- Para mostrar los montos -->
+{% load humanize %}
 
 {% block title %}Mis Reservas{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Usamos el mismo fondo que el login/perfil */
-    .reservas-page-background {
-        background-color: #1a1a1a;
-        /* Fondo de parrilla sutil */
-        background-image: linear-gradient(rgba(26, 26, 26, 0.9), rgba(26, 26, 26, 0.9)), 
-                          url('https://images.unsplash.com/photo-1541614101331-1a5a3a194e02?q=80&w=2070');
+    /* =========================================
+       ESTILOS DE TICKET DE RESERVA VIP
+       ========================================= */
+
+    .reservas-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)), url("{% static 'core/img/fondo_mis_reservas.png' %}");
         background-size: cover;
-        background-position: center center;
+        background-position: center;
         background-attachment: fixed;
+        padding-bottom: 50px;
     }
-    .card-reserva {
-        background-color: rgba(30, 21, 19, 0.85);
-        backdrop-filter: blur(10px);
-        border: 1px solid #4d3a36;
+
+    /* HEADER CON LOGO */
+    .reservas-header {
+        text-align: center;
+        padding: 40px 0;
+    }
+    .reservas-header img {
+        width: 80px;
+        filter: drop-shadow(0 0 10px rgba(192, 154, 91, 0.5));
+        margin-bottom: 15px;
+    }
+
+    /* TARJETA DE RESERVA (TICKET) */
+    .ticket-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 25px;
+        position: relative;
+        transition: transform 0.3s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: row; /* Diseño horizontal en PC */
+    }
+
+    .ticket-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        border-color: #c09a5b;
+    }
+
+    /* Borde izquierdo dorado para resaltar */
+    .ticket-card::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, #c09a5b, #8a6d3b);
+    }
+
+    /* 1. COLUMNA FECHA (IZQUIERDA) */
+    .ticket-date {
+        background-color: #252525;
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-right: 1px dashed #444;
+        padding: 15px;
+        text-align: center;
+    }
+    .date-month {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        color: #c09a5b;
+        letter-spacing: 2px;
+        font-weight: 700;
+    }
+    .date-day {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #fff;
+        font-family: 'Playfair Display', serif;
+        line-height: 1;
+    }
+    .date-year {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    /* 2. COLUMNA INFO (CENTRO) */
+    .ticket-info {
+        flex-grow: 1;
+        padding: 20px 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .table-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+
+    .ticket-details {
+        color: #aaa;
+        font-size: 0.9rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .ticket-details li i { color: #c09a5b; margin-right: 5px; }
+
+    /* Código de Reserva pequeño */
+    .ticket-code {
+        font-family: monospace;
+        color: #555;
+        font-size: 0.8rem;
+        margin-top: 10px;
+        display: inline-block;
+        background: #111;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    /* 3. COLUMNA ESTADO Y ACCIONES (DERECHA) */
+    .ticket-actions {
+        width: 220px;
+        background-color: #1a1a1a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border-left: 1px dashed #333;
+    }
+
+    /* ESTILOS DE ESTADO PERSONALIZADOS */
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        border: 1px solid transparent;
+    }
+    
+    .status-confirmada { background: rgba(25, 135, 84, 0.2); color: #2ecc71; border-color: #2ecc71; }
+    .status-pendiente { background: rgba(192, 154, 91, 0.1); color: #f1c40f; border-color: #f1c40f; }
+    .status-cancelada { background: rgba(220, 53, 69, 0.1); color: #e74c3c; border-color: #e74c3c; opacity: 0.7; }
+    .status-completada { background: rgba(13, 202, 240, 0.1); color: #3498db; border-color: #3498db; }
+
+    /* RESPONSIVIDAD */
+    @media (max-width: 768px) {
+        .ticket-card { flex-direction: column; }
+        .ticket-date { 
+            width: 100%; 
+            flex-direction: row; 
+            gap: 10px; 
+            border-right: none; 
+            border-bottom: 1px dashed #444; 
+            padding: 10px;
+        }
+        .date-day { font-size: 1.5rem; }
+        .ticket-actions { 
+            width: 100%; 
+            border-left: none; 
+            border-top: 1px dashed #333; 
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .status-badge { margin-bottom: 0; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="reservas-page-background d-flex align-items-center flex-grow-1 py-5">
+<div class="reservas-wrapper">
     <div class="container">
+        
+        <div class="reservas-header animate__animated animate__fadeInDown">
+            <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo">
+            <h1 class="text-white font-serif-display">Mis Reservas</h1>
+            <p class="text-secondary">Historial de tus experiencias exclusivas</p>
+        </div>
+
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                
-                <h1 class="text-center text-white font-serif-display mb-4">Mis Reservas</h1>
-                
+
                 {% if not reservas_con_info %}
-                    <div class="login-container text-center p-5">
-                        <h4 class="text-white">No tienes reservas</h4>
-                        <p class="text-secondary">Todas tus reservas activas y pasadas aparecerán aquí.</p>
-                        <a href="{% url 'reservas_page' %}" class="btn btn-primario mt-3">Hacer una reserva ahora</a>
+                    <div class="text-center py-5 animate__animated animate__fadeIn">
+                        <i class="fa fa-calendar-times text-secondary mb-3" style="font-size: 4rem; opacity: 0.3;"></i>
+                        <h4 class="text-white">Aún no tienes reservas</h4>
+                        <p class="text-white-50">Reserva tu mesa hoy mismo y vive la experiencia.</p>
+                        <a href="{% url 'reservas_page' %}" class="btn btn-primary-gold mt-3">
+                            <i class="fa fa-plus me-2"></i> Nueva Reserva
+                        </a>
                     </div>
                 {% endif %}
 
                 {% for item in reservas_con_info %}
-                <div class="card card-reserva shadow-lg mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #4d3a36;">
-                        <h5 class="mb-0 font-serif-display text-white">
-                            Reserva para: {{ item.reserva.fecha_reserva|date:"d M, Y" }}
-                        </h5>
-                        <!-- Lógica de Badges de Estado -->
+                <div class="ticket-card animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter0 }}00ms;">
+                    
+                    <div class="ticket-date">
+                        <span class="date-month">{{ item.reserva.fecha_reserva|date:"M" }}</span>
+                        <span class="date-day">{{ item.reserva.fecha_reserva|date:"d" }}</span>
+                        <span class="date-year">{{ item.reserva.fecha_reserva|date:"Y" }}</span>
+                    </div>
+
+                    <div class="ticket-info">
+                        <h3 class="table-name">
+                            {% if item.reserva.mesa %}
+                                {{ item.reserva.mesa.get_tipo_display }} - Mesa {{ item.reserva.mesa.numero }}
+                            {% else %}
+                                Mesa por Asignar
+                            {% endif %}
+                        </h3>
+                        
+                        <ul class="ticket-details">
+                            <li><i class="fa fa-clock"></i> {{ item.reserva.hora_reserva|time:"H:i" }} hrs</li>
+                            <li><i class="fa fa-user-friends"></i> {{ item.reserva.numero_personas }} pax</li>
+                            <li><i class="fa fa-hourglass-half"></i> {{ item.reserva.duracion_horas }}h</li>
+                        </ul>
+
+                        <span class="ticket-code" title="ID Completo: {{ item.reserva.id }}">
+                            TICKET #: {{ item.reserva.id|slice:":8"|upper }}
+                        </span>
+                    </div>
+
+                    <div class="ticket-actions">
                         {% if item.reserva.estado == 'CONFIRMADA' %}
-                            <span class="badge bg-success fs-6">Confirmada</span>
+                            <span class="status-badge status-confirmada">Confirmada</span>
                         {% elif item.reserva.estado == 'PENDIENTE' %}
-                            <span class="badge bg-warning text-dark fs-6">Pendiente de Pago</span>
+                            <span class="status-badge status-pendiente">Pendiente Pago</span>
                         {% elif item.reserva.estado == 'CANCELADA' %}
-                            <span class="badge bg-danger fs-6">Cancelada</span>
+                            <span class="status-badge status-cancelada">Cancelada</span>
                         {% elif item.reserva.estado == 'COMPLETADA' %}
-                            <span class="badge bg-info fs-6">Completada</span>
-                        {% elif item.reserva.estado == 'NO_SHOW' %}
-                            <span class="badge bg-dark fs-6">No Show</span>
+                            <span class="status-badge status-completada">Completada</span>
+                        {% else %}
+                            <span class="status-badge bg-secondary text-white">{{ item.reserva.estado }}</span>
+                        {% endif %}
+
+                        {% if item.se_puede_cancelar %}
+                            <form action="{% url 'cancelar_reserva' item.reserva.id %}" method="POST" 
+                                  onsubmit="return confirm('¿Seguro que deseas cancelar?\n\n{{ item.info_reembolso.mensaje }}');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                    Cancelar
+                                </button>
+                            </form>
+                            <small class="text-muted mt-2 text-center" style="font-size: 0.65rem;">
+                                {{ item.info_reembolso.mensaje }}
+                            </small>
+                        {% else %}
+                            {% if item.reserva.estado != 'CANCELADA' and item.reserva.estado != 'COMPLETADA' %}
+                                <small class="text-muted text-center fst-italic" style="font-size: 0.7rem;">
+                                    No cancelable <br>(< 24h)
+                                </small>
+                            {% endif %}
                         {% endif %}
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <!-- Detalles de la Reserva -->
-                            <div class="col-md-8">
-                                <h4 class="text-white">
-                                    {% if item.reserva.mesa %}
-                                        Mesa {{ item.reserva.mesa.numero }} ({{ item.reserva.mesa.get_tipo_display }})
-                                    {% else %}
-                                        Mesa sin Asignar
-                                    {% endif %}
-                                </h4>
-                                <ul class="list-unstyled text-light mb-0">
-                                    <li><i class="fa fa-users me-2 text-danger-emphasis"></i> {{ item.reserva.numero_personas }} personas</li>
-                                    <li><i class="fa fa-clock me-2 text-danger-emphasis"></i> {{ item.reserva.hora_reserva|time:"H:i" }} - {{ item.reserva.hora_fin|time:"H:i" }} ({{ item.reserva.duracion_horas }}h)</li>
-                                    <li class="small text-muted mt-2">ID: <code>{{ item.reserva.id|slice:":8" }}...</code></li>
-                                </ul>
-                            </div>
-                            <!-- Acciones y Reembolso -->
-                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                                {% if item.se_puede_cancelar %}
-                                    <h6 class="text-white">Política de Cancelación:</h6>
-                                    <p class="text-warning small">
-                                        {{ item.info_reembolso.mensaje }}
-                                    </p>
-                                    
-                                    <!-- Formulario de Cancelación con Advertencia JS -->
-                                    <form action="{% url 'cancelar_reserva' item.reserva.id %}" method="POST" 
-                                          onsubmit="return confirm('¿Estás seguro de que quieres cancelar esta reserva?\n\nADVERTENCIA: {{ item.info_reembolso.mensaje }}');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger">
-                                            Cancelar Reserva
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <h6 class="text-white">Política de Cancelación:</h6>
-                                    <p class="text-muted small">
-                                        {% if item.reserva.estado == 'CANCELADA' %}
-                                            Esta reserva ya fue cancelada.
-                                        {% else %}
-                                            Esta reserva ya no se puede cancelar (la fecha ya pasó).
-                                        {% endif %}
-                                    </p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
                 {% endfor %}
 
