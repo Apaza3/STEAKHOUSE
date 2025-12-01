@@ -1,32 +1,108 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Admin - The Steakhouse</title>
-    
+
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/favicon/apple-touch-icon.png' %}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicon/favicon-32x32.png' %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicon/favicon-16x16.png' %}">
     <link rel="manifest" href="{% static 'core/favicon/site.webmanifest' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="{% static 'core/css/main.css' %}" />
-    
+
     <style>
         :root {
-            --header-height: 80px; 
+            --header-height: 80px;
         }
-        body { 
+
+        body {
             padding-top: var(--header-height);
+            /* Fondo general oscuro para que coincida si el contenido es corto */
+            background-color: #0f0f0f;
         }
+
+        label,
+        .form-label {
+            color: #e0e0e0 !important;
+            /* Gris casi blanco */
+            font-weight: 600;
+            /* Un poco más gordita la letra */
+            margin-bottom: 5px;
+        }
+
+        /* 2. Color de ayuda (textos pequeños debajo de los inputs) */
+        .form-text,
+        .help-text {
+            color: #aaa !important;
+            /* Gris medio */
+            font-style: italic;
+        }
+
+        /* 3. (Opcional) Si quieres que los inputs (cajas blancas) sean oscuros también: */
+        .form-control,
+        .form-select {
+            background-color: #2a2a2a !important;
+            /* Fondo gris oscuro */
+            color: #fff !important;
+            /* Texto blanco al escribir */
+            border: 1px solid #555 !important;
+            /* Borde gris sutil */
+        }
+
+        /* Al hacer clic en el input */
+        .form-control:focus,
+        .form-select:focus {
+            background-color: #333 !important;
+            border-color: #c5a059 !important;
+            /* Borde dorado al escribir */
+            color: #fff !important;
+            box-shadow: 0 0 5px rgba(197, 160, 89, 0.5) !important;
+        }
+
+        /* --- CORRECCIÓN DE DETALLES EN TARJETAS --- */
+
+        /* 1. Texto general dentro de la tarjeta (El valor: "aaron apaza") */
+        .card-body,
+        .card-body p {
+            color: #e0e0e0 !important;
+            /* Blanco suave */
+        }
+
+        /* 2. Títulos de los datos (Las etiquetas: "Cliente:", "Email:") */
+        .card-body strong,
+        .card-body b,
+        .card-body h4,
+        .card-body h5,
+        .card-body h6 {
+            color: #c5a059 !important;
+            /* Dorado Premium */
+        }
+
+        /* 3. Enlaces dentro de la tarjeta (emails, teléfonos si son links) */
+        .card-body a {
+            color: #d4af37;
+            /* Dorado más brillante */
+            text-decoration: none;
+        }
+
+        .card-body a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
         .sidebar {
             position: fixed;
-            top: var(--header-height); 
+            top: var(--header-height);
             left: 0;
             width: 280px;
             height: calc(100vh - var(--header-height));
@@ -34,8 +110,9 @@
             color: #f4f0e8;
             padding: 20px;
             overflow-y: auto;
-            z-index: 1020; 
+            z-index: 1020;
         }
+
         .sidebar .nav-link {
             color: #f4f0e8;
             font-size: 1.1rem;
@@ -43,23 +120,35 @@
             padding: .5rem 1rem;
             border-radius: .25rem;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
             color: #ffffff;
             background-color: #c89b3f;
         }
-        .sidebar .nav-link .fa { margin-right: 10px; }
+
+        .sidebar .nav-link .fa {
+            margin-right: 10px;
+        }
+
         .content {
             margin-left: 280px;
             padding: 30px;
             width: calc(100% - 280px);
+            /* Aseguramos fondo oscuro en el área de contenido */
+            background-color: #0f0f0f;
+            min-height: calc(100vh - var(--header-height));
         }
+
+        /* Esta clase la usabas antes, la mantenemos por compatibilidad, 
+           pero el CSS de abajo la sobrescribirá con !important si es necesario */
         .card-header-gold {
             background-color: #c89b3f;
             color: #3d2422;
             font-family: 'Playfair Display', serif;
         }
 
-        /* --- ¡NUEVO! Estilos para la foto y rol en el header --- */
+        /* Estilos para la foto y rol en el header */
         .profile-pic-nav {
             width: 40px;
             height: 40px;
@@ -68,25 +157,193 @@
             border: 2px solid #c89b3f;
             margin-right: 10px;
         }
-        .badge-rol {
-            font-size: 0.8rem;
-            padding: 0.4em 0.8em;
-            vertical-align: middle;
-        }
-        /* --------------------------------------------------- */
 
+        .badge-rol {
+            background-color: #c5a059 !important;
+            /* Dorado */
+            color: #1a1a1a !important;
+            /* Texto oscuro */
+            border: 1px solid #c5a059 !important;
+            font-weight: bold;
+            padding: 0.5em 0.8em;
+        }
+
+        .badge-role-staff {
+            background-color: #2c5364 !important;
+            /* Azul grisáceo oscuro */
+            color: #ffffff !important;
+            /* Texto blanco */
+            border: 1px solid #203a43 !important;
+            padding: 0.5em 0.8em;
+        }
+
+        .btn-action-gold {
+            background-color: transparent;
+            color: #c5a059;
+            border: 1px solid #c5a059;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action-gold:hover {
+            background-color: #c5a059;
+            color: #1a1a1a;
+        }
+
+        /* Botón Rojo Sangre (Para eliminar) */
+        .btn-action-danger {
+            background-color: transparent;
+            color: #b71c1c;
+            /* Rojo oscuro */
+            border: 1px solid #b71c1c;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action-danger:hover {
+            background-color: #b71c1c;
+            color: #ffffff;
+        }
+
+        .badge-status-delivered {
+            background-color: #1b5e20 !important;
+            /* Verde oscuro elegante */
+            color: #a5d6a7 !important;
+            /* Texto verde claro */
+            border: 1px solid #2e7d32 !important;
+            /* Borde verde medio */
+        }
+
+        /* =========================================
+           TEMA DARK PREMIUM PARA TABLAS Y PANELES (NUEVO)
+           ========================================= */
+
+        /* 1. Contenedor de la Tabla (La tarjeta) */
+        .card {
+            background-color: #1a1a1a !important;
+            /* Fondo gris casi negro */
+            border: 1px solid #333 !important;
+            /* Borde sutil */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        /* 2. Cabecera Dorada de la Tarjeta */
+        .card-header {
+            background-color: #c5a059 !important;
+            /* Tu dorado de marca */
+            color: #1a1a1a !important;
+            /* Texto oscuro para contraste */
+            font-weight: 800;
+            /* Letra gruesa */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: none;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 3. La Tabla en sí */
+        .table {
+            --bs-table-bg: transparent;
+            /* Quitar fondo blanco de Bootstrap */
+            --bs-table-color: #e0e0e0;
+            /* Texto gris claro */
+            --bs-table-border-color: #444;
+            /* Líneas de separación oscuras */
+            margin-bottom: 0;
+        }
+
+        /* Encabezados de columnas (Cliente, Mesa, etc.) */
+        .table thead th {
+            background-color: #2c1a16 !important;
+            /* Café muy oscuro (Coffee Bean) */
+            color: #c5a059 !important;
+            /* Texto dorado */
+            border-bottom: 2px solid #c5a059;
+            /* Línea dorada separadora */
+            font-family: 'Playfair Display', serif;
+            /* Tipografía elegante */
+        }
+
+        /* Celdas del cuerpo */
+        .table tbody td {
+            background-color: #1a1a1a !important;
+            /* Fondo oscuro */
+            color: #ccc !important;
+            /* Texto legible */
+            vertical-align: middle;
+            /* Centrado vertical */
+        }
+
+        /* Efecto Cebra (Filas alternas) */
+        .table-striped>tbody>tr:nth-of-type(odd)>* {
+            background-color: #222 !important;
+            /* Un poco más claro que el fondo */
+            color: #e0e0e0 !important;
+        }
+
+        /* Efecto Hover (Al pasar el mouse) */
+        .table-hover>tbody>tr:hover>* {
+            background-color: #333 !important;
+            /* Resaltado suave */
+            color: #fff !important;
+            /* Texto blanco brillante */
+        }
+
+        /* 4. IDs y Enlaces (Esos textos rosas/rojos) */
+        .table td a,
+        .table td code {
+            color: #d4af37 !important;
+            /* Cambiar rosa por dorado */
+            font-weight: bold;
+            text-decoration: none;
+            background: transparent !important;
+        }
+
+        /* 5. Botones de Acción (El lápiz azul) */
+        .btn-outline-primary {
+            color: #c5a059;
+            border-color: #c5a059;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #c5a059;
+            color: #000;
+            border-color: #c5a059;
+        }
+
+        /* Ajuste para textos generales en el dashboard */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #f4f0e8;
+            /* Texto claro para títulos fuera de las tarjetas */
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        section,
+        .row {
+            scroll-margin-top: 100px;
+            /* Para que el menú de arriba no tape el título */
+        }
     </style>
 </head>
+
 <body class="site-container">
 
-    <header id="main-header" class="fixed-top" style="z-index: 1030;"> 
+    <header id="main-header" class="fixed-top" style="z-index: 1030;">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                    <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" width="50" height="50" class="d-inline-block align-text-top">
+                    <img src="{% static 'core/img/logo-steakhouse.png' %}" alt="Logo" width="50" height="50"
+                        class="d-inline-block align-text-top">
                     <span class="navbar-brand-text ms-2">THE STEAKHOUSE</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="mainNavbar">
@@ -95,46 +352,57 @@
                             <a class="nav-link" href="{% url 'home' %}">Ver Sitio Público</a>
                         </li>
                         {% if user.is_authenticated %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    
-                                    {% if user.cliente.foto_perfil %}
-                                        <img src="{{ user.cliente.foto_perfil.url }}" alt="Foto de perfil" class="profile-pic-nav">
-                                    {% else %}
-                                        <i class="fa fa-user me-2" style="font-size: 1.2rem;"></i>
-                                    {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
 
-                                    Hola, {{ user.username }}
-                                    
-                                    {% with user.groups.first as group %}
-                                        {% if user.is_superuser %}
-                                            <span class="badge-rol badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill ms-2">Admin</span>
-                                        {% elif group.name == 'Cajero' %}
-                                            <span class="badge-rol badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill ms-2">Cajero</span>
-                                        {% elif group.name == 'Mesero' %}
-                                            <span class="badge-rol badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill ms-2">Mesero</span>
-                                        {% elif user.is_staff %}
-                                            <span class="badge-rol badge bg-secondary-emphasis text-secondary-emphasis border border-secondary-subtle rounded-pill ms-2">Staff</span>
-                                        {% endif %}
-                                    {% endwith %}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
-                                    {% if user.is_staff %}
-                                    <li><a class="dropdown-item active" href="{% url 'dashboard_home' %}">Panel de Admin</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    {% endif %}
-                                    <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form action="{% url 'logout' %}" method="POST" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="fa fa-sign-out-alt me-1"></i> Salir
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
+                                {% if user.cliente.foto_perfil %}
+                                <img src="{{ user.cliente.foto_perfil.url }}" alt="Foto de perfil"
+                                    class="profile-pic-nav">
+                                {% else %}
+                                <i class="fa fa-user me-2" style="font-size: 1.2rem;"></i>
+                                {% endif %}
+
+                                Hola, {{ user.username }}
+
+                                {% with user.groups.first as group %}
+                                {% if user.is_superuser %}
+                                <span
+                                    class="badge-rol badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill ms-2">Admin</span>
+                                {% elif group.name == 'Cajero' %}
+                                <span
+                                    class="badge-rol badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill ms-2">Cajero</span>
+                                {% elif group.name == 'Mesero' %}
+                                <span
+                                    class="badge-rol badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill ms-2">Mesero</span>
+                                {% elif user.is_staff %}
+                                <span
+                                    class="badge-rol badge bg-secondary-emphasis text-secondary-emphasis border border-secondary-subtle rounded-pill ms-2">Staff</span>
+                                {% endif %}
+                                {% endwith %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                {% if user.is_staff %}
+                                <li><a class="dropdown-item active" href="{% url 'dashboard_home' %}">Panel de Admin</a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'perfil' %}">Mi Perfil</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fa fa-sign-out-alt me-1"></i> Salir
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
                         {% endif %}
                     </ul>
                 </div>
@@ -147,17 +415,19 @@
             <h3 class="fs-5 text-center mb-4" style="font-family: 'Playfair Display', serif; color: #c89b3f;">
                 Panel de Administración
             </h3>
-            
+
             <ul class="nav flex-column mb-auto">
-                
+
                 {% if user.is_staff %}
                 <li class="nav-item">
-                    <a class="nav-link {% if 'reserva' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reservas' %}">
+                    <a class="nav-link {% if 'reserva' in request.resolver_match.url_name %}active{% endif %}"
+                        href="{% url 'dashboard_reservas' %}">
                         <i class="fa fa-calendar-alt"></i> Reservas
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_pedidos' %}">
+                    <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}"
+                        href="{% url 'dashboard_pedidos' %}">
                         <i class="fa fa-receipt"></i> Pedidos
                     </a>
                 </li>
@@ -165,50 +435,81 @@
 
                 {% if user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_productos' %}">
+                    <a class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}"
+                        href="{% url 'dashboard_productos' %}">
                         <i class="fa fa-utensils"></i> Productos
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'mesa' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_mesas' %}">
+                    <a class="nav-link {% if 'mesa' in request.resolver_match.url_name %}active{% endif %}"
+                        href="{% url 'dashboard_mesas' %}">
                         <i class="fa fa-chair"></i> Mesas
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'empleado' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_empleados' %}">
+                    <a class="nav-link {% if 'empleado' in request.resolver_match.url_name %}active{% endif %}"
+                        href="{% url 'dashboard_empleados' %}">
                         <i class="fa fa-user-shield"></i> Empleados
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_clientes' %}">
+                    <a class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}"
+                        href="{% url 'dashboard_clientes' %}">
                         <i class="fa fa-users"></i> Clientes
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'dashboard_reportes' %}">
-                        <i class="fa fa-chart-line"></i> Reportes
+                    <a class="nav-link d-flex justify-content-between align-items-center {% if 'reporte' in request.resolver_match.url_name %}active{% endif %}"
+                        data-bs-toggle="collapse" href="#reportesSubmenu" role="button" aria-expanded="false">
+                        <span><i class="fa fa-chart-line me-2"></i> Reportes</span>
+                        <i class="fa fa-chevron-down" style="font-size: 0.8em;"></i>
                     </a>
+                    <div class="collapse {% if 'reporte' in request.resolver_match.url_name %}show{% endif %}"
+                        id="reportesSubmenu">
+                        <ul class="nav flex-column ms-3 border-start border-secondary ps-2 mt-1">
+                            <li class="nav-item">
+                                <a class="nav-link py-1 text-light" href="{% url 'dashboard_reportes' %}#seccion-kpis"
+                                    style="font-size: 0.95rem;">
+                                    <i class="fa fa-money-bill-wave me-2 text-warning"></i> Ingresos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-1 text-light"
+                                    href="{% url 'dashboard_reportes' %}#seccion-graficos" style="font-size: 0.95rem;">
+                                    <i class="fa fa-chart-pie me-2 text-info"></i> Gráficas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link py-1 text-light" href="{% url 'dashboard_reportes' %}#seccion-ventas"
+                                    style="font-size: 0.95rem;">
+                                    <i class="fa fa-list me-2 text-success"></i> Últimas Ventas
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 {% endif %}
             </ul>
-            </div>
+        </div>
 
         <main class="content">
             {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show"
+                role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
             {% endif %}
-            
+
             {% block content %}{% endblock %}
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

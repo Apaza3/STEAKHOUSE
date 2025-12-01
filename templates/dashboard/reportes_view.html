@@ -2,94 +2,116 @@
 {% load humanize %}
 
 {% block content %}
-<h1 class="fs-2 mb-4">Reportes Generales</h1>
+<h1 class="fs-2 mb-4" style="color: #f4f0e8;">Reportes Generales</h1>
 
-<div class="card shadow-sm mb-4 border-left-danger">
+<div class="card shadow-sm mb-4 border-left-danger" style="background-color: #1a1a1a; border: 1px solid #333;">
     <div class="card-header bg-secondary text-white">
         <h5 class="mb-0">Opciones de Reporte</h5>
     </div>
     <div class="card-body">
-        <form method="GET" action="{% url 'dashboard_reportes' %}" class="row align-items-end">
-            
-            <div class="col-md-5">
-                <label for="categoria" class="form-label fw-bold">Filtrar por Categoría:</label>
-                <select name="categoria" class="form-select" onchange="this.form.submit()">
-    <option value="">-- Ver Todas las Ventas --</option>
-    
-    {% for clave, nombre in lista_categorias %}
-        <option value="{{ clave }}" {% if categoria_seleccionada == clave %}selected{% endif %}>
-            {{ nombre }}
-        </option>
-    {% endfor %}
-    
-</select>
+        <form method="GET" action="{% url 'dashboard_reportes' %}" class="row g-3 align-items-end">
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold" style="color: #c5a059;">Categoría:</label>
+                <select name="categoria" class="form-select"
+                    style="background-color: #2a2a2a; color: #fff; border: 1px solid #c5a059;">
+                    <option value="">-- Todas --</option>
+                    {% for clave, nombre in lista_categorias %}
+                    <option value="{{ clave }}" {% if categoria_seleccionada == clave %}selected{% endif %}>
+                        {{ nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
 
-            <div class="col-md-7 text-end">
-                <a href="{% url 'reporte_pdf' %}?categoria={{ categoria_seleccionada|default:'' }}" target="_blank" class="btn btn-danger btn-lg">
-                    <i class="fas fa-file-pdf"></i> Descargar Reporte PDF
+            <div class="col-md-3">
+                <label class="form-label fw-bold" style="color: #c5a059;">Desde:</label>
+                <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio|default:'' }}"
+                    style="background-color: #2a2a2a; color: #fff; border: 1px solid #c5a059;">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold" style="color: #c5a059;">Hasta:</label>
+                <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin|default:'' }}"
+                    style="background-color: #2a2a2a; color: #fff; border: 1px solid #c5a059;">
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100"
+                    style="background-color: #c5a059; border:none; color: #1a1a1a; font-weight: bold;">
+                    <i class="fa fa-filter"></i> Filtrar
+                </button>
+
+                <a href="{% url 'reporte_pdf' %}?categoria={{ categoria_seleccionada|default:'' }}&fecha_inicio={{ fecha_inicio|default:'' }}&fecha_fin={{ fecha_fin|default:'' }}"
+                    target="_blank" class="btn btn-danger w-100 fw-bold">
+                    <i class="fas fa-file-pdf"></i> PDF
                 </a>
             </div>
-            
+
         </form>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-4">
-        <div class="card text-bg-success shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Ingresos por Ventas</h5>
-                <p class="card-text fs-2 fw-bold">{{ total_ventas|floatformat:2|intcomma }} Bs.</p>
-                <small>{{ num_ventas }} pedidos completados</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-bg-primary shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Ingresos por Reservas</h5>
-                <p class="card-text fs-2 fw-bold">{{ total_reservas|floatformat:2|intcomma }} Bs.</p>
-                <small>{{ num_reservas }} reservas pagadas</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-bg-warning text-dark shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Ingresos Totales</h5>
-                <p class="card-text fs-2 fw-bold">{{ total_ventas|add:total_reservas|floatformat:2|intcomma }} Bs.</p>
-                <small>Ventas + Reservas</small>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mt-4">
+<div class="row" id="seccion-kpis">
+    <div class="col-md-4">
+        <div class="card text-bg-success shadow-sm mb-3 border-0">
+            <div class="card-body">
+                <h5 class="card-title text-white-50">Ingresos por Ventas</h5>
+                <p class="card-text fs-2 fw-bold">{{ total_ventas|floatformat:2|intcomma }} Bs.</p>
+                <small class="text-white-50">{{ num_ventas }} pedidos completados</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-primary shadow-sm mb-3 border-0">
+            <div class="card-body">
+                <h5 class="card-title text-white-50">Ingresos por Reservas</h5>
+                <p class="card-text fs-2 fw-bold">{{ total_reservas|floatformat:2|intcomma }} Bs.</p>
+                <small class="text-white-50">{{ num_reservas }} reservas pagadas</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3 border-0" style="background-color: #313130 !important;">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #ebe9e9; font-weight: 800;">Ingresos Totales</h5>
+                
+                <p class="card-text fs-2 fw-bold" style="color: #e0dbdb;">
+                    {{ total_ventas|add:total_reservas|floatformat:2|intcomma }} Bs.
+                </p>
+                
+                <small style="color: #e0dbdb; font-weight: 600;">Ventas + Reservas</small>
+            </div>
+        </div>
+    </div>
+
+<div class="row mt-4" id="seccion-graficos">
     <div class="col-lg-5 mb-4">
         <div class="card shadow-sm h-100">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Top 5 Platos Más Vendidos</h5>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #3d2422;">
+            <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #2a2a2a;">
                 {% if platos_data == '[]' %}
-                    <p class="text-muted">No hay datos de ventas para mostrar.</p>
+                <p class="text-muted">No hay datos de ventas para mostrar.</p>
                 {% else %}
-                    <canvas id="platosChart"></canvas>
+                <canvas id="platosChart"></canvas>
                 {% endif %}
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 mb-4">
         <div class="card shadow-sm h-100">
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Popularidad de Mesas</h5>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #3d2422;">
+            <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #2a2a2a;">
                 {% if tipos_data == '[]' %}
-                    <p class="text-muted">No hay reservas para mostrar.</p>
+                <p class="text-muted">No hay reservas para mostrar.</p>
                 {% else %}
-                    <canvas id="tiposChart"></canvas>
+                <canvas id="tiposChart"></canvas>
                 {% endif %}
             </div>
         </div>
@@ -100,11 +122,11 @@
             <div class="card-header card-header-gold">
                 <h5 class="mb-0">Tamaño de Grupos (Reservas)</h5>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #3d2422;">
+            <div class="card-body d-flex align-items-center justify-content-center" style="background-color: #2a2a2a;">
                 {% if tamanos_data == '[]' %}
-                    <p class="text-muted">No hay reservas para mostrar.</p>
+                <p class="text-muted">No hay reservas para mostrar.</p>
                 {% else %}
-                    <canvas id="tamanosChart"></canvas>
+                <canvas id="tamanosChart"></canvas>
                 {% endif %}
             </div>
         </div>
@@ -112,7 +134,7 @@
 </div>
 
 
-<div class="row mt-4">
+<div class="row mt-4" id="seccion-ventas">
     <div class="col-lg-6">
         <div class="card shadow-sm">
             <div class="card-header card-header-gold">
@@ -120,26 +142,27 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>ID Pedido</th>
                                 <th>Cliente</th>
                                 <th>Fecha</th>
-                                <th>Total</th>
+                                <th class="text-end">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for v in ventas %}
                             <tr>
-                                <td><a href="{% url 'pedido_detail' v.pk %}">#{{ v.id }}</a></td>
+                                <td class="fw-bold" style="color: #c5a059;">#{{ v.id }}</td>
                                 <td>{{ v.cliente.nombre|default:v.usuario.username }}</td>
                                 <td>{{ v.fecha_pedido|date:"d/m/Y" }}</td>
-                                <td class="text-end"><strong>{{ v.total|floatformat:2 }} Bs.</strong></td>
+                                <td class="text-end fw-bold">{{ v.total|floatformat:2 }} Bs.</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No hay ventas registradas con este criterio.</td>
+                                <td colspan="4" class="text-center py-3 text-muted">No hay ventas registradas con este
+                                    criterio.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -156,26 +179,26 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>ID Reserva</th>
                                 <th>Cliente</th>
                                 <th>Fecha</th>
-                                <th>Monto</th>
+                                <th class="text-end">Monto</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for r in reservas %}
                             <tr>
-                                <td><code>{{ r.id|slice:":8" }}...</code></td>
+                                <td class="fw-bold" style="color: #c5a059;">{{ r.id|slice:":8" }}...</td>
                                 <td>{{ r.cliente.nombre }}</td>
                                 <td>{{ r.fecha_reserva|date:"d/m/Y" }}</td>
-                                <td class="text-end"><strong>{{ r.monto_pagado|floatformat:2 }} Bs.</strong></td>
+                                <td class="text-end fw-bold">{{ r.monto_pagado|floatformat:2 }} Bs.</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No hay reservas pagadas.</td>
+                                <td colspan="4" class="text-center py-3 text-muted">No hay reservas pagadas.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -191,85 +214,85 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-    // Configuración global para que los gráficos se vean bien en modo oscuro
+    // Configuración global para modo oscuro
     Chart.defaults.color = '#e0e0e0';
     Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
-    // --- Gráfico 1: Platos Más Vendidos ---
-    const platosData = {{ platos_data|safe }};
+    // --- Gráfico 1: Platos Más Vendidos (Colores Premium) ---
+    const platosData = {{ platos_data| safe }};
     if (platosData.length > 0) {
         const ctxPlatos = document.getElementById('platosChart');
         new Chart(ctxPlatos, {
             type: 'bar',
             data: {
-                labels: {{ platos_labels|safe }},
-                datasets: [{
-                    label: 'Cantidad Vendida',
-                    data: platosData,
-                    backgroundColor: [
-                        'rgba(239, 68, 68, 0.7)',
-                        'rgba(245, 158, 11, 0.7)',
-                        'rgba(234, 179, 8, 0.7)',
-                        'rgba(163, 163, 163, 0.7)',
-                        'rgba(107, 114, 128, 0.7)'
-                    ],
-                    borderColor: [
-                        '#ef4444',
-                        '#f59e0b',
-                        '#eab308',
-                        '#a3a3a3',
-                        '#6b7280'
-                    ],
-                    borderWidth: 1
-                }]
+                labels: {{ platos_labels| safe }},
+    datasets: [{
+        label: 'Cantidad Vendida',
+        data: platosData,
+        backgroundColor: [
+            '#c5a059', // Dorado Principal
+            '#8b0000', // Rojo Carne
+            '#d4af37', // Oro
+            '#5d4037', // Café
+            '#ffecb3'  // Crema
+        ],
+        borderColor: '#1a1a1a',
+        borderWidth: 1
+    }]
             },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
+    options: {
+        indexAxis: 'y',
+            responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { x: { beginAtZero: true } }
-            }
+                    plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true } }
+    }
         });
     }
 
-    // --- Gráfico 2: Tipos de Mesa ---
-    const tiposData = {{ tipos_data|safe }};
+    // --- Gráfico 2: Tipos de Mesa (Dorado y Café) ---
+    const tiposData = {{ tipos_data| safe }};
     if (tiposData.length > 0) {
         const ctxTipos = document.getElementById('tiposChart');
         new Chart(ctxTipos, {
             type: 'doughnut',
             data: {
-                labels: {{ tipos_labels|safe }},
-                datasets: [{
-                    label: 'Reservas',
-                    data: tiposData,
-                    backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)'],
-                }]
+                labels: {{ tipos_labels| safe }},
+    datasets: [{
+        label: 'Reservas',
+        data: tiposData,
+        backgroundColor: ['#c5a059', '#3e2723'], // Dorado y Café muy oscuro
+        borderColor: '#1a1a1a',
+    }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+    options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
-    // --- Gráfico 3: Tamaño de Grupos ---
-    const tamanosData = {{ tamanos_data|safe }};
+    // --- Gráfico 3: Tamaño de Grupos (Escala de Dorados) ---
+    const tamanosData = {{ tamanos_data| safe }};
     if (tamanosData.length > 0) {
         const ctxTamanos = document.getElementById('tamanosChart');
         new Chart(ctxTamanos, {
             type: 'pie',
             data: {
-                labels: {{ tamanos_labels|safe }},
-                datasets: [{
-                    label: 'Nº de Reservas',
-                    data: tamanosData,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)', 'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                    ],
-                }]
+                labels: {{ tamanos_labels| safe }},
+    datasets: [{
+        label: 'Nº de Reservas',
+        data: tamanosData,
+        backgroundColor: [
+            '#4fc3f7', // Azul claro brillante
+            '#9575cd', // Violeta medio
+            '#f06292', // Rosa intenso
+            '#ff8a65', // Naranja coral
+            '#4db6ac', // Verde azulado (Teal)
+            '#a1887f', // Marrón claro
+            '#90a4ae', // Gris azulado
+        ],
+        borderColor: '#1a1a1a',
+    }]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+    options: { responsive: true, maintainAspectRatio: false }
         });
     }
 </script>

@@ -28,69 +28,81 @@
                         <td><strong>#{{ p.id }}</strong></td>
                         <td>
                             {% if p.cliente %}
-                                {{ p.cliente.nombre }} {{ p.cliente.apellido }}
+                            {{ p.cliente.nombre }} {{ p.cliente.apellido }}
                             {% else %}
-                                {{ p.usuario.username }} (Admin)
+                            {{ p.usuario.username }} (Admin)
                             {% endif %}
                         </td>
                         <td>{{ p.fecha_pedido|date:"d/m/Y H:i" }}</td>
                         <td>
                             {% if p.estado_pedido == 'PENDIENTE' %}
-                                <span class="badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
+                            <span
+                                class="badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill">{{
+                                p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'EN_PREPARACION' %}
-                                <span class="badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
+                            <span
+                                class="badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill">{{
+                                p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'LISTO' %}
-                                <span class="badge bg-primary-emphasis text-primary-emphasis border border-primary-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
+                            <span
+                                class="badge bg-primary-emphasis text-primary-emphasis border border-primary-subtle rounded-pill">{{
+                                p.get_estado_pedido_display }}</span>
                             {% elif p.estado_pedido == 'ENTREGADO' %}
-                                <span class="badge bg-success-emphasis text-success-emphasis border border-success-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
+                            <span class="badge badge-status-delivered rounded-pill px-3 py-2">
+                                <i class="fa fa-check-circle me-1"></i> {{ p.get_estado_pedido_display }}
+                            </span>
                             {% elif p.estado_pedido == 'CANCELADO' %}
-                                <span class="badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill">{{ p.get_estado_pedido_display }}</span>
+                            <span
+                                class="badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill">{{
+                                p.get_estado_pedido_display }}</span>
                             {% endif %}
                         </td>
                         <td>{{ p.total|floatformat:2 }}</td>
                         <td>
-                            <a href="{% url 'pedido_detail' p.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                            <a href="{% url 'pedido_detail' p.pk %}" class="btn btn-sm btn-outline-primary"
+                                title="Ver Detalle">
                                 <i class="fa fa-eye"></i>
                             </a>
 
                             {% if p.estado_pedido == 'PENDIENTE' %}
-                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="estado_pedido" value="EN_PREPARACION">
-                                    <input type="hidden" name="redirect_to" value="list">
-                                    <button type="submit" class="btn btn-sm btn-info" title="Marcar como 'En Preparación'">
-                                        <i class="fa fa-cogs"></i> Preparar
-                                    </button>
-                                </form>
+                            <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado_pedido" value="EN_PREPARACION">
+                                <input type="hidden" name="redirect_to" value="list">
+                                <button type="submit" class="btn btn-sm btn-info" title="Marcar como 'En Preparación'">
+                                    <i class="fa fa-cogs"></i> Preparar
+                                </button>
+                            </form>
                             {% elif p.estado_pedido == 'EN_PREPARACION' %}
-                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="estado_pedido" value="LISTO">
-                                    <input type="hidden" name="redirect_to" value="list">
-                                    <button type="submit" class="btn btn-sm btn-primary" title="Marcar como 'Listo para Servir'">
-                                        <i class="fa fa-bell"></i> Listo
-                                    </button>
-                                </form>
+                            <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado_pedido" value="LISTO">
+                                <input type="hidden" name="redirect_to" value="list">
+                                <button type="submit" class="btn btn-sm btn-primary"
+                                    title="Marcar como 'Listo para Servir'">
+                                    <i class="fa fa-bell"></i> Listo
+                                </button>
+                            </form>
                             {% elif p.estado_pedido == 'LISTO' %}
-                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="estado_pedido" value="ENTREGADO">
-                                    <input type="hidden" name="redirect_to" value="list">
-                                    <button type="submit" class="btn btn-sm btn-success" title="Marcar como 'Entregado'">
-                                        <i class="fa fa-check"></i> Entregar
-                                    </button>
-                                </form>
+                            <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado_pedido" value="ENTREGADO">
+                                <input type="hidden" name="redirect_to" value="list">
+                                <button type="submit" class="btn btn-sm btn-success" title="Marcar como 'Entregado'">
+                                    <i class="fa fa-check"></i> Entregar
+                                </button>
+                            </form>
                             {% endif %}
 
                             {% if p.estado_pedido != 'ENTREGADO' and p.estado_pedido != 'CANCELADO' %}
-                                <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="estado_pedido" value="CANCELADO">
-                                    <input type="hidden" name="redirect_to" value="list">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar Pedido">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                </form>
+                            <form action="{% url 'pedido_detail' p.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="estado_pedido" value="CANCELADO">
+                                <input type="hidden" name="redirect_to" value="list">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar Pedido">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </form>
                             {% endif %}
                         </td>
                     </tr>

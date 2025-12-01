@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from clientes.models import Cliente
 from core.models import Mesa
+from django.utils.dateparse import parse_date
 from productos.models import Producto
 from productos.forms import ProductoForm
 from .forms import MesaForm, EmpleadoCreateForm
@@ -50,8 +51,25 @@ def dashboard_home(request):
 # ===============================================
 @admin_requerido
 def producto_list(request):
+    # 1. Obtener las categorías directamente del modelo para el menú desplegable
+    categorias_opciones = Producto.CATEGORIA_CHOICES
+    
+    # 2. Verificar si el usuario seleccionó alguna categoría
+    filtro_categoria = request.GET.get('categoria')
+
+    # 3. Query base: Traer todos los productos
     productos = Producto.objects.all().order_by('nombre_producto')
-    return render(request, 'dashboard/producto_list.html', {'productos': productos})
+
+    # 4. Si hay filtro, aplicarlo
+    if filtro_categoria:
+        productos = productos.filter(categoria=filtro_categoria)
+
+    context = {
+        'productos': productos,
+        'categorias_opciones': categorias_opciones, # Enviamos las opciones al template
+        'filtro_actual': filtro_categoria           # Para recordar qué se seleccionó
+    }
+    return render(request, 'dashboard/producto_list.html', context)
 
 @admin_requerido
 def producto_create(request):
@@ -90,11 +108,30 @@ def producto_delete(request, pk):
 # ===============================================
 # VISTAS DE MESAS
 # ===============================================
+# Asegúrate de tener importado el modelo Mesa arriba
+# from core.models import Mesa
+
 @admin_requerido
 def mesa_list(request):
-    mesas = Mesa.objects.all().order_by('numero')
-    return render(request, 'dashboard/mesa_list.html', {'mesas': mesas})
+    # 1. Obtenemos las opciones directamente del modelo (Tuplas: 'NORMAL', 'Normal'...)
+    tipos_opciones = Mesa.TIPO_CHOICES 
+    
+    # 2. Capturar filtro
+    filtro_tipo = request.GET.get('tipo')
 
+    # 3. Query Base
+    mesas = Mesa.objects.all().order_by('numero')
+
+    # 4. Aplicar filtro usando el campo 'tipo'
+    if filtro_tipo:
+        mesas = mesas.filter(tipo=filtro_tipo)
+
+    context = {
+        'mesas': mesas,
+        'tipos_opciones': tipos_opciones, 
+        'filtro_actual': filtro_tipo
+    }
+    return render(request, 'dashboard/mesa_list.html', context)
 @admin_requerido
 def mesa_create(request):
     if request.method == 'POST':
@@ -215,59 +252,59 @@ def reserva_list(request):
 # ===============================================
 @admin_requerido
 def reportes_view(request):
-    
-    # 1. Usamos las opciones DIRECTO del modelo
+    # 1. Filtro por Categoría
     lista_categorias = Producto.CATEGORIA_CHOICES
-    
     categoria_key = request.GET.get('categoria')
+
+    # 2. Filtro por Fechas (NUEVO)
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
 
     # Query Base
     ventas = Pedido.objects.filter(estado_pedido='ENTREGADO').order_by('-fecha_pedido')
 
-    # --- LÓGICA DEL FILTRO ---
+    # Aplicar filtros
     if categoria_key:
-        # ¡CORRECCIÓN AQUÍ! Usamos 'detalles' en lugar de 'detallepedido'
         ventas = ventas.filter(detalles__producto__categoria=categoria_key).distinct()
+    
+    if fecha_inicio and fecha_fin:
+        # Filtramos por rango de fechas
+        ventas = ventas.filter(fecha_pedido__date__range=[fecha_inicio, fecha_fin])
+    elif fecha_inicio:
+        ventas = ventas.filter(fecha_pedido__date__gte=fecha_inicio)
 
-    # 2. KPIS GENERALES
-    ventas_totales_query = Pedido.objects.filter(estado_pedido='ENTREGADO')
-    total_ventas = ventas_totales_query.aggregate(Sum('total'))['total__sum'] or 0.00
-    num_ventas = ventas_totales_query.count()
+    # KPIs (Calculados sobre las ventas filtradas o totales, según prefieras)
+    # Aquí los dejaremos sobre el total para no confundir, o puedes usar 'ventas' para que sean dinámicos
+    total_ventas = ventas.aggregate(Sum('total'))['total__sum'] or 0.00
+    num_ventas = ventas.count()
     
     reservas_pagadas = Reserva.objects.filter(estado__in=['CONFIRMADA', 'COMPLETADA'])
     total_reservas = reservas_pagadas.aggregate(Sum('monto_pagado'))['monto_pagado__sum'] or 0.00
     num_reservas = reservas_pagadas.count()
 
-    # 3. DATOS GRÁFICOS (También corregimos aquí si usabas detallepedido, aunque parece que usas el modelo directo)
-    # Nota: Aquí usas DetallePedido.objects... eso está bien si importaste el modelo.
-    platos_vendidos = DetallePedido.objects.filter(pedido__estado_pedido='ENTREGADO') \
-        .values('producto__nombre_producto') \
-        .annotate(total_vendido=Sum('cantidad')) \
-        .order_by('-total_vendido')[:5]
+    # Gráficos (Usando datos generales para no romper la visualización si el filtro es muy estricto)
+    # ... (Tu código de gráficos se mantiene igual) ...
+    # (Pego solo la parte necesaria para el context para ahorrar espacio)
+    
+    # ... (Lógica de gráficos existente) ...
+    platos_vendidos = DetallePedido.objects.filter(pedido__estado_pedido='ENTREGADO').values('producto__nombre_producto').annotate(total_vendido=Sum('cantidad')).order_by('-total_vendido')[:5]
     platos_labels = [item['producto__nombre_producto'] for item in platos_vendidos]
     platos_data = [item['total_vendido'] for item in platos_vendidos]
-
-    tipos_mesa_pop = Reserva.objects \
-        .filter(estado__in=['CONFIRMADA', 'COMPLETADA'], mesa__isnull=False) \
-        .values('mesa__tipo') \
-        .annotate(conteo=Count('id')) \
-        .order_by('mesa__tipo')
+    
+    tipos_mesa_pop = Reserva.objects.filter(estado__in=['CONFIRMADA', 'COMPLETADA'], mesa__isnull=False).values('mesa__tipo').annotate(conteo=Count('id')).order_by('mesa__tipo')
     tipos_labels = [item['mesa__tipo'].capitalize() for item in tipos_mesa_pop]
     tipos_data = [item['conteo'] for item in tipos_mesa_pop]
 
-    tamanos_grupo = Reserva.objects \
-        .filter(estado__in=['CONFIRMADA', 'COMPLETADA']) \
-        .values('numero_personas') \
-        .annotate(conteo=Count('id')) \
-        .order_by('numero_personas')
+    tamanos_grupo = Reserva.objects.filter(estado__in=['CONFIRMADA', 'COMPLETADA']).values('numero_personas').annotate(conteo=Count('id')).order_by('numero_personas')
     tamanos_labels = [f"{item['numero_personas']} personas" for item in tamanos_grupo]
     tamanos_data = [item['conteo'] for item in tamanos_grupo]
 
-    # 4. CONTEXTO
     context = {
-        'lista_categorias': lista_categorias, 
-        'categoria_seleccionada': categoria_key, 
-        'ventas': ventas, 
+        'lista_categorias': lista_categorias,
+        'categoria_seleccionada': categoria_key,
+        'fecha_inicio': fecha_inicio, # Para que el input no se borre
+        'fecha_fin': fecha_fin,       # Para que el input no se borre
+        'ventas': ventas,
         'total_ventas': total_ventas,
         'num_ventas': num_ventas,
         'total_reservas': total_reservas,
@@ -283,28 +320,37 @@ def reportes_view(request):
     return render(request, 'dashboard/reportes_view.html', context)
 
 
-# ===============================================
-# VISTA PDF (CORREGIDA: 'detalles' en vez de 'detallepedido')
-# ===============================================
 @admin_requerido
 def generar_pdf_view(request):
+    # Recuperar filtros
     categoria_key = request.GET.get('categoria')
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
     
     ventas = Pedido.objects.filter(estado_pedido='ENTREGADO').order_by('-fecha_pedido')
     titulo_reporte = "Reporte General de Ventas"
+    subtitulo = "Histórico completo"
     
+    # Filtro Categoría
     if categoria_key:
-        # ¡CORRECCIÓN AQUÍ TAMBIÉN!
         ventas = ventas.filter(detalles__producto__categoria=categoria_key).distinct()
-        
         nombre_categoria = dict(Producto.CATEGORIA_CHOICES).get(categoria_key, categoria_key)
         titulo_reporte = f"Reporte de Ventas: {nombre_categoria}"
+
+    # Filtro Fechas
+    if fecha_inicio and fecha_fin:
+        ventas = ventas.filter(fecha_pedido__date__range=[fecha_inicio, fecha_fin])
+        subtitulo = f"Desde {fecha_inicio} hasta {fecha_fin}"
+    elif fecha_inicio:
+        ventas = ventas.filter(fecha_pedido__date__gte=fecha_inicio)
+        subtitulo = f"Desde {fecha_inicio}"
 
     total_dinero = ventas.aggregate(Sum('total'))['total__sum'] or 0.00
 
     context = {
         'ventas': ventas,
         'titulo_reporte': titulo_reporte,
+        'subtitulo': subtitulo, # Pasamos el rango de fechas al PDF
         'total_dinero': total_dinero,
         'fecha_emision': timezone.now(),
         'usuario': request.user

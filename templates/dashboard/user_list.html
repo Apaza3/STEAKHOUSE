@@ -3,9 +3,10 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="fs-2">Gestión de Empleados</h1>
-    
+
     {% if request.user.is_superuser %}
-    <a href="{% url 'empleado_create' %}" class="btn btn-primary" style="background-color: #c89b3f; border-color: #c89b3f;">
+    <a href="{% url 'empleado_create' %}" class="btn btn-primary"
+        style="background-color: #c89b3f; border-color: #c89b3f;">
         <i class="fa fa-plus me-2"></i> Añadir Empleado
     </a>
     {% endif %}
@@ -17,79 +18,62 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-dark table-striped table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th scope="col">Username</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Nombre Completo</th>
-                        <th scope="col">Rol</th>
-                        
-                        {% if request.user.is_superuser %}
-                        <th scope="col">Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in usuarios %}
-                    <tr>
-                        <td><strong>{{ u.username }}</strong></td>
-                        <td>{{ u.email }}</td>
-                        <td>
-                            {% if u.cliente %}
-                                {{ u.cliente.nombre }} {{ u.cliente.apellido }}
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">Username</th>
+                <th scope="col" class="text-center">Email</th>
+                <th scope="col" class="text-center">Nombre Completo</th>
+                <th scope="col" class="text-center">Rol</th>
+                <th scope="col" class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td class="text-center fw-bold">{{ u.username }}</td>
+                
+                <td class="text-center">{{ u.email|default:"-" }}</td>
+                
+                <td class="text-center">
+                    {% if u.get_full_name %}
+                        {{ u.get_full_name|title }}
+                    {% else %}
+                        <span class="text-muted fst-italic small">-- Sin nombre --</span>
+                    {% endif %}
+                </td>
+
+                <td class="text-center">
+                    {% if u.is_superuser %}
+                        <span class="badge badge-role-admin rounded-pill shadow-sm">
+                            <i class="fa fa-crown me-1"></i> Super Admin
+                        </span>
+                    {% else %}
+                        <span class="badge badge-role-staff rounded-pill shadow-sm">
+                            <i class="fa fa-user-tag me-1"></i> 
+                            {% if u.groups.exists %}
+                                {{ u.groups.first.name }}
                             {% else %}
-                                <span class="text-muted">N/A</span>
+                                Staff
                             {% endif %}
-                        </td>
-                        <td>
-                            {% with u.groups.first as group %}
-                                {% if u.is_superuser %}
-                                    <span class="badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill">Super Admin</span>
-                                {% elif group.name == 'Cajero' %}
-                                    <span class="badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill">Cajero</span>
-                                {% elif group.name == 'Mesero' %}
-                                    <span class="badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill">Mesero</span>
-                                {% elif u.is_staff %}
-                                    <span class="badge bg-secondary-emphasis text-secondary-emphasis border border-secondary-subtle rounded-pill">Staff</span>
-                                {% endif %}
-                            {% endwith %}
-                            </td>
-                        
-                        {% if request.user.is_superuser %}
-                        <td>
-                            {% if not u.is_superuser and u.id != request.user.id %}
-                                <form action="{% url 'user_toggle_staff' u.id %}" method="POST" style="display: inline-block;">
-                                    {% csrf_token %}
-                                    {% if u.is_staff %}
-                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Degradar a Cliente">
-                                            <i class="fa fa-user-times"></i>
-                                        </button>
-                                    {% else %}
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Promover a Admin">
-                                            <i class="fa fa-user-shield"></i>
-                                        </button>
-                                    {% endif %}
-                                </form>
-                                
-                                <form action="{% url 'user_delete' u.id %}" method="POST" style="display: inline-block;" onsubmit="return confirm('¿Seguro que quieres ELIMINAR a {{ u.username }}? Esta acción es permanente.');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Usuario">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </form>
-                            {% endif %}
-                        </td>
-                        {% endif %}
-                        </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center">No hay empleados registrados.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td class="text-center">
+                    <a href="{% url 'user_toggle_staff' u.id %}" class="btn btn-sm btn-action-gold mx-1" title="Cambiar permisos">
+                        <i class="fa fa-user-cog"></i>
+                    </a>
+                    <a href="{% url 'user_delete' u.id %}" class="btn btn-sm btn-action-danger mx-1" title="Eliminar usuario" 
+                       onclick="return confirm('¿Estás seguro de eliminar a este empleado?');">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
     </div>
 </div>
 {% endblock %}
