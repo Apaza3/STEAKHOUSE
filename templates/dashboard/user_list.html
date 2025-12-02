@@ -2,78 +2,95 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="fs-2">Gestión de Empleados</h1>
-
-    {% if request.user.is_superuser %}
-    <a href="{% url 'empleado_create' %}" class="btn btn-primary"
-        style="background-color: #c89b3f; border-color: #c89b3f;">
-        <i class="fa fa-plus me-2"></i> Añadir Empleado
+    <h1 class="fs-2" style="color: #f4f0e8;">Gestión de Empleados</h1>
+    <a href="{% url 'empleado_create' %}" class="btn btn-primary" style="background-color: #c5a059; border-color: #c5a059; color: #1a1a1a; font-weight: bold;">
+        <i class="fa fa-plus"></i> Añadir Empleado
     </a>
-    {% endif %}
 </div>
 
-<div class="card shadow-sm card-dark">
+<div class="card shadow-sm card-dark" style="background-color: #1a1a1a; border: 1px solid #333;">
     <div class="card-header card-header-gold">
-        <h5 class="mb-0">Personal (Admins/Staff)</h5>
+        <h5 class="mb-0">PERSONAL (ADMINS/STAFF)</h5>
     </div>
     <div class="card-body">
+        
         <div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead>
-            <tr>
-                <th scope="col" class="text-center">Username</th>
-                <th scope="col" class="text-center">Email</th>
-                <th scope="col" class="text-center">Nombre Completo</th>
-                <th scope="col" class="text-center">Rol</th>
-                <th scope="col" class="text-center">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for u in usuarios %}
-            <tr>
-                <td class="text-center fw-bold">{{ u.username }}</td>
-                
-                <td class="text-center">{{ u.email|default:"-" }}</td>
-                
-                <td class="text-center">
-                    {% if u.get_full_name %}
-                        {{ u.get_full_name|title }}
-                    {% else %}
-                        <span class="text-muted fst-italic small">-- Sin nombre --</span>
-                    {% endif %}
-                </td>
-
-                <td class="text-center">
-                    {% if u.is_superuser %}
-                        <span class="badge badge-role-admin rounded-pill shadow-sm">
-                            <i class="fa fa-crown me-1"></i> Super Admin
-                        </span>
-                    {% else %}
-                        <span class="badge badge-role-staff rounded-pill shadow-sm">
-                            <i class="fa fa-user-tag me-1"></i> 
-                            {% if u.groups.exists %}
-                                {{ u.groups.first.name }}
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center">Username</th>
+                        <th scope="col" class="text-center">Email</th>
+                        <th scope="col" class="text-center">Nombre Completo</th>
+                        <th scope="col" class="text-center">Rol</th>
+                        <th scope="col" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td class="text-center fw-bold" style="color: #c5a059;">
+                            {{ u.username }}
+                        </td>
+                        
+                        <td class="text-center" style="color: #e0e0e0;">
+                            {{ u.email|default:"-" }}
+                        </td>
+                        
+                        <td class="text-center" style="color: #e0e0e0;">
+                            {% if u.first_name or u.last_name %}
+                                <span class="fw-semibold">{{ u.first_name|title }} {{ u.last_name|title }}</span>
+                            
+                            {% elif u.cliente and u.cliente.nombre %}
+                                <span>{{ u.cliente.nombre|title }} {{ u.cliente.apellido|default:""|title }}</span>
+                                <br><small class="text-muted" style="font-size: 0.7em;">(Perfil Cliente)</small>
+                            
                             {% else %}
-                                Staff
+                                <span class="fst-italic" style="color: #888;">
+                                    {{ u.username|title }}
+                                </span>
                             {% endif %}
-                        </span>
-                    {% endif %}
-                </td>
+                        </td>
 
-                <td class="text-center">
-                    <a href="{% url 'user_toggle_staff' u.id %}" class="btn btn-sm btn-action-gold mx-1" title="Cambiar permisos">
-                        <i class="fa fa-user-cog"></i>
-                    </a>
-                    <a href="{% url 'user_delete' u.id %}" class="btn btn-sm btn-action-danger mx-1" title="Eliminar usuario" 
-                       onclick="return confirm('¿Estás seguro de eliminar a este empleado?');">
-                        <i class="fa fa-trash"></i>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                        <td class="text-center">
+                            {% if u.is_superuser %}
+                                <span class="badge badge-role-admin rounded-pill shadow-sm">
+                                    <i class="fa fa-crown me-1"></i> Super Admin
+                                </span>
+                            {% else %}
+                                <span class="badge badge-role-staff rounded-pill shadow-sm">
+                                    <i class="fa fa-user-tag me-1"></i> 
+                                    {% if u.groups.exists %}
+                                        {{ u.groups.first.name }}
+                                    {% else %}
+                                        Staff
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            <a href="{% url 'user_toggle_staff' u.id %}" class="btn btn-sm btn-action-gold mx-1" title="Cambiar permisos">
+                                <i class="fa fa-user-cog"></i>
+                            </a>
+                            
+                            <a href="{% url 'user_delete' u.id %}" class="btn btn-sm btn-action-danger mx-1" title="Eliminar usuario" 
+                               onclick="return confirm('¿Estás seguro de eliminar a este empleado?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5" style="color: #aaa;">
+                            <i class="fa fa-users-slash fa-2x mb-2"></i><br>
+                            No hay empleados registrados aparte de ti.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </div>
 {% endblock %}

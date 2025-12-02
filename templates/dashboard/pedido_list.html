@@ -36,25 +36,29 @@
                         <td>{{ p.fecha_pedido|date:"d/m/Y H:i" }}</td>
                         <td>
                             {% if p.estado_pedido == 'PENDIENTE' %}
-                            <span
-                                class="badge bg-warning-emphasis text-warning-emphasis border border-warning-subtle rounded-pill">{{
-                                p.get_estado_pedido_display }}</span>
+                            <span class="badge badge-status-pending rounded-pill px-3 py-2">
+                                <i class="fa fa-clock me-1"></i> {{ p.get_estado_pedido_display }}
+                            </span>
+
                             {% elif p.estado_pedido == 'EN_PREPARACION' %}
-                            <span
-                                class="badge bg-info-emphasis text-info-emphasis border border-info-subtle rounded-pill">{{
-                                p.get_estado_pedido_display }}</span>
+                            <span class="badge badge-status-prep rounded-pill px-3 py-2">
+                                <i class="fa fa-fire me-1"></i> {{ p.get_estado_pedido_display }}
+                            </span>
+
                             {% elif p.estado_pedido == 'LISTO' %}
-                            <span
-                                class="badge bg-primary-emphasis text-primary-emphasis border border-primary-subtle rounded-pill">{{
-                                p.get_estado_pedido_display }}</span>
+                            <span class="badge badge-status-ready rounded-pill px-3 py-2">
+                                <i class="fa fa-bell me-1"></i> {{ p.get_estado_pedido_display }}
+                            </span>
+
                             {% elif p.estado_pedido == 'ENTREGADO' %}
                             <span class="badge badge-status-delivered rounded-pill px-3 py-2">
                                 <i class="fa fa-check-circle me-1"></i> {{ p.get_estado_pedido_display }}
                             </span>
+
                             {% elif p.estado_pedido == 'CANCELADO' %}
-                            <span
-                                class="badge bg-danger-emphasis text-danger-emphasis border border-danger-subtle rounded-pill">{{
-                                p.get_estado_pedido_display }}</span>
+                            <span class="badge badge-status-canceled rounded-pill px-3 py-2">
+                                <i class="fa fa-ban me-1"></i> {{ p.get_estado_pedido_display }}
+                            </span>
                             {% endif %}
                         </td>
                         <td>{{ p.total|floatformat:2 }}</td>

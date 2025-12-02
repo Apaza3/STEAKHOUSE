@@ -466,8 +466,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if(!fecha || !hora) return;
 
-        loading.style.display = 'block';
-        containerMesas.style.opacity = '0.5';
+        // --- NUEVA VALIDACIÓN: BLOQUEO DE FECHAS PASADAS ---
+        // Construimos la fecha seleccionada (formato ISO estándar para JS)
+        const fechaSeleccionada = new Date(`${fecha}T${hora}`);
+        const ahora = new Date();
+
+        // Comparamos. Si es menor a "ahora", es pasado.
+        if (fechaSeleccionada < ahora) {
+            alert("⚠️ No puedes reservar en una fecha u hora pasada. Por favor, selecciona un horario futuro.");
+            
+            // Reseteamos el input de la hora para obligar al usuario a cambiarla
+            timeInput.value = ''; 
+            
+            // Limpiamos el contenedor de mesas por seguridad visual
+            containerMesas.innerHTML = '<div class="col-12 text-center text-muted py-5" style="grid-column: 1 / -1;"><i class="fas fa-clock fa-3x mb-3 opacity-25"></i><p class="m-0">Selecciona una hora válida.</p></div>';
+            
+            return; // DETENEMOS LA EJECUCIÓN AQUÍ
+        }
+        // ---------------------------------------------------
 
         fetch(`/reservas/api/check-mesas/?fecha=${fecha}&hora=${hora}&duracion=${duracion}`)
             .then(response => response.json())
